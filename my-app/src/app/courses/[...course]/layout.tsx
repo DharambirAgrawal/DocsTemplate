@@ -1,5 +1,5 @@
 
-import { AppSidebar } from '@/app/courses/app-sidebar'
+import { AppSidebar } from '@/app/courses/AppSidebar'
 
 
 export const metadata = {

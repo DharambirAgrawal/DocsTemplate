@@ -9,7 +9,7 @@ const navItems = [
   {
     title: 'Getting Started',
     children: [
-      { title: 'Introduction', url: '/' },
+      { title: 'Introduction of the length of HTML', url: '/' },
       { title: 'Installation', url: '/getting-started' },
     ],
   },

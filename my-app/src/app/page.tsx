@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { PageNavigation } from '@/app/courses/page-navigation'
+import { PageNavigation } from '@/app/courses/PageNavigation'
 
 export const metadata: Metadata = {
   title: 'Introduction | Minimal Docs Site',
