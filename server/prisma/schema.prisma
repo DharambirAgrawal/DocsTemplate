@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String        @id @default(uuid()) @db.Uuid 
+  name                 String
+  email                String        @unique
+  password             String
+  title                String?
+  accountStatus        AccountStatus @default(PENDING)
+  role                 UserRole      @default(USER)
+  failedLoginAttempts  Int           @default(0)
+  image                String       @default("https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735494360/avatar-2388584_1920_ja1zf5.png")
+  lockoutUntil         DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  lastPasswordChange   DateTime?
+  jwtToken             String?
+  summary              String?
+  lastActiveAt         DateTime      @default(now())
+  posts                Post[]        @relation("UserPosts") // Relation name for the User's posts
+  @@map("users")
+}
+
+model Post {
+  id          String       @id @default(uuid()) @db.Uuid
+  title       String
+  views       Int          @default(0)
+  publishedAt DateTime?    @default(now())
+  timeRead    String?        
+  slug        String       @unique
+  content     String?
+  summary     String?      // Short summary of the post
+  imageUrl    String      @default("https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735494361/newspaper-412811_1920_m3lozc.jpg")
+  published   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt  
+  expiresAt   DateTime?
+  userId      String?      @db.Uuid // Make userId nullable
+  user        User?        @relation("UserPosts", fields: [userId], references: [id], onDelete: SetNull)
+
+  // SEO Metadata
+  metaTitle   String?      // Meta title for SEO
+  metaDesc    String?      // Meta description for SEO
+  metaKeywords String?     // Meta keywords for SEO
+  metaImage   String      @default("https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735494361/newspaper-412811_1920_m3lozc.jpg")// URL to an image for SEO sharing (og:image)
+  categories  Category[]   @relation("PostCategories")
+  tags        Tag[]        @relation("PostTags")
+
+  // Content Lifecycle
+  status      PostStatus   @default(DRAFT) // draft, published, archived
+
+  @@map("posts")
+  @@index([slug], name: "slug_idx") // Indexed for faster lookups
+  @@index([publishedAt], name: "published_at_idx") // To speed up queries based on publish date
+  @@index([status], name: "status_idx") // To speed up queries based on status (DRAFT, PUBLISHED, etc.)
+
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  posts     Post[]   @relation("PostCategories")
+  updatedAt DateTime @updatedAt @default(now())
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  posts     Post[]   @relation("PostTags")
+  updatedAt DateTime @updatedAt @default(now())
+  @@map("tags")
+}
+
+model Image{
+  id        String   @id @default(uuid()) @db.Uuid
+  url       String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  format    String
+  altText   String?
+  title     String?
+  description String?
+  tags      String[]
+  publicId  String   @unique
+  @@map("images")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+
+
+
+model Subscription {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  status    SubscriptionStatus @default(PENDING)
+  unsubscribeToken String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  INACTIVE
+  PENDING
+}
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+  PENDING
+  @@map("account_status")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  @@map("user_roles")
+}
