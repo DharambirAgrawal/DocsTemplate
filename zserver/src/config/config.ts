@@ -1,3 +1,7 @@
+
+import dotenv from "dotenv";
+dotenv.config();
+
 // Define types for the configuration objects
 interface CloudinaryConfig {
   cloud_name: string | undefined;
@@ -38,6 +42,10 @@ const configNodeMailer: NodemailerConfig = {
   },
 };
 
+const configMongoDB = {
+  uri: process.env.MONGO_URI,
+}
+
 // For Zoho in production environment, set Zoho's SMTP settings
 if (process.env.NODE_ENV === "production") {
   configNodeMailer.host = "smtp.zoho.com"; // Zoho SMTP server
@@ -45,4 +53,5 @@ if (process.env.NODE_ENV === "production") {
   configNodeMailer.secure = true; // Use secure connection for SSL (true for port 465)
 }
 
-export { configNodeMailer, configCloudinary };
+
+export { configNodeMailer, configCloudinary, configMongoDB };

@@ -33,9 +33,9 @@ process.on("unhandledRejection", (err: Error) => {
 });
 
 // Graceful shutdown when SIGTERM is received (e.g., when the app is terminated)
-process.on("SIGTERM", () => {
-  console.log("👋 SIGTERM RECEIVED. Shutting down gracefully");
-  server.close(() => {
-    console.log("💥 Process terminated!");
-  });
-});
+// process.on("SIGTERM", () => {
+//   console.log("👋 SIGTERM RECEIVED. Shutting down gracefully");
+//   server.close(() => {
+//     console.log("💥 Process terminated!");
+//   });
+// });
