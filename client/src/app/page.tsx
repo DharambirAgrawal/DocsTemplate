@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { PageNavigation } from '@/app/(courses)/courses/PageNavigation'
+import { PageNavigation } from '@/app/(courses)/components/PageNavigation'
 import DropdownDefaultTwo from '@/components/ui/Dropdowns/DropdownDefaultTwo'
 import DefaultSelectOption from '@/components/SelectOption/DefaultSelectOption'
 export const metadata: Metadata = {

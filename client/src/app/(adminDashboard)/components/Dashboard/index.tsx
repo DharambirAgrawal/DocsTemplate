@@ -6,7 +6,7 @@ import TableOne from "@/components/ui/Tables/TableOne";
 import DataStatsOne from "@/components/DataStats/DataStatsOne";
 import ChartOne from "@/components/Charts/ChartOne";
 
-const Home: React.FC = () => {
+const DashboardHome=()=> {
   return (
     <>
       <DataStatsOne />
@@ -23,4 +23,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default DashboardHome

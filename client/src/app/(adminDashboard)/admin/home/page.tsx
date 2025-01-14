@@ -1,4 +1,4 @@
-import Home from "../../components/Dashboard/index"
+import DashboardHome from "../../components/Dashboard";
 import { Metadata } from "next";
 import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 import React from "react";
@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <>
       <DefaultLayout>
-        <Home />
+       <DashboardHome />
       </DefaultLayout>
     </>
   );
