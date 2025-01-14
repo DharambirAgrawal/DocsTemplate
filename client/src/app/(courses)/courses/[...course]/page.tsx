@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { PageNavigation } from '@/app/(courses)/courses/PageNavigation'
-import DropdownDefaultTwo from '@/components/ui/Dropdowns/DropdownDefaultTwo'
-import DefaultSelectOption from '@/components/SelectOption/DefaultSelectOption'
+
 export const metadata: Metadata = {
   title: 'Introduction | Minimal Docs Site',
   description: 'Welcome to our minimal documentation site',
@@ -15,8 +14,6 @@ export default function Home() {
         This is a gorgeous minimal documentation site built with Next.js and
         Tailwind CSS.
       </p>
-      <DropdownDefaultTwo />
-      <DefaultSelectOption options={['Option 1', 'Option 2', 'Option 3']} />
       <h2 className="mb-4 mt-8 text-2xl font-semibold">Features</h2>
       <ul className="mb-4 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-300">
         <li>Clean and minimal design</li>
