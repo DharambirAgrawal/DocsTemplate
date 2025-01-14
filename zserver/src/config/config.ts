@@ -32,7 +32,7 @@ const configCloudinary: CloudinaryConfig = {
 
 // Nodemailer configuration object
 const configNodeMailer: NodemailerConfig = {
-  service: process.env.NODE_ENV === "production" ? "zoho" : "gmail", // Set service based on environment
+  service: process.env.NODE_ENV === "PRODUCTION" ? "zoho" : "gmail", // Set service based on environment
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
@@ -47,7 +47,7 @@ const configMongoDB = {
 }
 
 // For Zoho in production environment, set Zoho's SMTP settings
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "PRODUCTION") {
   configNodeMailer.host = "smtp.zoho.com"; // Zoho SMTP server
   configNodeMailer.port = 465; // Use SSL port for Zoho (use 587 for TLS if needed)
   configNodeMailer.secure = true; // Use secure connection for SSL (true for port 465)

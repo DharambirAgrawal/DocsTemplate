@@ -1,7 +1,7 @@
-import nodemailer, { SendMailOptions } from "nodemailer";
-import { AppError } from "../errors/AppError.js";
-import asyncHandler from "express-async-handler";
-import { configNodeMailer } from "../config/config.js";
+import nodemailer, { SendMailOptions, SentMessageInfo } from 'nodemailer';
+import { AppError } from '../errors/AppError';
+import { catchAsync } from '../errors/catchAsync';
+import { configNodeMailer } from '../config/config';
 
 // Define the transporter using the config
 const transporter = nodemailer.createTransport(configNodeMailer);
@@ -11,11 +11,20 @@ interface Message {
   subject: string;
   html: string;
 }
+interface SendEmailProps {
+  TO: string;
+  message: Message;
+}
 
-// Define the function that sends the email
-export const sendEmail = asyncHandler(async (TO: string, message: Message): Promise<void> => {
-  console.log(configNodeMailer);
 
+/**
+ * Sends an email with the provided message details.
+ * 
+ * @param {string} TO - The recipient email address.
+ * @param {Message} message - The message content (subject and HTML body).
+ * @returns {Promise<void>} - A promise that resolves when the email is successfully sent.
+ */
+export const sendEmail = async ({TO, message}:SendEmailProps): Promise<void> => {
   // Define the mail options using the SendMailOptions interface
   const mailOptions: SendMailOptions = {
     from: process.env.EMAIL_USER, // Sender address
@@ -26,13 +35,13 @@ export const sendEmail = asyncHandler(async (TO: string, message: Message): Prom
 
   // Send email and handle the promise
   await new Promise<void>((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error, info: SentMessageInfo) => {
       if (error) {
-        reject(new AppError("Error sending Email!", 500)); // Reject the promise with the error
+        reject(new AppError('Error sending Email!', 500)); // Reject the promise with the error
       } else {
-        console.log("Email sent: " + info.response);
+        console.log('Email sent: ' + info.response);
         resolve(); // Resolve the promise on success
       }
     });
   });
-});
+}
