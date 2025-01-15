@@ -1,7 +1,10 @@
-
+import Navigation from "@/components/Header"
 const CoursesPage = () => {
   return (
-    <div>CoursesPage</div>
+   <>
+   <Navigation />
+   <div>CoursesPage</div>
+   </>
   )
 }
 

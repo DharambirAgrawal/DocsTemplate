@@ -16,13 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-<body className={`${inter.className} antialiased`}>
-        {/* <div className="flex min-h-screen"> */}
-          {/* <AppSidebar /> */}
-          {/* <main className="flex-1 p-8 md:ml-64 transition-all duration-300 ease-in-out"> */} 
+        <body className={`${inter.className} antialiased`}>
             {children}
-          {/* </main> */}
-        {/* </div> */}
+          
        </body> 
     </html>
   )
