@@ -21,6 +21,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
+  image:string;
   password: string;
   accountStatus: AccountStatus;
   isEmailVerified: boolean;
@@ -38,9 +39,9 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>({
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, required: true, trim: true },
-
+  image:{type:String, trim:true},
   email: { type: String, required: true, unique: true,trim: true },
-  password: { type: String, required: true, trim: true },
+  password: { type: String, trim: true },
   accountStatus: { type: String, enum: AccountStatus, default: AccountStatus.pending },
   isEmailVerified: { type: Boolean, default: false },
   verificationToken: { type: String, default: null },
@@ -58,7 +59,7 @@ const userSchema = new Schema<IUser>({
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+  if (!this.isModified("password") || this.password === null) {
     return next();
   }
   this.password = await hashData(this.password);

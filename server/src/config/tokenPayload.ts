@@ -7,3 +7,11 @@ export const publicCookiePayload = {
 export const verifyEmailPayload = {
     type:"VERIFY_EMAIL",
 }
+
+export const refreshTokenPayload = {
+    type:"REFRESH_TOKEN",
+}
+
+export const accessTokenPayload = {
+    type:"ACCESS_TOKEN",
+}

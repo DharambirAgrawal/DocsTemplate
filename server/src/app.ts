@@ -2,7 +2,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import passport from "passport";
+import { passportInitialize } from "./services/passportService";
 import { Request, Response, NextFunction } from "express";
+import { passportMiddleware } from "./services/passportService";
 import jwt from "jsonwebtoken";
 import cookieSession from "cookie-session";
 dotenv.config();
@@ -24,10 +26,9 @@ app.use(
     keys: ["key1", "key2"],
     maxAge: 24 * 60 * 60 * 1000,
   })
-
 );
-app.use(passport.initialize());
-app.use(passport.session());
+passportInitialize(app);
+app.use(passportMiddleware);
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
@@ -50,7 +51,7 @@ app.get(
       // Send tokens as response
       res.cookie("refreshToken", req.user.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "PRODUCTION",
         sameSite: "Strict",
       });
   
