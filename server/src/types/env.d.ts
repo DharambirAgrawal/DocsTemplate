@@ -8,6 +8,8 @@ declare namespace NodeJS {
       MONGO_URI:string
       COOKIE_SECRET:string
       VERIFY_EMAIL_SECRET:string
+      GOOGLE_CLIENT_ID:string
+      GOOGLE_CLIENT_SECRET:string
     }
   }
   
