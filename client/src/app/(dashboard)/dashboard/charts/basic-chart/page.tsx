@@ -1,6 +1,6 @@
 import BasicChart from "@/components/Charts/BasicChart";
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
+import DefaultLayout from "@/app/(dashboard)/components/DefaultLayout";
 import React from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 

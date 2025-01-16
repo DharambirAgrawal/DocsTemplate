@@ -2,7 +2,7 @@ import Link from "next/link";
 import DarkModeSwitcher from "./DarkModeSwitcher";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
-import SearchForm from "@/app/(adminDashboard)/components/Header/SearchForm";
+import SearchForm from "@/app/(dashboard)/components/Header/SearchForm";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;

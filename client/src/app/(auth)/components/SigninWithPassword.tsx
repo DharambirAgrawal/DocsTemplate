@@ -8,7 +8,6 @@ export default function SigninWithPassword() {
   const [data, setData] = useState({
     remember: true,
   });
-  console.log(data)
   return (
     <form 
     action={async (formData) => {

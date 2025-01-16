@@ -1,6 +1,6 @@
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import { Metadata } from "next";
-import ProfileBox from "@/app/(adminDashboard)/components/ProfileBox";
+import ProfileBox from "@/app/(dashboard)/components/ProfileBox";
 
 export const metadata: Metadata = {
   title: "Next.js Profile Page | NextAdmin - Next.js Dashboard Kit",

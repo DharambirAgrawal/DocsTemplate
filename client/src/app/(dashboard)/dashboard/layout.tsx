@@ -1,5 +1,5 @@
 "use client";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
+import DefaultLayout from "@/app/(dashboard)/components/DefaultLayout";
 
 export default function RootLayout({
   children,

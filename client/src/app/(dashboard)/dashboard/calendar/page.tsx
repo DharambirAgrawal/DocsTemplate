@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import CalendarBox from "@/app/(adminDashboard)/components/CalenderBox";
+import CalendarBox from "@/app/(dashboard)/components/CalenderBox";
 
 export const metadata: Metadata = {
   title: "Next.js Calender Page | NextAdmin - Next.js Dashboard Kit",
