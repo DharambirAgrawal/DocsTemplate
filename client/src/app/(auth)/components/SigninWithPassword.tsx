@@ -1,18 +1,26 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { signinAction } from "../auth/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
 
 export default function SigninWithPassword() {
   const [data, setData] = useState({
-    remember: false,
+    remember: true,
   });
-
+  console.log(data)
   return (
-    <form>
+    <form 
+    action={async (formData) => {
+      const res= await signinAction(formData);
+      showToast("success","Signin Success");
+    }}
+    >
       <div className="mb-4">
         <label
           htmlFor="email"
           className="mb-2.5 block font-medium text-dark dark:text-white"
+          
         >
           Email
         </label>
@@ -20,6 +28,7 @@ export default function SigninWithPassword() {
           <input
             type="email"
             placeholder="Enter your email"
+            required={true}
             name="email"
             className="w-full rounded-lg border border-stroke bg-transparent py-[15px] pl-6 pr-11 font-medium text-dark outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
           />
@@ -55,6 +64,7 @@ export default function SigninWithPassword() {
           <input
             type="password"
             name="password"
+            required={true}
             placeholder="Enter your password"
             autoComplete="password"
             className="w-full rounded-lg border border-stroke bg-transparent py-[15px] pl-6 pr-11 font-medium text-dark outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
@@ -94,6 +104,7 @@ export default function SigninWithPassword() {
           <input
             type="checkbox"
             name="remember"
+            value="checked"
             id="remember"
             className="peer sr-only"
           />

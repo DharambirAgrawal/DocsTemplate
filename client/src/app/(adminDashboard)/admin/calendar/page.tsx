@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
-import Breadcrumb from "@/components/ui/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import CalendarBox from "@/app/(adminDashboard)/components/CalenderBox";
 
 export const metadata: Metadata = {
@@ -12,13 +11,13 @@ export const metadata: Metadata = {
 
 const CalendarPage = () => {
   return (
-    <DefaultLayout>
+
       <div className="mx-auto max-w-7xl">
         <Breadcrumb pageName="Calendar" />
 
         <CalendarBox />
       </div>
-    </DefaultLayout>
+
   );
 };
 

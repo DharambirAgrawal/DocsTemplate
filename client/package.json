@@ -16,6 +16,7 @@
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.0.0",
+    "react-toastify": "^11.0.3",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
@@ -23,6 +24,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-toastify": "^4.0.2",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "postcss": "^8",

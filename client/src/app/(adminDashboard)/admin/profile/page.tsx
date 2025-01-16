@@ -1,6 +1,5 @@
-import Breadcrumb from "@/components/ui/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 import ProfileBox from "@/app/(adminDashboard)/components/ProfileBox";
 
 export const metadata: Metadata = {
@@ -10,13 +9,13 @@ export const metadata: Metadata = {
 
 const Profile = () => {
   return (
-    <DefaultLayout>
+
       <div className="mx-auto w-full max-w-[970px]">
         <Breadcrumb pageName="Profile" />
 
         <ProfileBox />
       </div>
-    </DefaultLayout>
+ 
   );
 };
 

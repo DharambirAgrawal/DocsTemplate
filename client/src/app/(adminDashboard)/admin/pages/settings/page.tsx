@@ -1,7 +1,6 @@
-import Breadcrumb from "@/components/ui/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 import SettingBoxes from "@/app/(adminDashboard)/components/Setting";
 
 export const metadata: Metadata = {
@@ -11,13 +10,13 @@ export const metadata: Metadata = {
 
 const Settings = () => {
   return (
-    <DefaultLayout>
+ 
       <div className="mx-auto w-full max-w-[1080px]">
         <Breadcrumb pageName="Settings" />
 
         <SettingBoxes />
       </div>
-    </DefaultLayout>
+   
   );
 };
 

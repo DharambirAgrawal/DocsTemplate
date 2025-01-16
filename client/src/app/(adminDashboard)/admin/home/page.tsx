@@ -1,6 +1,5 @@
 import DashboardHome from "../../components/Dashboard";
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 import React from "react";
 
 export const metadata: Metadata = {
@@ -12,9 +11,9 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <DefaultLayout>
+   
        <DashboardHome />
-      </DefaultLayout>
+    
     </>
   );
 }

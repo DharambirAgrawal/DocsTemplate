@@ -1,10 +1,9 @@
-import Breadcrumb from "@/components/ui/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import TableOne from "@/components/ui/Tables/TableOne";
 import TableThree from "@/components/ui/Tables/TableThree";
 import TableTwo from "@/components/ui/Tables/TableTwo";
 
 import { Metadata } from "next";
-import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 
 export const metadata: Metadata = {
   title: "Next.js Tables Page | NextAdmin - Next.js Dashboard Kit",
@@ -13,15 +12,16 @@ export const metadata: Metadata = {
 
 const TablesPage = () => {
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Tables" />
+<>
+<Breadcrumb pageName="Tables" />
 
-      <div className="flex flex-col gap-10">
-        <TableOne />
-        <TableTwo />
-        <TableThree />
-      </div>
-    </DefaultLayout>
+<div className="flex flex-col gap-10">
+<TableOne />
+<TableTwo />
+<TableThree />
+</div>
+</>
+
   );
 };
 

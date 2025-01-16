@@ -2,7 +2,7 @@ import BasicChart from "@/components/Charts/BasicChart";
 import { Metadata } from "next";
 import DefaultLayout from "@/app/(adminDashboard)/components/DefaultLayout";
 import React from "react";
-import Breadcrumb from "@/components/ui/Breadcrumbs/Breadcrumb";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "Next.js Basic Chart Page | NextAdmin - Next.js Dashboard Kit",
@@ -12,11 +12,12 @@ export const metadata: Metadata = {
 
 const BasicChartPage: React.FC = () => {
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Basic Chart" />
+    <>
+    <Breadcrumb pageName="Basic Chart" />
+    
+    <BasicChart />
+    </>
 
-      <BasicChart />
-    </DefaultLayout>
   );
 };
 
