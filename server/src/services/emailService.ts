@@ -32,7 +32,6 @@ export const sendEmail = async ({TO, message}:SendEmailProps): Promise<void> => 
     subject: message.subject, // Subject line
     html: message.html, // HTML content
   };
-
   // Send email and handle the promise
   await new Promise<void>((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info: SentMessageInfo) => {

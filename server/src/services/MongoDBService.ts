@@ -7,7 +7,6 @@ export const connectDB = (): void => {
   if (!mongoUri) {
     throw new Error("MONGO_URI is not defined in environment variables");
   }
-
   mongoose
     .connect(mongoUri)
     .then(() => {

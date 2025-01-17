@@ -61,3 +61,15 @@ export async function comparePasswords(plainPassword: string, hashedPassword: st
     throw new AppError('Error comparing passwords', 500);
   }
 }
+
+
+export function validateField(requiredFields:string[],fields:{[key: string]: string}): void {
+
+  const missingFields = requiredFields.filter((field) => !fields[field]);
+  if (missingFields.length > 0) {
+    throw new AppError(
+      `Missing required fields: ${missingFields.join(", ")}`,
+      400
+    );
+  }
+}

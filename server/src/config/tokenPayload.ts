@@ -1,5 +1,3 @@
-
-
 export const publicCookiePayload = {
     type:"PUBLIC_COOKIE",
 }
@@ -14,4 +12,8 @@ export const refreshTokenPayload = {
 
 export const accessTokenPayload = {
     type:"ACCESS_TOKEN",
+}
+
+export const unsubscribeNewsletterPayload = {
+    type:"UNSUBSCRIBE_NEWSLETTER",
 }

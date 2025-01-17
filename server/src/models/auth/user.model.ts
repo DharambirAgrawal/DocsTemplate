@@ -16,6 +16,13 @@ export enum UserRole {
   author = 'AUTHOR',
 }
 
+export enum LoginProvider {
+  email = 'EMAIL',
+  google = 'GOOGLE',
+  facebook = 'FACEBOOK',
+  github = 'GITHUB',
+  twitter = 'TWITTER',
+}
 // User Schema
 export interface IUser extends Document {
   firstName: string;
@@ -31,6 +38,9 @@ export interface IUser extends Document {
   lockoutUntil?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  loginProvider: string;
+  providerId?: string;
+  providerProfileImage?: string;
   createdAt: Date;
   updatedAt: Date;
   lastPasswordChange?: Date;
@@ -51,6 +61,9 @@ const userSchema = new Schema<IUser>({
   resetPasswordToken: { type: String, default: null },
   resetPasswordExpires: { type: Date, default: null },
   lastPasswordChange: { type: Date, default: null },
+  loginProvider: { type: String, enum: LoginProvider, required: true ,default:"EMAIL"},
+  providerId: { type: String, unique: true, sparse: true }, 
+  providerProfileImage: { type: String }, 
 }
 ,
 {
