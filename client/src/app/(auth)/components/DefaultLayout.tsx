@@ -1,9 +1,14 @@
+'use client'
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { ButtonUI } from "@/components/ui/ButtonUi";
+import { useState } from "react";
 import React from "react";
 import GoogleSigninButton from "./GoogleSigninButton";
 import Image from "next/image";
 import { Container } from "@/components/Container";
-
+import { showToast } from "@/features/ToastNotification";
+import { TickIcon } from "@/utils/icons";
 type AuthPageType = "signin" | "signup" | "forgotpassword";
 
 interface DefaultLayoutProps {
@@ -14,6 +19,7 @@ interface DefaultLayoutProps {
   authPage: AuthPageType; // Determine which page layout to show
   buttonText?: string; // Custom text for the button
   buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>; // Allow additional button props (like onClick, className, etc.)
+  authAction: (formData: any) => Promise<any>;
 }
 
 export default function DefaultLayout({
@@ -24,7 +30,10 @@ export default function DefaultLayout({
   authPage,
   buttonText = "Sign In", // Default text for the button
   buttonProps = {}, // Default to empty object to allow other button props
+  authAction,
 }: DefaultLayoutProps) {
+
+  // const [loading, setLoading] = useState(false);
   const renderHeading = () => {
     switch (authPage) {
       case "signup":
@@ -75,11 +84,10 @@ export default function DefaultLayout({
         );
     }
   };
-
   return (
     <Container>
       <div className="rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card">
-        <div className="flex flex-wrap items-center">
+        <div className="flex flex-wrap ">
           <div className="hidden w-full p-7.5 xl:block xl:w-1/2">
             <div className="custom-gradient-1 overflow-hidden rounded-2xl px-12.5 pt-12.5 dark:!bg-dark-2 dark:bg-none">
               <Link className="mb-10 inline-block" href="/">
@@ -123,17 +131,33 @@ export default function DefaultLayout({
             </div>
           </div>
 
-          <div className="w-full xl:w-1/2">
-            <div className="w-full p-4 sm:p-12.5 xl:p-15">
-              {google && authPage !== "signup" && (
+          <div className="w-full xl:w-1/2"
+         
+          >
+            <form className="w-full p-4 sm:p-12.5 xl:p-15" 
+             action={async (formData) => {
+              // setLoading((prev) => !prev);
+              const res= await authAction(formData);
+              console.log(res)
+              if(res.success){
+                showToast("success",res.message || "Success");
+              }
+              else{
+                showToast("error",res.error.message || "Something went wrong");
+              }
+              // setLoading((prev) => !prev);
+            }}
+            >
+              {google && (
                 <>
                   <GoogleSigninButton
                     text={authPage === "signin" ? "Sign In" : "Sign Up"}
+                    disabled={false}
                   />
                   <div className="my-6 flex items-center justify-center">
                     <span className="block h-px w-full bg-stroke dark:bg-dark-3"></span>
                     <div className="block w-full min-w-fit bg-white px-3 text-center font-medium dark:bg-gray-dark">
-                      Or sign in with email
+                      Or {authPage === "signin" ? "sign in" : "sign up"} with email
                     </div>
                     <span className="block h-px w-full bg-stroke dark:bg-dark-3"></span>
                   </div>
@@ -157,20 +181,7 @@ export default function DefaultLayout({
                     <span
                       className="mr-2.5 inline-flex h-5.5 w-5.5 items-center justify-center rounded-md border border-stroke bg-white text-white text-opacity-0 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-opacity-100 dark:border-stroke-dark dark:bg-white/5"
                     >
-                      <svg
-                        width="10"
-                        height="7"
-                        viewBox="0 0 10 7"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M9.70692 0.292787C9.89439 0.480314 9.99971 0.734622 9.99971 0.999786C9.99971 1.26495 9.89439 1.51926 9.70692 1.70679L4.70692 6.70679C4.51939 6.89426 4.26508 6.99957 3.99992 6.99957C3.73475 6.99957 3.48045 6.89426 3.29292 6.70679L0.292919 3.70679C0.110761 3.51818 0.00996641 3.26558 0.0122448 3.00339C0.0145233 2.74119 0.119692 2.49038 0.3051 2.30497C0.490508 2.11956 0.741321 2.01439 1.00352 2.01211C1.26571 2.00983 1.51832 2.11063 1.70692 2.29279L3.99992 4.58579L8.29292 0.292787C8.48045 0.105316 8.73475 0 8.99992 0C9.26508 0 9.51939 0.105316 9.70692 0.292787Z"
-                          fill="currentColor"
-                        />
-                      </svg>
+                      <TickIcon />
                     </span>
                     Remember me
                   </label>
@@ -185,17 +196,38 @@ export default function DefaultLayout({
                   )}
                 </div>
               )}
+            
               <div className="mb-4.5">
-                <button
-                  type="submit"
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
-                  {...buttonProps} // Spread additional button props
-                >
-                  {buttonText} {/* Button text */}
-                </button>
+                
+                <ButtonUI 
+                children={buttonText}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
+            type="submit"
+            size="lg"
+              variant="default"
+                {...buttonProps} // Spread additional button props
+                />
               </div>
+              {
+                authPage === "signup" && (
+                  <div className="text-sm text-gray-500">
+                  By creating an account, you agree to our
+                  <Link href="#" className="text-blue-600 hover:underline">
+                    {" "}
+                    Terms and Conditions
+                  </Link>{" "}
+                  and
+                  <Link href="#" className="text-blue-600 hover:underline">
+                    {" "}
+                    Privacy Policy
+                  </Link>
+                  .
+                </div>
+                
+                )
+              }
               <div className="mt-6 text-center">{renderLinks()}</div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
