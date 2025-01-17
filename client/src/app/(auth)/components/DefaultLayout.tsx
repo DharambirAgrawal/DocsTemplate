@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ButtonUI } from "@/components/ui/ButtonUi";
-import { useState } from "react";
+import { useRouter } from 'next/navigation'
 import React from "react";
 import GoogleSigninButton from "./GoogleSigninButton";
 import Image from "next/image";
@@ -32,7 +32,7 @@ export default function DefaultLayout({
   buttonProps = {}, // Default to empty object to allow other button props
   authAction,
 }: DefaultLayoutProps) {
-
+  const router = useRouter()
   // const [loading, setLoading] = useState(false);
   const renderHeading = () => {
     switch (authPage) {
@@ -141,6 +141,9 @@ export default function DefaultLayout({
               console.log(res)
               if(res.success){
                 showToast("success",res.message || "Success");
+                if(authPage === "signup"){
+                  router.push('/auth/verify-email')
+                }
               }
               else{
                 showToast("error",res.error.message || "Something went wrong");
