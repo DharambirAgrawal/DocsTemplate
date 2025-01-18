@@ -194,6 +194,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     throw new AppError('User not found', 404);
   }
 
+if(existingUser.loginProvider != "EMAIL"){
+  throw new AppError(`Already loggedin with ${existingUser.loginProvider.toLowerCase}`, 400);
+}
   // Check accountStatus & Check lockoutUntil
   if (existingUser.accountStatus === "INACTIVE" || existingUser.accountStatus == "SUSPENDED") {
     // TODO: Reset password email
