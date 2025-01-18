@@ -4,9 +4,9 @@ import { hashData } from '../../utils/utils';
 // Define AccountStatus Enum
 export enum AccountStatus {
   active = 'ACTIVE',
-  suspended = 'SUSPENDED',
-  inactive = 'INACTIVE',
   pending = 'PENDING',
+  inactive = 'INACTIVE',
+  suspended = 'SUSPENDED',
 }
 
 // Define UserRole Enum
@@ -41,6 +41,7 @@ export interface IUser extends Document {
   loginProvider: string;
   providerId?: string;
   providerProfileImage?: string;
+  sessionIds: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   lastPasswordChange?: Date;
@@ -57,13 +58,14 @@ const userSchema = new Schema<IUser>({
   verificationToken: { type: String, default: null },
   role: { type: String, enum: UserRole, default: UserRole.user },
   failedLoginAttempts: { type: Number, default: 0 },
-  lockoutUntil: { type: Date, default: null },
+  lockoutUntil: { type: Date , default: null },
   resetPasswordToken: { type: String, default: null },
   resetPasswordExpires: { type: Date, default: null },
   lastPasswordChange: { type: Date, default: null },
   loginProvider: { type: String, enum: LoginProvider, required: true ,default:"EMAIL"},
   providerId: { type: String, unique: true, sparse: true }, 
   providerProfileImage: { type: String }, 
+  sessionIds: [{ type: Types.ObjectId, ref: 'Session' }],
 }
 ,
 {
@@ -79,13 +81,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// userSchema.methods.CreateResetPasswordToken = function () {
-//   const resetToken = crypto.randomBytes(32).toString("hex");
-//   this.passwordResetToken = encryption(resetToken);
-//   this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000; //time in milisecond
-//   console.log(resetToken, this.passwordResetToken);
-//   return resetToken;
-// };
 
 const User = mongoose.model<IUser>('User', userSchema);
 export default User;

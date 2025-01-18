@@ -2,20 +2,27 @@ import { sendEmail } from "../../services/emailService";
 import {
   VERIFY_EMAIL_MESSAGE,
   SUBSCRIPTION_MESSAGE,
+  FORGET_PASSWORD_MESSAGE,
+  PASSWORD_CHANGE_SUCCESSFUL_MESSAGE,
 } from "../../utils/EmailMessages";
 import { AppError } from "../../errors/AppError";
 import { validateEmail } from "../../utils/utils";
 import { generateToken } from "../../utils/jwtUtils";
-import { verifyEmailPayload ,unsubscribeNewsletterPayload} from "../../config/tokenPayload";
+import {
+  verifyEmailPayload,
+  unsubscribeNewsletterPayload,
+  resetPasswordPayload,
+  suspendAccountPayload,
+} from "../../config/tokenPayload";
 import User from "../../models/auth/user.model";
-import Newsletter,{SubscribeStatusType } from "../../models/user/NewsLetter";
+import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetter";
 
 export const SendEmailVerificationEmail = async ({
   email,
-  subscribe
+  subscribe,
 }: {
   email: string;
-  subscribe:"true" | "false" | "null";
+  subscribe: "true" | "false" | "null";
 }) => {
   if (!email) {
     throw new AppError("Resource not found", 400);
@@ -59,7 +66,7 @@ export const SendEmailVerificationEmail = async ({
 export const subscribetoNewsletter = async ({
   email,
   subscribe,
-  status
+  status,
 }: {
   email: string;
   subscribe: boolean;
@@ -82,25 +89,29 @@ export const subscribetoNewsletter = async ({
 
   const existingUser = await Newsletter.findOne({ email });
 
-  if( existingUser && existingUser.status == "ACTIVE" ){
-    return
+  if (existingUser && existingUser.status == "ACTIVE") {
+    return;
   }
 
   let subscribeUser;
-  const Unsubscribetoken = generateToken(payload, process.env.JWT_TOKEN_SECRET, 60*24*365*5);
+  const Unsubscribetoken = generateToken(
+    payload,
+    process.env.JWT_TOKEN_SECRET,
+    60 * 24 * 365 * 5
+  );
   if (existingUser) {
     subscribeUser = await Newsletter.findOneAndUpdate(
       { email },
-      {  
+      {
         unsubscribeToken: Unsubscribetoken,
-      status: subscribe? status: "INACTIVE",
+        status: subscribe ? status : "INACTIVE",
       }
     );
   } else {
     subscribeUser = await Newsletter.create({
       email,
       unsubscribeToken: Unsubscribetoken,
-      status: subscribe? status: "INACTIVE",
+      status: subscribe ? status : "INACTIVE",
     });
   }
   if (subscribe) {
@@ -118,5 +129,82 @@ export const subscribetoNewsletter = async ({
   return {
     status: "success",
     token: Unsubscribetoken,
+  };
+};
+
+export const sendForgetPasswordEmail = async (email: string) => {
+  if (!email) {
+    throw new AppError("Resource not found", 400);
+  }
+
+  //validating email
+  if (!validateEmail(email)) {
+    throw new AppError("Invalid Email!", 400);
+  }
+
+  //Checking if user exists
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  const payload = {
+    ...resetPasswordPayload,
+    email: email,
+  };
+  const forgetPasswordToken = generateToken(
+    payload,
+    process.env.RESET_PASSWORD_SECRET,
+    10
+  ); //expires in 10min
+  const updatedUser = await User.findOneAndUpdate(
+    { email },
+    {
+      resetPasswordToken: forgetPasswordToken,
+      resetPasswordExpires: new Date(Date.now() + 10 * 60 * 1000),
+    }
+  );
+
+  if (!updatedUser) {
+    throw new AppError("User not found!", 404);
+  }
+
+  const link = `${process.env.PUBLIC_URL}/api/auth/resetpassword/${forgetPasswordToken}`;
+
+  await sendEmail({
+    TO: email,
+    message: FORGET_PASSWORD_MESSAGE({
+      link: link,
+      name: updatedUser.firstName,
+    }),
+  });
+
+  return {
+    status: "success",
+    message: "Password reset link sent successfully",
+  };
+};
+
+export const passwordChangeEmail = async (email: string, name: string) => {
+  const payload = {
+    ...suspendAccountPayload,
+    email: email,
+  };
+  const suspendToken = generateToken(
+    payload,
+    process.env.SUSPENDED_ACCOUNT_SECRET,
+    10
+  );
+
+  const link = `${process.env.BASE_URL}/api/auth/suspend/user/${suspendToken}`;
+
+  await sendEmail({
+    TO: email,
+    message: PASSWORD_CHANGE_SUCCESSFUL_MESSAGE({ link: link, name: name }),
+  });
+  return {
+    status: "success",
+    message: "Suspend account link sent successfully",
   };
 };

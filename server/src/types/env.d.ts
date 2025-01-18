@@ -11,6 +11,8 @@ declare namespace NodeJS {
       GOOGLE_CLIENT_ID:string
       GOOGLE_CLIENT_SECRET:string
       JWT_TOKEN_SECRET:string
+      RESET_PASSWORD_SECRET:string
+      SUSPENDED_ACCOUNT_SECRET:string
     }
   }
   

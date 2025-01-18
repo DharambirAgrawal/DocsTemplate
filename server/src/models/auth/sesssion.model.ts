@@ -1,6 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { ISessionMetadata } from './sessionMetadata.model';
-
 // Session Schema
 export interface ISession extends Document {
   userId: mongoose.Types.ObjectId;
@@ -14,6 +12,15 @@ export interface ISession extends Document {
   expiresAt: Date;
   metadata?: ISessionMetadata;
 }
+export interface ISessionMetadata extends Document {
+  platform?: string;
+  userAgent?: string;
+  browser?: string;
+  language?: string;
+  ip?: string;
+  deviceFingerprint?: string;
+  timezoneOffset?: number;
+}
 
 const sessionSchema = new Schema<ISession>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -24,7 +31,15 @@ const sessionSchema = new Schema<ISession>({
   expiryReason: { type: String, default: null },
   lastActiveAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, required: true },
-  metadata: { type: Schema.Types.Mixed, default: null },
+  metadata: { 
+    platform: { type: String, default: null },
+    userAgent: { type: String, default: null },
+    browser: { type: String, default: null },
+    language: { type: String, default: null },
+    ip: { type: String, default: null },
+    deviceFingerprint: { type: String, default: null },
+    timezoneOffset: { type: Number, default: null },
+   },
 },
 {
     timestamps: { createdAt: 'createdAt', updatedAt: false},
