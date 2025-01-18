@@ -7,8 +7,8 @@ const AuthRouter = express.Router();
 
 
 export const authRouter = AuthRouter
-.get("/google",catchAsync( passport.authenticate('google', { scope: ['profile', 'email'] })))
-.get("/google/callback",catchAsync( passport.authenticate("google", { failureRedirect: "/" })),catchAsync(googleLogin) )
+.get("/google", passport.authenticate('google', { scope: ['profile', 'email'] }))
+.get("/google/callback",passport.authenticate("google", { failureRedirect: "/" }),catchAsync(googleLogin) )
 
 .post("/register", catchAsync(register))
 .get("/register/:token", catchAsync(verifyEmail))
