@@ -3,6 +3,7 @@ import { PageNavigation } from "@/app/(courses)/components/PageNavigation";
 import DropdownDefaultTwo from "@/components/ui/Dropdown";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import Navigation from "@/components/Header";
+import DefaultLayout from "@/components/DefaultLayout";
 export const metadata: Metadata = {
   title: "Introduction | Minimal Docs Site",
   description: "Welcome to our minimal documentation site",
@@ -10,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
-      <Navigation />
+
+    <DefaultLayout>
       <main className="mx-auto max-w-3xl">
         <h1 className="mb-6 text-4xl font-bold">Welcome to Our Docs</h1>
         <p className="mb-4 text-gray-600 dark:text-gray-300">
@@ -91,6 +92,8 @@ export default function Home() {
 
         <PageNavigation />
       </main>
-    </>
+      </DefaultLayout>
+    
+    
   );
 }

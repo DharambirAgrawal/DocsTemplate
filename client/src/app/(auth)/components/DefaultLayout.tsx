@@ -7,7 +7,7 @@ import React from "react";
 import GoogleSigninButton from "./GoogleSigninButton";
 import Image from "next/image";
 import { Container } from "@/components/Container";
-import { showToast } from "@/features/ToastNotification";
+import { showToast } from "@/features/ToastNotification/useToast";
 import { TickIcon } from "@/utils/icons";
 type AuthPageType = "signin" | "signup" | "forgotpassword";
 

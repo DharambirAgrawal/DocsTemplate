@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { resendEmailVerificationAction } from "../../auth/actions";
-import { showToast } from "@/features/ToastNotification";
+import { showToast } from "@/features/ToastNotification/useToast";
 import Link from "next/link";
 export default function VerifyEmail({ email }: { email: string }) {
   const [canResend, setCanResend] = useState(true);
