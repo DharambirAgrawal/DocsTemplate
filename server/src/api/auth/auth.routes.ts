@@ -1,7 +1,7 @@
 import express from "express";
 import passport from "passport";
 import { catchAsync } from "../../errors/catchAsync";
-import { register,resendEmailVerification,verifyEmail } from "./auth.controller";
+import { register,resendEmailVerification,verifyEmail,forgotPassword,login,logout,resetPassword,suspendAccount } from "./auth.controller";
 import { googleLogin } from "./google.controller";
 const AuthRouter = express.Router();
 
@@ -13,9 +13,9 @@ export const authRouter = AuthRouter
 .post("/register", catchAsync(register))
 .get("/register/:token", catchAsync(verifyEmail))
 .post("/resend-email", catchAsync(resendEmailVerification))
-// .post("/login",loginMiddleware,login)
-// .post("/forgetpassword",forgotPassword )  
+.post("/login",catchAsync(login))
+.post("/forgetpassword",catchAsync(forgotPassword) )  
 // .get("/resetpassword/:token",resetPasswordUi)   //static file for reset password
-// .post("/reset/password",resetPassword)
-// .get("/suspend/user/:token",suspendAccount)
-// .get("/logout",logout)
+.post("/reset/password",catchAsync(resetPassword))
+.get("/suspend/:token",catchAsync(suspendAccount))
+.get("/logout",catchAsync(logout))

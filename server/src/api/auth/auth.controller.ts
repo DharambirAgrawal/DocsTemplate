@@ -354,7 +354,6 @@ if (existingUser.lockoutUntil && existingUser.lockoutUntil.getTime() > Date.now(
   });
 
 }
-// <-------- end of login 
 
 
 // ------------------- 3. ResetPassword -------------------
@@ -483,10 +482,9 @@ export const suspendAccount = async  (req: Request, res: Response, next: NextFun
 
  res.status(200).send("Account Suspended")
 }
-// <-------- end of reset password 
 
 
-//logout ---->
+// ------------------- 4. Logout -------------------
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -510,4 +508,4 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     status: "success"
   })
 }
-// <-------- logout
+
