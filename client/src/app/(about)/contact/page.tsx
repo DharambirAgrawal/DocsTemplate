@@ -1,5 +1,7 @@
 import { contact } from "@/lib/data";
+import { email } from "@/utils/icons";
 import Link from "next/link";
+import InputField from "@/components/ui/InputTextBox";
 export default function Contact() {
   return (
     <div className="container mx-auto px-4 py-16">
@@ -17,19 +19,16 @@ export default function Contact() {
             help.
           </p>
           <div className="space-y-4">
-            
             <div className="flex items-center ">
               <span className="w-6 h-6 text-blue-600 mr-2">
-
-              <contact.email.icon />
+                <contact.email.icon />
               </span>
               <span className="text-gray-700">{contact.email.value}</span>
             </div>
             <div className="flex items-center">
-            <span className="w-6 h-6 text-blue-600 mr-2">
-            
-                <contact.phone.icon/>
-            </span>
+              <span className="w-6 h-6 text-blue-600 mr-2">
+                <contact.phone.icon />
+              </span>
               <span className="text-gray-700">{contact.phone.value}</span>
             </div>
             {/* <div className="flex items-center">
@@ -64,56 +63,36 @@ export default function Contact() {
             </h3>
             <div className="flex space-x-4">
               {contact.social.map((social) => (
-              
-                  <Link
-                    href={social.link}
-                    className="text-blue-600 hover:text-blue-800 transition-colors duration-300"
-                    key={social.name}
-                  >
+                <Link
+                  href={social.link}
+                  className="text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                  key={social.name}
+                >
                   <social.icon className=" h-6 w-6" />
                 </Link>
-             
               ))}
-             
             </div>
           </div>
         </div>
         <div className="flex-1">
           <form className="bg-white rounded-lg shadow-xl p-8 transition-all duration-300 hover:shadow-2xl">
-            <div className="mb-6">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-              />
-            </div>
+            <InputField
+              label="Name"
+              name="name"
+              placeholder="Enter your name"
+              type="text"
+            />
+            <InputField
+              label="Email"
+              name="email"
+              placeholder="Enter your email"
+              type="email"
+              icon={email}
+            />
             <div className="mb-6">
               <label
                 htmlFor="message"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="mb-2.5 block font-medium text-dark dark:text-white"
               >
                 Message
               </label>
@@ -122,7 +101,7 @@ export default function Contact() {
                 name="message"
                 rows={4}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                className="w-full rounded-lg border border-stroke bg-transparent py-[15px] pl-6 pr-11 font-medium text-dark outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
               ></textarea>
             </div>
             <div>
