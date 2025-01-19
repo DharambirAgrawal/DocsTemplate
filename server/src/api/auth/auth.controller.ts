@@ -222,7 +222,7 @@ if(existingUser.loginProvider != "EMAIL"){
     // )
 
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const response = await fetch(`${baseUrl}/api/auth/forgetpassword`,
+    const response = await fetch(`${baseUrl}/api/auth/forget-password`,
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -234,7 +234,7 @@ if(existingUser.loginProvider != "EMAIL"){
     }
     return res.status(403).json({
       status: "failed",
-      message: "Reset password!"
+      message: "Account Suspended Reset password!"
     });
   }
 
@@ -384,40 +384,30 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
 }
 
-// export const resetPasswordUi = async (req, res, next) => {
-//   const { token } = req.params
-//   if (!token) {
-//     return next()
-//   }
-//   const { email, type } = decodeToken(token, process.env.FORGETPASSWORD_SECRET)
-//   if (type != "resetPassword" || !validateEmail(email)) {
-//     return next()
-//   }
+export const checkresetPasswordToken = async (req: Request, res: Response, next: NextFunction) => {
+  const { token } = req.params
+  if (!token) {
+    throw new AppError('Resource not found', 400);
+  }
+  const { email, type } = decodeToken(token, process.env.RESET_PASSWORD_SECRET)
+  if (type != resetPasswordPayload.type || !validateEmail(email)) {
+    throw new AppError('Invalid token or email', 500);
+  }
 
-//   const payload = {
-//     type: "resetPassword",
-//     email: email
-//   }
-//   const forget_token = generateToken(payload, process.env.FORGETPASSWORD_SECRET, 10)
+  const existingUser= await User.findOne({ email: email, resetPasswordToken: token });
+  if (!existingUser) {
+    throw new AppError('Token expired', 400);
+  }
 
-//   const updatedUser = await prisma.user.update({
-//     where: { email: email, resetPasswordToken: token },
-//     data: {
-//       resetPasswordToken: forget_token,
-//       resetPasswordExpires: new Date(Date.now() + 10 * 60 * 1000)
-//     },
-//   });
 
-//   if (!updatedUser) {
-//     return next()
-//   }
-
-//   res.render('resetpassword', { token: forget_token });
-// }
+  return res.status(200).json({
+    status: "success",
+    message: "Token verified",
+  });
+}
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   // throw new AppError('Password incorr', 500);
-
   const { password, allLogout } = req.body
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -446,7 +436,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
   const updatedUser = await User.findOneAndUpdate(
     { email: email, resetPasswordToken: token },
     {
-      accountStatus:"active",
+      accountStatus:"ACTIVE",
       resetPasswordToken: null,
       lastPasswordChange: new Date(),
       updatedAt: new Date(),
@@ -462,6 +452,9 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     await Session.deleteMany({
       userId: updatedUser._id, // Use the updated user's _id
     });
+
+    existingUser.sessionIds = [];
+    await existingUser.save();
   }
     await passwordChangeEmail(email,updatedUser.firstName)
 

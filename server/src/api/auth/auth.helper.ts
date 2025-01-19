@@ -173,7 +173,7 @@ export const sendForgetPasswordEmail = async (email: string) => {
     throw new AppError("User not found!", 404);
   }
 
-  const link = `${process.env.PUBLIC_URL}/api/auth/resetpassword/${forgetPasswordToken}`;
+  const link = `${process.env.CLIENT_BASE_URL}/auth/forgot-password/${forgetPasswordToken}`;
 
   await sendEmail({
     TO: email,
@@ -197,10 +197,10 @@ export const passwordChangeEmail = async (email: string, name: string) => {
   const suspendToken = generateToken(
     payload,
     process.env.SUSPENDED_ACCOUNT_SECRET,
-    10
+    60 * 2
   );
 
-  const link = `${process.env.BASE_URL}/api/auth/suspend/user/${suspendToken}`;
+  const link = `${process.env.BASE_URL}/api/auth/suspend-account/${suspendToken}`;
 
   await sendEmail({
     TO: email,
@@ -208,6 +208,6 @@ export const passwordChangeEmail = async (email: string, name: string) => {
   });
   return {
     status: "success",
-    message: "Suspend account link sent successfully",
+    message: "Password changed successfully",
   };
 };

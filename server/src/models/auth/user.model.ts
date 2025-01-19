@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document, Types, UpdateQuery } from 'mongoose';
 import { hashData } from '../../utils/utils';
 
 // Define AccountStatus Enum
@@ -80,6 +80,22 @@ userSchema.pre("save", async function (next) {
   this.password = await hashData(this.password);
   next();
 });
+
+
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate() as UpdateQuery<IUser>; // Assert the type here
+
+  if (!update || !update.password) {
+    return next();
+  }
+
+  // Check if the password is being updated and hash it
+  update.password = await hashData(update.password); // hash the password before saving
+
+  next();
+});
+
 
 
 const User = mongoose.model<IUser>('User', userSchema);

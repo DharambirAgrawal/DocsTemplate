@@ -10,32 +10,32 @@ import mongoose from "mongoose";
 
 export const googleLogin = async (existingUser: any) => {
   // Check accountStatus & Check lockoutUntil
-  if (
-    existingUser.accountStatus === "INACTIVE" ||
-    existingUser.accountStatus == "SUSPENDED"
-  ) {
-    // TODO: Reset password email
-    // const data = {
-    //   email: existingUser.email
-    // }
-    // const myHeaders = new Headers();
-    // myHeaders.append("Content-Type", "application/json");
-    // // const baseUrl = `${req.protocol}://${req.get('host')}`;
-    // const response = await fetch(`${baseUrl}/api/auth/forgetpassword`,
-    //   {
-    //     method: "POST",
-    //     body: JSON.stringify(data),
-    //     headers: myHeaders,
-    //   }
-    // )
-    // if(!response.ok){
-    //   throw new AppError('Server Error', 500);
-    // }
-    // return {
-    //   status: "error",
-    //   message: "Reset password!"
-    // }
-  }
+  // if (
+  //   existingUser.accountStatus === "INACTIVE" ||
+  //   existingUser.accountStatus == "SUSPENDED"
+  // ) {
+  //   // TODO: Reset password email
+  //   // const data = {
+  //   //   email: existingUser.email
+  //   // }
+  //   // const myHeaders = new Headers();
+  //   // myHeaders.append("Content-Type", "application/json");
+  //   // // const baseUrl = `${req.protocol}://${req.get('host')}`;
+  //   // const response = await fetch(`${baseUrl}/api/auth/forgetpassword`,
+  //   //   {
+  //   //     method: "POST",
+  //   //     body: JSON.stringify(data),
+  //   //     headers: myHeaders,
+  //   //   }
+  //   // )
+  //   // if(!response.ok){
+  //   //   throw new AppError('Server Error', 500);
+  //   // }
+  //   // return {
+  //   //   status: "error",
+  //   //   message: "Reset password!"
+  //   // }
+  // }
 
   // Resend Email to verify email (resend)
   if (existingUser.accountStatus == "PENDING") {
