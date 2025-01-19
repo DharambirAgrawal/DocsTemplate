@@ -148,6 +148,9 @@ export const sendForgetPasswordEmail = async (email: string) => {
   if (!user) {
     throw new AppError("User not found", 404);
   }
+  if(user.loginProvider != "EMAIL"){
+    throw new AppError(`Already loggedin with ${user.loginProvider.toLowerCase()}`, 400);
+  }
 
   const payload = {
     ...resetPasswordPayload,

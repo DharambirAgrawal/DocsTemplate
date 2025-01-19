@@ -1,32 +1,79 @@
-import { generateToken,generateUniqueId } from "../../utils/jwtUtils";
+import { generateToken, generateUniqueId } from "../../utils/jwtUtils";
 import User from "../../models/auth/user.model";
-import { refreshTokenPayload ,accessTokenPayload} from "../../config/tokenPayload";
-export const googleLogin = async (req: any, res: any) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
-  console.log(req.user);
-  const {sub, name, given_name, family_name, picture, email, email_verified} = req.user.user._json;
-  const existingUser = await User.findOne({ email });
+import {
+  refreshTokenPayload,
+  accessTokenPayload,
+} from "../../config/tokenPayload";
+import { AppError } from "../../errors/AppError";
+import Session from "../../models/auth/sesssion.model";
+import mongoose from "mongoose";
 
-  if (!existingUser) {
-    const newUser = new User({
-      providerId: sub,
-      firstName: given_name,
-      lastName: family_name,
-      email: email,
-      providerProfileImage: picture || null,
-      isEmailVerified: true,
-      role: "USER",
-      loginProvider: "GOOGLE",
-    });
-    await newUser.save();
-    return res.redirect();
+export const googleLogin = async (existingUser: any) => {
+  // Check accountStatus & Check lockoutUntil
+  if (
+    existingUser.accountStatus === "INACTIVE" ||
+    existingUser.accountStatus == "SUSPENDED"
+  ) {
+    // TODO: Reset password email
+    // const data = {
+    //   email: existingUser.email
+    // }
+    // const myHeaders = new Headers();
+    // myHeaders.append("Content-Type", "application/json");
+    // // const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // const response = await fetch(`${baseUrl}/api/auth/forgetpassword`,
+    //   {
+    //     method: "POST",
+    //     body: JSON.stringify(data),
+    //     headers: myHeaders,
+    //   }
+    // )
+    // if(!response.ok){
+    //   throw new AppError('Server Error', 500);
+    // }
+    // return {
+    //   status: "error",
+    //   message: "Reset password!"
+    // }
   }
+
+  // Resend Email to verify email (resend)
+  if (existingUser.accountStatus == "PENDING") {
+    const verifyEmail = await fetch(
+      `${process.env.BASE_URL}/api/auth/resend-email`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          body: JSON.stringify({ email: existingUser.email }),
+        },
+      }
+    );
+    if (!verifyEmail.ok) {
+      throw new AppError("Server Error", 500);
+    }
+    return {
+      status: "error",
+      message: "Verification email sent",
+    };
+  }
+
+  // Check for lockout status
+  if (
+    existingUser.lockoutUntil &&
+    existingUser.lockoutUntil.getTime() > Date.now()
+  ) {
+    return {
+      status: "error",
+      message: "Try again in 15 minutes",
+    };
+  }
+
+  // Create unique sessionId refreshToken, accessToken from email and sessionId
   const sessionId = generateUniqueId();
   const payload = {
     sessionId: sessionId,
-    email: email,
+    email: existingUser.email,
   };
   const refreshToken = generateToken(
     { ...refreshTokenPayload, ...payload },
@@ -44,7 +91,7 @@ export const googleLogin = async (req: any, res: any) => {
     sessionId: sessionId,
     refreshToken: refreshToken, // Replace with actual logic to generate a refresh token
     accessToken: accessToken, // Replace with actual logic to generate an access token
-    expiresAt: new Date(Date.now() + 10080000), // Set expiration time (e.g., 1 hour from now)
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Set expiration time (e.g., 1 hour from now)
     lastActiveAt: new Date(),
     isRevoked: false,
   });
@@ -58,22 +105,84 @@ export const googleLogin = async (req: any, res: any) => {
 
   // Add this session's _id to the user's sessionIds array
   existingUser.sessionIds.push(savedSession._id as mongoose.Types.ObjectId); // Push the new session's _id
-  existingUser.lockoutUntil = undefined;
-
-  existingUser.failedLoginAttempts = 0;
-
   await existingUser.save();
-  // Send tokens as response
-  // res.cookie("refreshToken", req.user.refreshToken, {
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV === "PRODUCTION",
-  //   sameSite: "Strict",
-  // });
-  res.redirect(
-    "https://upgraded-space-meme-gv67xr5w9572wvx9-3000.app.github.dev/dashboard/home"
-  );
-  //   res.json({
-  //     accessToken: req.user.accessToken,
-  //     refreshToken: req.user.refreshToken, // Optional (can be stored in cookies)
-  //   });
+
+  if (!savedSession) {
+    throw new AppError("Failed to update user", 500);
+  }
+
+  return {
+    status: "success",
+    data: {
+      sessionId: sessionId,
+      tokens: { refreshToken, accessToken },
+    },
+  };
+};
+
+export const googleRegister = async (req: any, res: any) => {
+  try {
+    if (!req.user && !req.user.user._json) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+    const {
+      sub,
+      name,
+      given_name,
+      family_name,
+      picture,
+      email,
+      email_verified,
+    } = req.user.user._json;
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const newUser = await User.create({
+        providerId: sub,
+        firstName: given_name,
+        lastName: family_name,
+        email: email,
+        providerProfileImage: picture || null,
+        isEmailVerified: true,
+        role: "USER",
+        loginProvider: "GOOGLE",
+        accountStatus: "ACTIVE",
+      });
+      if (!newUser) {
+        return res.status(500).json({ message: "Failed to create user" });
+      }
+      const login = await googleLogin(newUser);
+      if (login.status === "error") {
+        return res.status(403).json({ message: login.message });
+      }
+
+      return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`);
+    }
+
+    if (existingUser.loginProvider != "GOOGLE") {
+      throw new AppError(
+        `Already loggedin with ${existingUser.loginProvider.toLowerCase()}`,
+        400
+      );
+    }
+    const login = await googleLogin(existingUser);
+    if (login.status === "error") {
+      return res.status(403).json({ message: login.message });
+    }
+
+    return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`);
+    // Send tokens as response
+    // res.cookie("refreshToken", req.user.refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "PRODUCTION",
+    //   sameSite: "Strict",
+    // });
+    //   res.json({
+    //     accessToken: req.user.accessToken,
+    //     refreshToken: req.user.refreshToken, // Optional (can be stored in cookies)
+    //   });
+  } catch (err: any) {
+    // console.log(err)
+    // res.status(err.status).json({message:err.message})
+    return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
+  }
 };

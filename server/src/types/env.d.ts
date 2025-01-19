@@ -13,6 +13,7 @@ declare namespace NodeJS {
       JWT_TOKEN_SECRET:string
       RESET_PASSWORD_SECRET:string
       SUSPENDED_ACCOUNT_SECRET:string
+      CLIENT_BASE_URL:string
     }
   }
   

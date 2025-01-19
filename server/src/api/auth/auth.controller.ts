@@ -145,6 +145,9 @@ export const resendEmailVerification = async (
   if (!existingUser) {
     throw new AppError("User does not exist", 400);
   }
+  if(existingUser.loginProvider != "EMAIL"){
+    throw new AppError(`Already loggedin with ${existingUser.loginProvider.toLowerCase}`, 400);
+  }
 
   // Check if the email is already verified
   if (existingUser.isEmailVerified) {
@@ -166,22 +169,26 @@ export const resendEmailVerification = async (
 // ------------------- 2. Login User -------------------
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
-
-  const { email, password, metaData } = req.body;
+// TODO: // Add logic to handle remember me
+  const { email, password, remember, metaData } = req.body;
   const {
     platform,
     userAgent,
     browser,
     language,
-    ip,
     deviceFingerprint,
     timezoneOffset
   } = metaData
+  let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  // Sometimes x-forwarded-for contains multiple IPs in a comma-separated list, take the first one
+  if (Array.isArray(ip)) {
+    ip = ip[0];
+  }
   validateField(
     ["email", "password", "platform", "userAgent","browser"],
     {...metaData,...req.body}
   );
-
   //validating email
   if (!validateEmail(email)) {
     throw new AppError('Invalid Email!', 400);
@@ -195,7 +202,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 
 if(existingUser.loginProvider != "EMAIL"){
-  throw new AppError(`Already loggedin with ${existingUser.loginProvider.toLowerCase}`, 400);
+  throw new AppError(`Already loggedin with ${existingUser.loginProvider.toLowerCase()}`, 400);
 }
   // Check accountStatus & Check lockoutUntil
   if (existingUser.accountStatus === "INACTIVE" || existingUser.accountStatus == "SUSPENDED") {
@@ -292,7 +299,7 @@ if (existingUser.lockoutUntil && existingUser.lockoutUntil.getTime() > Date.now(
     }
 
     return res.status(400).json({
-      status: "failed",
+      status: "error",
       message: "Incorrect password!"
     });
   }
@@ -303,8 +310,8 @@ if (existingUser.lockoutUntil && existingUser.lockoutUntil.getTime() > Date.now(
     sessionId: sessionId,
     email: email
   }
-  const refreshToken = generateToken({ ...refreshTokenPayload, ...payload }, process.env.JWT_TOKEN_SECRET, 10080) // 7 day
-  const accessToken = generateToken({ ...accessTokenPayload, ...payload }, process.env.JWT_TOKEN_SECRET, 1440) // 1 day
+  const refreshToken = generateToken({ ...refreshTokenPayload, ...payload }, process.env.JWT_TOKEN_SECRET, 60*24*7) // 7 day
+  const accessToken = generateToken({ ...accessTokenPayload, ...payload }, process.env.JWT_TOKEN_SECRET, 60*24) // 1 day
 
 
   const newSession = new Session({
@@ -312,10 +319,10 @@ if (existingUser.lockoutUntil && existingUser.lockoutUntil.getTime() > Date.now(
     sessionId: sessionId,  
     refreshToken:refreshToken,  // Replace with actual logic to generate a refresh token
     accessToken: accessToken,  // Replace with actual logic to generate an access token
-    expiresAt: new Date(Date.now() + 10080000),  // Set expiration time (e.g., 1 hour from now)
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),  // Set expiration time (e.g., 1 hour from now)
     lastActiveAt: new Date(),
     isRevoked: false,
-    metaData:{
+    metadata:{
       platform: platform,
       userAgent: userAgent,
       browser: browser,
@@ -427,10 +434,14 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
   //Checking if user exists
   const existingUser = await User.findOne({ email: email, resetPasswordToken: token });
-
   if (!existingUser) {
     throw new AppError('User not found', 404);
   }
+  if(existingUser.loginProvider != "EMAIL"){
+    throw new AppError(`Already loggedin with ${existingUser.loginProvider.toLowerCase()}`, 400);
+  }  
+
+  
 
   const updatedUser = await User.findOneAndUpdate(
     { email: email, resetPasswordToken: token },
