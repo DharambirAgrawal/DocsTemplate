@@ -53,7 +53,7 @@ export async function signupAction(formData: FormData) {
       }
     );
     if (!res.ok) {
-      if (res.status === 400 || res.status === 404) {
+      if (res.status === 400 || res.status === 404 || res.status === 401 || res.status === 403) {
         const data = await res.json();
         throw new AppError(data.message, res.status);
       } else {
@@ -100,7 +100,7 @@ export const resendEmailVerificationAction = async (
     );
 
     if (!res.ok) {
-      if (res.status === 400 || res.status === 404) {
+      if (res.status === 400 || res.status === 404 || res.status === 401 || res.status === 403) {
         const data = await res.json();
         throw new AppError(data.message, res.status);
       } else {
@@ -165,7 +165,7 @@ export async function signinAction(formData: FormData) {
       }
     );
     if (!res.ok) {
-      if (res.status === 400 || res.status === 404) {
+      if (res.status === 400 || res.status === 404 || res.status === 401 || res.status === 403) {
         const data = await res.json();
         throw new AppError(data.message, res.status);
       } else {
@@ -213,7 +213,7 @@ export async function forgetPasswordAction(formData: FormData) {
       }
     );
     if (!res.ok) {
-      if (res.status === 400 || res.status === 404) {
+      if (res.status === 400 || res.status === 404 || res.status === 401 || res.status === 403) {
         const data = await res.json();
         throw new AppError(data.message, res.status);
       } else {
@@ -233,4 +233,64 @@ export async function forgetPasswordAction(formData: FormData) {
   } catch (error) {
     return handleServerError(error);
   }
+}
+
+export const resetPasswordAction = async (formData: FormData) => {
+  try{
+
+ 
+  const password = formData.get("password")?.toString().trim();
+  const confirmPassword = formData.get("passwordConfirmation")?.toString().trim();
+  const token = formData.get("token")?.toString().trim();
+  const allLogout = formData.get("allLogout")?.toString().trim();
+  console.log(formData)
+  if (!password || !confirmPassword || !token) {
+    throw new AppError("All fields are required", 400, "VALIDATION_ERROR");
+  }
+  if (password !== confirmPassword) {
+    throw new AppError(
+      "Password and Confirm Password do not match",
+      400,
+      "VALIDATION_ERROR"
+    );
+  }
+  if (!validatePassword(password)) {
+    throw new AppError("Invalid Password", 400, "VALIDATION_ERROR");
+  }
+
+  const res = await fetch(
+    `${process.env.SERVER_BASE_URL}/api/auth/reset-password`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        password,
+        allLogout: allLogout === "checked" ? "checked" : "unchecked",
+      }),
+    }
+  );
+  if (!res.ok) {
+    if (res.status === 400 || res.status === 404 || res.status === 401 || res.status === 403) {
+      const data = await res.json();
+      throw new AppError(data.message, res.status);
+    } else {
+      throw new AppError(
+        "Something went wrong. Please try again later",
+        500,
+        "SERVER_ERROR"
+      );
+    }
+  }
+
+  return {
+    success: true,
+    message: "Password reset successfully",
+  }
+
+}catch(error){
+  return handleServerError(error);
+}
 }

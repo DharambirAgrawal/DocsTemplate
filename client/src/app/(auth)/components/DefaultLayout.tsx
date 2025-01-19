@@ -10,7 +10,7 @@ import Image from "next/image";
 import { Container } from "@/components/Container";
 import { showToast } from "@/features/ToastNotification/useToast";
 import { TickIcon } from "@/utils/icons";
-type AuthPageType = "signin" | "signup" | "forgotpassword";
+type AuthPageType = "signin" | "signup" | "forgotpassword" | "resetpassword";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -21,6 +21,7 @@ interface DefaultLayoutProps {
   buttonText?: string; // Custom text for the button
   buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>; // Allow additional button props (like onClick, className, etc.)
   authAction: (formData: any) => Promise<any>;
+  value?: any;
 }
 interface UserData {
   platform: string;
@@ -40,6 +41,7 @@ export default function DefaultLayout({
   buttonText = "Sign In", // Default text for the button
   buttonProps = {}, // Default to empty object to allow other button props
   authAction,
+  value,
 }: DefaultLayoutProps) {
   const router = useRouter();
   const renderHeading = () => {
@@ -53,6 +55,11 @@ export default function DefaultLayout({
         return {
           title: "Forgot Password?",
           subtitle: "Enter your email to reset",
+        };
+      case "resetpassword":
+        return {
+          title: "Reset Password",
+          subtitle: "Enter your new password",
         };
       case "signin":
       default:
@@ -80,6 +87,15 @@ export default function DefaultLayout({
             </Link>
           </p>
         );
+        case "resetpassword":
+          return (
+            <p>
+              Remember your password?{" "}
+              <Link href="/auth/signin" className="text-primary">
+                Sign In
+              </Link>
+            </p>
+          );
       case "signin":
       default:
         return (
@@ -198,6 +214,8 @@ export default function DefaultLayout({
                       "timezoneOffset",
                       userData.timezoneOffset.toString()
                     );
+                  } else if (authPage === "resetpassword") {
+                    formData.append("token", value || "");
                   }
                   const res = await authAction(formData);
                   if (res.success) {
