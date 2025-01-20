@@ -1,5 +1,5 @@
 import React from "react";
-import { googleLoginAction } from "../auth/actions";
+import { googleLoginAction } from "./actions";
 export default function  GoogleSigninButton({ text, disabled }: { text: string, disabled: boolean }) {
   return (
     <button

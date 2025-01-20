@@ -1,7 +1,7 @@
 import React from "react";
 import DefaultLayout from "../../components/DefaultLayout";
 import { Metadata } from "next";
-import { signinAction } from "../actions";
+import { signinAction } from "../../components/actions";
 import InputField from "@/components/ui/InputTextBox";
 import { lock, email } from "@/utils/icons";
 

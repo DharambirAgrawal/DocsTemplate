@@ -1,5 +1,5 @@
 import DefaultLayout from "../../components/DefaultLayout";
-import { signupAction } from "../actions";
+import { signupAction } from "../../components/actions";
 import InputField from "@/components/ui/InputTextBox";
 import { lock, email } from "@/utils/icons";
 import { TickIcon } from "@/utils/icons";

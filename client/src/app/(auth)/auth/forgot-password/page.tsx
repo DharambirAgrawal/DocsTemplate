@@ -1,4 +1,4 @@
-import { forgetPasswordAction } from "../actions";
+import { forgetPasswordAction } from "../../components/actions";
 import DefaultLayout from "../../components/DefaultLayout";
 import InputField from "@/components/ui/InputTextBox";
 import { email } from "@/utils/icons";

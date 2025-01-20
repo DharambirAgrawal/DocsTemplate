@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { resendEmailVerificationAction } from "../../auth/actions";
+import { resendEmailVerificationAction } from "../actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 import Link from "next/link";
 export default function VerifyEmail({ email }: { email: string }) {

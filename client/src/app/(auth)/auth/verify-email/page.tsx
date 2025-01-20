@@ -1,5 +1,5 @@
 import { getCookie } from "@/lib/cookies";
-import { resendEmailVerificationAction } from "../actions";
+import { resendEmailVerificationAction } from "../../components/actions";
 import { notFound } from "next/navigation";
 import VerifyEmail from "../../components/verify-email";
 export default async function AuthVerifyEmailPage() {

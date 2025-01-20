@@ -1,7 +1,7 @@
 import DefaultLayout from "../../../components/DefaultLayout";
 import InputField from "@/components/ui/InputTextBox";
 import { lock } from "@/utils/icons";
-import { resetPasswordAction } from "../../actions";
+import { resetPasswordAction } from "../../../components/actions";
 import { TickIcon } from "@/utils/icons";
 import { notFound } from "next/navigation";
 

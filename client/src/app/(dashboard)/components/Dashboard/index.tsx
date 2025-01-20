@@ -6,6 +6,7 @@ import TableOne from "@/components/ui/Tables/TableOne";
 import DataStatsOne from "@/components/DataStats/DataStatsOne";
 import ChartOne from "@/components/Charts/ChartOne";
 import { showToast } from "@/features/ToastNotification/useToast";
+import BasicChart from "@/components/Charts/BasicChart";
 const DashboardHome=()=> {
   const triggerToast = (type: 'success' | 'error' | 'info' | 'warning', message: string) => {
     showToast(type, message); // Trigger the toast notification
@@ -25,6 +26,10 @@ const DashboardHome=()=> {
         <div className="col-span-12 xl:col-span-8">
           <TableOne />
         </div>
+      </div>
+      <div className="py-4">
+
+        <BasicChart />
       </div>
     </>
   );
