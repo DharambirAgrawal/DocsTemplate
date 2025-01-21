@@ -9,34 +9,6 @@ import Session from "../../models/auth/sesssion.model";
 import mongoose from "mongoose";
 
 export const googleLogin = async (existingUser: any) => {
-  // Check accountStatus & Check lockoutUntil
-  // if (
-  //   existingUser.accountStatus === "INACTIVE" ||
-  //   existingUser.accountStatus == "SUSPENDED"
-  // ) {
-  //   // TODO: Reset password email
-  //   // const data = {
-  //   //   email: existingUser.email
-  //   // }
-  //   // const myHeaders = new Headers();
-  //   // myHeaders.append("Content-Type", "application/json");
-  //   // // const baseUrl = `${req.protocol}://${req.get('host')}`;
-  //   // const response = await fetch(`${baseUrl}/api/auth/forgetpassword`,
-  //   //   {
-  //   //     method: "POST",
-  //   //     body: JSON.stringify(data),
-  //   //     headers: myHeaders,
-  //   //   }
-  //   // )
-  //   // if(!response.ok){
-  //   //   throw new AppError('Server Error', 500);
-  //   // }
-  //   // return {
-  //   //   status: "error",
-  //   //   message: "Reset password!"
-  //   // }
-  // }
-
   // Resend Email to verify email (resend)
   if (existingUser.accountStatus == "PENDING") {
     const verifyEmail = await fetch(
@@ -165,24 +137,34 @@ export const googleRegister = async (req: any, res: any) => {
       );
     }
     const login = await googleLogin(existingUser);
-    if (login.status === "error") {
+    if (login.status === "error" || !login.data) {
       return res.status(403).json({ message: login.message });
     }
-
-    return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`);
-    // Send tokens as response
-    // res.cookie("refreshToken", req.user.refreshToken, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "PRODUCTION",
-    //   sameSite: "Strict",
-    // });
-    //   res.json({
-    //     accessToken: req.user.accessToken,
-    //     refreshToken: req.user.refreshToken, // Optional (can be stored in cookies)
-    //   });
+const {accessToken,refreshToken} = login.data.tokens;
+     //sending token in authorization token
+  res.cookie("access_token", accessToken, {
+    httpOnly: true, // Prevents access to the cookie via JavaScript
+    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+    sameSite: "None", // Prevents CSRF attacks
+    maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
+  });
+  
+  // Set refresh token cookie
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true, // Prevents access to the cookie via JavaScript
+    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+    sameSite: "None", // Prevents CSRF attacks
+    maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
+  });;
+  res.header("Authorization", `Bearer ${login.data.sessionId}`);
+res.json({
+  message: "Login successful",
+  data: { tokens: login.data.tokens },
+});
+    // return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`)
+    // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   } catch (err: any) {
-    // console.log(err)
-    // res.status(err.status).json({message:err.message})
-    return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
+    console.log(err);
+    // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   }
 };

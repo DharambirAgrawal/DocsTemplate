@@ -1,13 +1,12 @@
 "use server";
 import { redirect } from "next/navigation";
 import { handleServerError } from "@/lib/error-handler";
-import { AppError, ServerActionResponse } from "@/types/errors";
+import { AppError } from "@/types/errors";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { setCookie } from "@/lib/cookies";
-import { time } from "console";
 export const googleLoginAction = async () => {
   redirect(
-    "https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev/api/auth/google"
+    `${process.env.SERVER_BASE_URL}/api/auth/google`
   );
 };
 

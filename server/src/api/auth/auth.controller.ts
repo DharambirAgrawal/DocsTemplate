@@ -361,17 +361,23 @@ export const login = async (
   }
 
   //sending token in authorization token
-  res.setHeader(
-    "Authorization",
-    `Bearer ${refreshToken},Bearer ${accessToken}`
-  );
-
+  res.cookie("access_token", accessToken, {
+    httpOnly: true, // Prevents access to the cookie via JavaScript
+    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+    sameSite: "strict", // Prevents CSRF attacks
+    maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
+  });
+  
+  // Set refresh token cookie
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true, // Prevents access to the cookie via JavaScript
+    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+    sameSite: "strict", // Prevents CSRF attacks
+    maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
+  });;
+  res.header("sessionId", `Bearer ${sessionId}`);
   res.status(200).json({
     status: "success",
-    data: {
-      sessionId: sessionId,
-      tokens: { refreshToken, accessToken },
-    },
   });
 };
 
