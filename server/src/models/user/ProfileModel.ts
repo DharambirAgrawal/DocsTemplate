@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { DEFAULT_USER_IMAGE } from '../../utils/data';
 
 export interface IProfile extends Document {
+    userId: string;
     firstName: string;
     lastName:string;
     email: string;
@@ -17,6 +18,7 @@ export interface IProfile extends Document {
   }
   
   const ProfileSchema: Schema<IProfile> = new Schema({
+    userId: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName:{ type: String, required: true },
     email: { type: String, required: true, unique: true },
