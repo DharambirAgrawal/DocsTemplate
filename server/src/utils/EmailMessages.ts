@@ -1,4 +1,4 @@
-import { APP_NAME, APP_ROUTE } from "./data";
+import { APP_NAME} from "./data";
 
 export const VERIFY_EMAIL_MESSAGE = ({ link }: { link: string }) => {
   return {
@@ -523,7 +523,7 @@ export const PASSWORD_CHANGE_SUCCESSFUL_MESSAGE = ({
   };
 };
 
-export const SUBSCRIPTION_MESSAGE = (token: string) => {
+export const SUBSCRIPTION_MESSAGE = (link: string) => {
   return {
     subject: `Welcome to ${APP_NAME}! 🎉 Your Subscription is Confirmed`,
     html: `
@@ -558,7 +558,7 @@ export const SUBSCRIPTION_MESSAGE = (token: string) => {
                           
                           <!-- CTA Button -->
                           <div style="text-align: center; margin: 30px 0;">
-                              <a href="${APP_ROUTE}" style="background-color: #007bff; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Visit Our Blog</a>
+                              <a href="${process.env.CLIENT_BASE_URL}" style="background-color: #007bff; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Visit Our Blog</a>
                           </div>
   
                           <p style="color: #333333; font-size: 16px; line-height: 1.5; margin: 0;">Best regards,<br>[Your Name]<br>Blog Owner</p>
@@ -573,7 +573,7 @@ export const SUBSCRIPTION_MESSAGE = (token: string) => {
                               <a href="#" style="color: #007bff; text-decoration: none; margin: 0 10px;">Instagram</a>
                           </div>
                           <p style="color: #666666; font-size: 12px; margin: 0;">You received this email because you subscribed to our blog.<br>
-                          To unsubscribe, <a href="${APP_ROUTE}/api/unsubscribe/${token}" style="color: #007bff; text-decoration: none;">click here</a></p>
+                          To unsubscribe, <a href="${link}" style="color: #007bff; text-decoration: none;">click here</a></p>
                       </div>
                   </div>
               </td>

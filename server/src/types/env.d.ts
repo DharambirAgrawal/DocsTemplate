@@ -14,6 +14,7 @@ declare namespace NodeJS {
       RESET_PASSWORD_SECRET:string
       SUSPENDED_ACCOUNT_SECRET:string
       CLIENT_BASE_URL:string
+      BASE_URL:string
     }
   }
   

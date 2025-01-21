@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types, UpdateQuery } from 'mongoose';
 import { hashData } from '../../utils/utils';
-
+import { generateUniqueId } from '../../utils/jwtUtils';
 // Define AccountStatus Enum
 export enum AccountStatus {
   active = 'ACTIVE',
@@ -25,6 +25,7 @@ export enum LoginProvider {
 }
 // User Schema
 export interface IUser extends Document {
+  userId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -48,6 +49,7 @@ export interface IUser extends Document {
 }
 
 const userSchema = new Schema<IUser>({
+  userId: { type: String, unique: true, required: true, trim: true },
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, required: true, trim: true },
   image:{type:String, trim:true},
@@ -91,6 +93,7 @@ userSchema.pre('findOneAndUpdate', async function (next) {
   }
 
   // Check if the password is being updated and hash it
+  update.userId = generateUniqueId();
   update.password = await hashData(update.password); // hash the password before saving
 
   next();
