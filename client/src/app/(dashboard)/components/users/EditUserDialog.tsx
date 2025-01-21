@@ -41,7 +41,7 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
       <div className="bg-white p-8 rounded-lg w-full max-w-md shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit User</h2>
         <form onSubmit={handleSubmit} className="space-y-4">

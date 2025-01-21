@@ -2,7 +2,7 @@
 import React from "react";
 import ChartThree from "@/components/Charts/ChartThree";
 import ChartTwo from "@/components/Charts/ChartTwo";
-import TableOne from "@/components/ui/Tables/TableOne";
+import TableOne from "@/components/Tables/TableOne";
 import DataStatsOne from "@/components/DataStats/DataStatsOne";
 import ChartOne from "@/components/Charts/ChartOne";
 import { showToast } from "@/features/ToastNotification/useToast";

@@ -1,29 +1,31 @@
 "use client"
 import { useState, useEffect } from "react"
-import EditUserDialog from "./EditUserDialog"
+
 export interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    role: string
-    status: "active" | "inactive"
-    image: string
-  }
-  
-  export const mockUsers: User[] = Array.from({ length: 50 }, (_, i) => ({
-    id: `user-${i + 1}`,
-    firstName: `First${i + 1}`,
-    lastName: `Last${i + 1}`,
-    email: `user${i + 1}@example.com`,
-    role: i % 3 === 0 ? "Admin" : "User",
-    status: i % 5 === 0 ? "inactive" : "active",
-    image: `https://picsum.photos/seed/${i + 1}/40/40`,
-  }))
-  
-  
-const UserTable = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers)
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: string
+  status: "active" | "inactive"
+  image: string
+}
+
+interface InteractiveTableProps {
+  users: User[]
+  EditUserDialog: React.FC<{ user: User; onSave: (updatedUser: User) => void; onClose: () => void }>
+  usersPerPage: number
+  onSave: (updatedUser: User) => void
+  onDelete: (userId: string) => void
+}
+
+const InteractiveTable: React.FC<InteractiveTableProps> = ({
+  users,
+  EditUserDialog,
+  usersPerPage,
+  onSave,
+  onDelete,
+}) => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>(users)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
@@ -32,11 +34,9 @@ const UserTable = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
   const [roleFilter, setRoleFilter] = useState<"all" | "Admin" | "User">("all")
 
-  const usersPerPage = 10
-
   useEffect(() => {
     let filtered = users.filter((user) =>
-      Object.values(user).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
+      Object.values(user).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
     )
 
     if (statusFilter !== "all") {
@@ -67,16 +67,16 @@ const UserTable = () => {
   }
 
   const handleDelete = (userId: string) => {
-    setUsers(users.filter((user) => user.id !== userId))
+    onDelete(userId)
   }
 
   const handleSave = (updatedUser: User) => {
-    setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)))
+    onSave(updatedUser)
     setIsDialogOpen(false)
   }
 
   return (
-    <div className=" mx-auto p-4 bg-gray-50 rounded-lg shadow-lg">
+    <div className="mx-auto p-4 bg-gray-50 rounded-lg shadow-lg">
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <input
           type="text"
@@ -217,5 +217,4 @@ const UserTable = () => {
   )
 }
 
-export default UserTable
-
+export default InteractiveTable
