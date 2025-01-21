@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Newsletter from "../../models/user/NewsLetter";
+import Newsletter from "../../models/user/NewsLetterModel";
 import { AppError } from "../../errors/AppError";
 
 export const getNewsletters = async (

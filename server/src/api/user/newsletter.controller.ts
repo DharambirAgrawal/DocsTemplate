@@ -3,7 +3,7 @@ import { AppError } from "../../errors/AppError";
 import { decodeToken } from "../../utils/jwtUtils";
 import { subscribetoNewsletter } from "./user.helper";
 import { unsubscribeNewsletterPayload } from "../../config/tokenPayload";
-import Newsletter from "../../models/user/NewsLetter";
+import Newsletter from "../../models/user/NewsLetterModel";
 
 export const subscribeToNewsletter = async (
   req: Request,

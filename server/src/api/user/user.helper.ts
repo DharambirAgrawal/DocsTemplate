@@ -4,7 +4,7 @@ import { AppError } from "../../errors/AppError";
 import { validateEmail } from "../../utils/utils";
 import { generateToken } from "../../utils/jwtUtils";
 import { unsubscribeNewsletterPayload } from "../../config/tokenPayload";
-import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetter";
+import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetterModel";
 
 export const subscribetoNewsletter = async ({
   email,

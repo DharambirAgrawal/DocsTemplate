@@ -24,7 +24,7 @@ import {
   resetPasswordPayload,
   suspendAccountPayload,
 } from "../../config/tokenPayload";
-import Newsletter from "../../models/user/NewsLetter";
+import Newsletter from "../../models/user/NewsLetterModel";
 
 // ------------------- 1. Register User -------------------
 export const register = async (

@@ -15,7 +15,7 @@ import {
   suspendAccountPayload,
 } from "../../config/tokenPayload";
 import User from "../../models/auth/user.model";
-import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetter";
+import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetterModel";
 
 export const SendEmailVerificationEmail = async ({
   email,

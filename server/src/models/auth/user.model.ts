@@ -29,6 +29,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
+  profile: Types.ObjectId;
   image:string;
   password: string;
   accountStatus: AccountStatus;
@@ -54,6 +55,7 @@ const userSchema = new Schema<IUser>({
   lastName: { type: String, required: true, trim: true },
   image:{type:String, trim:true},
   email: { type: String, required: true, unique: true,trim: true },
+  profile: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
   password: { type: String, trim: true },
   accountStatus: { type: String, enum: AccountStatus, default: AccountStatus.pending },
   isEmailVerified: { type: Boolean, default: false },
@@ -79,6 +81,7 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || this.password === null) {
     return next();
   }
+  this.userId = generateUniqueId();
   this.password = await hashData(this.password);
   next();
 });
@@ -93,7 +96,6 @@ userSchema.pre('findOneAndUpdate', async function (next) {
   }
 
   // Check if the password is being updated and hash it
-  update.userId = generateUniqueId();
   update.password = await hashData(update.password); // hash the password before saving
 
   next();
