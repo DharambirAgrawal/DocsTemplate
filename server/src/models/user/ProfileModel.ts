@@ -17,7 +17,7 @@ export interface IProfile extends Document {
     updatedAt: Date;
   }
   
-  const ProfileSchema: Schema<IProfile> = new Schema({
+  const profileSchema: Schema<IProfile> = new Schema({
     userId: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName:{ type: String, required: true },
@@ -34,7 +34,8 @@ export interface IProfile extends Document {
     updatedAt: { type: Date, default: Date.now },
   });
   
-  const Profile = mongoose.model<IProfile>('Profile', ProfileSchema);
+  
+  const Profile = mongoose.model<IProfile>('Profile', profileSchema);
   export default Profile;
 
 

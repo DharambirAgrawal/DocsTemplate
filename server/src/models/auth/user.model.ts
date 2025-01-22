@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types, UpdateQuery } from "mongoose";
 import { hashData } from "../../utils/utils";
 import { generateUniqueId } from "../../utils/jwtUtils";
-import Profile from "../user/ProfileModel";
+import Profile,{IProfile} from "../user/ProfileModel";
 // Define AccountStatus Enum
 export enum AccountStatus {
   active = "ACTIVE",
@@ -48,6 +48,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   lastPasswordChange?: Date;
+  createProfile(): Promise<IProfile>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -95,19 +96,8 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || this.password === null) {
     return next();
   }
-  // creating profile for user
-  this.userId = generateUniqueId();
+ 
   this.password = await hashData(this.password);
-  
-  const profile = new Profile({
-    userId: this.userId,
-    firstName: this.firstName,
-    lastName: this.lastName,
-    email: this.email,
-  });
-  this.profile=profile._id as Types.ObjectId;
-  await profile.save();
-
   next();
 });
 
@@ -123,6 +113,21 @@ userSchema.pre("findOneAndUpdate", async function (next) {
 
   next();
 });
+
+
+userSchema.methods.createProfile = async function () {
+  this.userId = generateUniqueId();
+  const profile = new Profile({
+    userId: this.userId,
+    firstName: this.firstName,
+    lastName: this.lastName,
+    email: this.email,
+  });
+  const newProfile = await profile.save();
+  this.profile=newProfile._id as Types.ObjectId;
+  return newProfile;
+};
+
 
 const User = mongoose.model<IUser>("User", userSchema);
 export default User;

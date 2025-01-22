@@ -5,7 +5,7 @@ import { validateEmail } from "../../utils/utils";
 import { generateToken } from "../../utils/jwtUtils";
 import { unsubscribeNewsletterPayload } from "../../config/tokenPayload";
 import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetterModel";
-
+import Profile from "../../models/user/ProfileModel";
 export const subscribetoNewsletter = async ({
   email,
   subscribe,

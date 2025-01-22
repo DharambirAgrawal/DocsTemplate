@@ -108,7 +108,7 @@ export const googleRegister = async (req: any, res: any) => {
     } = req.user.user._json;
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      const newUser = await User.create({
+      const newUser = new User({
         providerId: sub,
         firstName: given_name,
         lastName: family_name,
@@ -119,15 +119,33 @@ export const googleRegister = async (req: any, res: any) => {
         loginProvider: "GOOGLE",
         accountStatus: "ACTIVE",
       });
+      await newUser.createProfile();
+      await newUser.save();
       if (!newUser) {
         return res.status(500).json({ message: "Failed to create user" });
       }
       const login = await googleLogin(newUser);
-      if (login.status === "error") {
+      if (login.status === "error" || !login.data) {
         return res.status(403).json({ message: login.message });
       }
+      const { accessToken, refreshToken } = login.data.tokens;
+      //sending token in authorization token
+      res.cookie("access_token", accessToken, {
+        httpOnly: true, // Prevents access to the cookie via JavaScript
+        secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+        sameSite: "None", // Prevents CSRF attacks
+        maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
+      });
 
-      return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`);
+      // Set refresh token cookie
+      res.cookie("refresh_token", refreshToken, {
+        httpOnly: true, // Prevents access to the cookie via JavaScript
+        secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+        sameSite: "None", // Prevents CSRF attacks
+        maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
+      });
+      res.header("Authorization", `Bearer ${login.data.sessionId}`);
+      return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
     }
 
     if (existingUser.loginProvider != "GOOGLE") {
@@ -140,31 +158,27 @@ export const googleRegister = async (req: any, res: any) => {
     if (login.status === "error" || !login.data) {
       return res.status(403).json({ message: login.message });
     }
-const {accessToken,refreshToken} = login.data.tokens;
-     //sending token in authorization token
-  res.cookie("access_token", accessToken, {
-    httpOnly: true, // Prevents access to the cookie via JavaScript
-    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
-    sameSite: "None", // Prevents CSRF attacks
-    maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
-  });
-  
-  // Set refresh token cookie
-  res.cookie("refresh_token", refreshToken, {
-    httpOnly: true, // Prevents access to the cookie via JavaScript
-    secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
-    sameSite: "None", // Prevents CSRF attacks
-    maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
-  });;
-  res.header("Authorization", `Bearer ${login.data.sessionId}`);
-res.json({
-  message: "Login successful",
-  data: { tokens: login.data.tokens },
-});
+    const { accessToken, refreshToken } = login.data.tokens;
+    //sending token in authorization token
+    res.cookie("access_token", accessToken, {
+      httpOnly: true, // Prevents access to the cookie via JavaScript
+      secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+      sameSite: "None", // Prevents CSRF attacks
+      maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
+    });
+
+    // Set refresh token cookie
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true, // Prevents access to the cookie via JavaScript
+      secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
+      sameSite: "None", // Prevents CSRF attacks
+      maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
+    });
+    res.header("Authorization", `Bearer ${login.data.sessionId}`);
     // return res.redirect(`${process.env.CLIENT_BASE_URL}/dashboard/home`)
-    // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
+    return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   } catch (err: any) {
     console.log(err);
-    // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
+    return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   }
 };

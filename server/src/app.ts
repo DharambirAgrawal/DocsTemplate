@@ -17,6 +17,9 @@ connectDB();
 
 
 // Middleware to initialize passport and handle session
+app.use(cors({
+  credentials: true, // Allow sending cookies along with the request
+}));
 app.use(logger);
 app.use(
   cookieSession({
@@ -27,7 +30,6 @@ app.use(
 );
 passportInitialize(app);
 app.use(passportMiddleware);
-app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
