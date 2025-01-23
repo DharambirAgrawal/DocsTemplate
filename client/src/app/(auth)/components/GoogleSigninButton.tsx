@@ -1,13 +1,69 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import React from "react";
 import { googleLoginAction } from "./actions";
-export default function  GoogleSigninButton({ text, disabled }: { text: string, disabled: boolean }) {
+import { showToast } from "@/features/ToastNotification/useToast";
+import { useRouter } from "next/navigation";
+
+export default function GoogleSigninButton({
+  text,
+  disabled,
+}: {
+  text: string;
+  disabled: boolean;
+}) {
+  const router = useRouter();
+  const handelGoogleLogin = async () => {
+    
+    const popup = window.open(
+      `https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev/api/auth/google`,
+      "Login",
+      "width=500,height=600"
+    );
+
+    if (popup) {
+      popup.focus();
+    } else {
+      alert("Please disable your popup blocker");
+    }
+  };
+
+  useEffect(() => {
+    const messageListener = async (event: MessageEvent) => {
+      // Ensure the event is from the correct origin
+      if (
+        event.origin ===
+        "https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev"
+      ) {
+        const res = await googleLoginAction(event.data);
+        if (res.success) {
+          showToast("success", res.message || "Success");  
+            router.push("/dashboard/home");
+        } else {
+          showToast("error", res.error?.message || "Something went wrong");
+        }
+      } else {
+        console.log("Origin not allowed", event);
+      }
+    };
+
+    // Add the event listener on mount
+    window.addEventListener("message", messageListener, false);
+
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      window.removeEventListener("message", messageListener);
+    };
+  }, []); // Empty dependency array ensures this effect only runs once on mount
+
   return (
     <button
       className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray-2 p-[15px] font-medium hover:bg-opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:hover:bg-opacity-50"
-    onClick={googleLoginAction}
-    type="button"
-    disabled={disabled}
-      >
+      onClick={handelGoogleLogin}
+      type="button"
+      disabled={disabled}
+    >
       <span>
         <svg
           width="20"

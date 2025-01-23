@@ -4,7 +4,7 @@ export async function setCookie(name: string, value: string, options: any = {}) 
     const cookieStore = await cookies();  // Get cookie store
   
     // Set the default expiration time (1 hour from now) if it's not provided in options
-    const expiresAt = options.expires || new Date(Date.now() + 3600 * 1000); // 1 hour from now
+    const expiresAt =  new Date(Date.now() + (options.expires || 3600 * 1000));  // 1 hour from now
   
     // Set cookie with the given options, or default options if not specified
     cookieStore.set(name, value, {
@@ -21,4 +21,18 @@ export async function setCookie(name: string, value: string, options: any = {}) 
   export async function getCookie(name: string) {
     const cookieStore = await cookies();  // Get cookie store
     return cookieStore.get(name);
+  }
+
+  export async function removeCookie(name: string, all: boolean = false) {
+    const cookieStore = await cookies();  // Get cookie store
+    if(all) {
+      cookieStore.getAll().forEach(cookie => {
+        cookieStore.delete(cookie.name)
+      }); // Delete all cookies
+      return;
+    }
+    const hasCookie = cookieStore.has(name)
+    if(hasCookie) {
+      cookieStore.delete(name)
+    }
   }
