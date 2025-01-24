@@ -16,7 +16,7 @@ import {
   sendForgetPasswordEmail,
   passwordChangeEmail,
 } from "./auth.helper";
-import {subscribetoNewsletter} from "../user/user.helper"
+import { subscribetoNewsletter } from "../user/user.helper";
 import {
   verifyEmailPayload,
   accessTokenPayload,
@@ -55,12 +55,14 @@ export const register = async (
   if (existingUser) {
     throw new AppError("User already Exists", 400);
   }
-  const newUser = await User.create({
+  const newUser = new User({
     firstName,
     lastName,
     email,
     password,
   });
+  await newUser.createProfile();
+  await newUser.save();
   if (!newUser) {
     throw new AppError("Server Error, Try again!", 500);
   }
@@ -367,14 +369,14 @@ export const login = async (
     sameSite: "strict", // Prevents CSRF attacks
     maxAge: 1000 * 60 * 60 * 24 * 1, // Set the max age for the refresh token (e.g., 30 days)
   });
-  
+
   // Set refresh token cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true, // Prevents access to the cookie via JavaScript
     secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production
     sameSite: "strict", // Prevents CSRF attacks
     maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
-  });;
+  });
   res.header("sessionId", `Bearer ${sessionId}`);
   res.status(200).json({
     status: "success",
