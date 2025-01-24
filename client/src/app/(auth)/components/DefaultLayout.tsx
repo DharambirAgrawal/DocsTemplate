@@ -222,6 +222,8 @@ export default function DefaultLayout({
                     showToast("success", res.message || "Success");
                     if (authPage === "signup") {
                       router.push("/auth/verify-email");
+                    }else if (authPage === "signin"){
+                      router.push("/dashboard/home");
                     }
                   } else {
                     showToast(

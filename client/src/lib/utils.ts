@@ -40,3 +40,10 @@ export function validatePassword(password: string): boolean {
   );
 }
 
+/**
+ * Extracts cookies from a cookie string.
+ * 
+ * @param {string} cookieString - The cookie string to extract cookies from.
+ * @returns {Record<string, string>} - Returns an object containing key-value pairs of cookies.
+ */
+

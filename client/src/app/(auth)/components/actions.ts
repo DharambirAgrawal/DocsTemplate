@@ -3,6 +3,7 @@ import { handleServerError } from "@/lib/error-handler";
 import { AppError } from "@/types/errors";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { setCookie,removeCookie } from "@/lib/cookies";
+
 export const googleLoginAction = async (data: any) => {
   try {
     const { refreshToken, accessToken, status, message, sessionId } = data;
@@ -207,6 +208,26 @@ export async function signinAction(formData: FormData) {
       }
     }
     const data = await res.json();
+    const cookie_string = res.headers.get('set-cookie');
+    const sess = res.headers.get('sessionId');  // Access the custom header
+    const sessionId = sess ? sess.split(' ')[1] : null;  // Remove "Bearer" and get the session ID
+    if(!cookie_string || !sessionId){
+      throw new AppError("Cookie not found", 500, "SERVER_ERROR");
+    }
+    const accessToken = cookie_string.match(/access_token=([^;]+)/);
+    const refreshToken = cookie_string.match(/refresh_token=([^;]+)/);
+    if(!accessToken || !refreshToken){
+      throw new AppError("Token not found", 500, "SERVER_ERROR");
+    }
+ 
+        // Call the setCookie function
+        await removeCookie('',true);
+        await setCookie("refreshToken", refreshToken[1], {
+          expires: 7 * 24 * 3600 * 1000,
+          maxAge: 7* 24 * 3600
+        }); // 7 days
+        await setCookie("accessToken", accessToken[1], { expires: 24 * 3600 * 1000, maxAge: 24 * 3600}); // 1 day
+        await setCookie("sessionId", sessionId, { expires: 24 * 3600 * 1000 , maxAge: 24 * 3600}); // 1 day
 
     return {
       success: true,
@@ -259,6 +280,7 @@ export async function forgetPasswordAction(formData: FormData) {
       }
     }
     const data = await res.json();
+
 
     return {
       success: true,
