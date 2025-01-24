@@ -264,7 +264,7 @@ export const login = async (
     existingUser.lockoutUntil.getTime() > Date.now()
   ) {
     return res.status(403).json({
-      status: "failed",
+      status: "error",
       message: "Try again in 15 minutes",
     });
   }

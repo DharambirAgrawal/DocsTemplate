@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { IUser } from './user.model';
 // Session Schema
 export interface ISession extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: IUser;
   sessionId: string;
   refreshToken: string;
   accessToken: string;

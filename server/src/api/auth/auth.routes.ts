@@ -3,6 +3,7 @@ import passport from "passport";
 import { catchAsync } from "../../errors/catchAsync";
 import { register,resendEmailVerification,verifyEmail,forgotPassword,login,logout,resetPassword,suspendAccount,checkresetPasswordToken } from "./auth.controller";
 import { googleRegister } from "./google.controller";
+import { verifyRefreshToken } from "./auth.middleware";
 const AuthRouter = express.Router();
 
 
@@ -13,7 +14,7 @@ export const authRouter = AuthRouter
 .post("/register", catchAsync(register))
 .get("/register/:token", catchAsync(verifyEmail))
 .post("/resend-email", catchAsync(resendEmailVerification))
-.post("/login",catchAsync(login))
+.post("/login",verifyRefreshToken,catchAsync(login))
 .post("/forget-password",catchAsync(forgotPassword) )  
 .post("/reset-password",catchAsync(resetPassword))
 .get("/reset-password/:token",catchAsync(checkresetPasswordToken))   //static file for reset password
