@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { DEFAULT_POST_IMAGE } from '../../utils/data';
+import { generateUniqueSlug } from '../../api/blog/blog.helper';
 
 // Enum for PostStatus
 export enum PostStatus {
@@ -34,9 +35,10 @@ interface IPost extends Document {
   tags: mongoose.Types.ObjectId[];
   metaData: IPostMetaData; // Typed metaData
   status: PostStatus;
+  saveSlug: () => Promise<string>;
 }
 
-const PostSchema: Schema<IPost> = new Schema(
+const postSchema: Schema<IPost> = new Schema(
   {
     title: { type: String, required: true, trim:true },
     views: { type: Number, default: 0 },
@@ -67,5 +69,24 @@ const PostSchema: Schema<IPost> = new Schema(
   { timestamps: true } // Automatically handle createdAt and updatedAt fields
 );
 
-const Post = mongoose.model<IPost>('Post', PostSchema);
+
+postSchema.methods.saveSlug = async function () {
+
+  const baseSlug = generateUniqueSlug(this.title);
+  let slug = baseSlug;
+  let slugExists = await Post.findOne({ slug });
+
+  // If the slug already exists, append a number to make it unique
+  let counter = 1;
+  while (slugExists) {
+    slug = `${baseSlug}-${counter}`;
+    slugExists = await Post.findOne({ slug });
+    counter++;
+  }
+  this.slug = slug;
+  return slug;
+};
+
+
+const Post = mongoose.model<IPost>('Post', postSchema);
 export default Post;
