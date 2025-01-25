@@ -1,10 +1,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import ClickOutside from "@/components/ClickOutside";
+import { logoutAction } from "@/app/(auth)/components/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -31,7 +36,9 @@ const DropdownUser = () => {
           <span className="hidden lg:block">Jhon Smith</span>
 
           <svg
-            className={`fill-current duration-200 ease-in ${dropdownOpen && "rotate-180"}`}
+            className={`fill-current duration-200 ease-in ${
+              dropdownOpen && "rotate-180"
+            }`}
             width="20"
             height="20"
             viewBox="0 0 20 20"
@@ -141,7 +148,21 @@ const DropdownUser = () => {
             </li>
           </ul>
           <div className="p-2.5">
-            <button className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-medium text-dark-4 duration-300 ease-in-out hover:bg-gray-2 hover:text-dark dark:text-dark-6 dark:hover:bg-dark-3 dark:hover:text-white lg:text-base">
+            <button
+              className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-medium text-dark-4 duration-300 ease-in-out hover:bg-gray-2 hover:text-dark dark:text-dark-6 dark:hover:bg-dark-3 dark:hover:text-white lg:text-base"
+              onClick={async () => {
+                const res = await logoutAction();
+                if (res.success) {
+                  showToast("success", res.message || "Success");
+                  router.push("/auth/signin");
+                } else {
+                  showToast(
+                    "error",
+                    res.error?.message || "Something went wrong"
+                  );
+                }
+              }}
+            >
               <svg
                 className="fill-current"
                 width="18"

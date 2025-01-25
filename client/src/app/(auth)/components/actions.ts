@@ -2,7 +2,7 @@
 import { handleServerError } from "@/lib/error-handler";
 import { AppError } from "@/types/errors";
 import { validateEmail, validatePassword } from "@/lib/utils";
-import { setCookie,removeCookie } from "@/lib/cookies";
+import { setCookie, removeCookie, getCookie } from "@/lib/cookies";
 
 export const googleLoginAction = async (data: any) => {
   try {
@@ -10,14 +10,20 @@ export const googleLoginAction = async (data: any) => {
     if (status === "error" || !refreshToken || !accessToken || !sessionId) {
       return handleServerError(new AppError(message, 500, "SERVER_ERROR"));
     }
-    await removeCookie('',true);
+    await removeCookie("", true);
     // Call the setCookie function
     await setCookie("refreshToken", refreshToken, {
       expires: 7 * 24 * 3600 * 1000,
-      maxAge: 7* 24 * 3600
+      maxAge: 7 * 24 * 3600,
     }); // 7 days
-    await setCookie("accessToken", accessToken, { expires: 24 * 3600 * 1000, maxAge: 24 * 3600}); // 1 day
-    await setCookie("sessionId", sessionId, { expires: 24 * 3600 * 1000 , maxAge: 24 * 3600}); // 1 day
+    await setCookie("accessToken", accessToken, {
+      expires: 24 * 3600 * 1000,
+      maxAge: 24 * 3600,
+    }); // 1 day
+    await setCookie("sessionId", sessionId, {
+      expires: 24 * 3600 * 1000,
+      maxAge: 24 * 3600,
+    }); // 1 day
     return {
       success: true,
       message: "Login successful",
@@ -208,26 +214,32 @@ export async function signinAction(formData: FormData) {
       }
     }
     const data = await res.json();
-    const cookie_string = res.headers.get('set-cookie');
-    const sess = res.headers.get('sessionId');  // Access the custom header
-    const sessionId = sess ? sess.split(' ')[1] : null;  // Remove "Bearer" and get the session ID
-    if(!cookie_string || !sessionId){
+    const cookie_string = res.headers.get("set-cookie");
+    const sess = res.headers.get("sessionId"); // Access the custom header
+    const sessionId = sess ? sess.split(" ")[1] : null; // Remove "Bearer" and get the session ID
+    if (!cookie_string || !sessionId) {
       throw new AppError("Cookie not found", 500, "SERVER_ERROR");
     }
     const accessToken = cookie_string.match(/access_token=([^;]+)/);
     const refreshToken = cookie_string.match(/refresh_token=([^;]+)/);
-    if(!accessToken || !refreshToken){
+    if (!accessToken || !refreshToken) {
       throw new AppError("Token not found", 500, "SERVER_ERROR");
     }
- 
-        // Call the setCookie function
-        await removeCookie('',true);
-        await setCookie("refreshToken", refreshToken[1], {
-          expires: 7 * 24 * 3600 * 1000,
-          maxAge: 7* 24 * 3600
-        }); // 7 days
-        await setCookie("accessToken", accessToken[1], { expires: 24 * 3600 * 1000, maxAge: 24 * 3600}); // 1 day
-        await setCookie("sessionId", sessionId, { expires: 24 * 3600 * 1000 , maxAge: 24 * 3600}); // 1 day
+
+    // Call the setCookie function
+    await removeCookie("", true);
+    await setCookie("refreshToken", refreshToken[1], {
+      expires: 7 * 24 * 3600 * 1000,
+      maxAge: 7 * 24 * 3600,
+    }); // 7 days
+    await setCookie("accessToken", accessToken[1], {
+      expires: 24 * 3600 * 1000,
+      maxAge: 24 * 3600,
+    }); // 1 day
+    await setCookie("sessionId", sessionId, {
+      expires: 24 * 3600 * 1000,
+      maxAge: 24 * 3600,
+    }); // 1 day
 
     return {
       success: true,
@@ -280,7 +292,6 @@ export async function forgetPasswordAction(formData: FormData) {
       }
     }
     const data = await res.json();
-
 
     return {
       success: true,
@@ -350,6 +361,48 @@ export const resetPasswordAction = async (formData: FormData) => {
     return {
       success: true,
       message: "Password reset successfully",
+    };
+  } catch (error) {
+    return handleServerError(error);
+  }
+};
+
+export const logoutAction = async () => {
+  try {
+    const refreshToken = await getCookie("refreshToken");
+    if (!refreshToken) {
+      throw new AppError("Token not found", 500, "SERVER_ERROR");
+    }
+    const res = await fetch(`${process.env.SERVER_BASE_URL}/api/auth/logout`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${refreshToken.value}`,
+      },
+    });
+
+    if (!res.ok) {
+      if (
+        res.status === 400 ||
+        res.status === 404 ||
+        res.status === 401 ||
+        res.status === 403
+      ) {
+        const data = await res.json();
+        throw new AppError(data.message, res.status);
+      } else {
+        throw new AppError(
+          "Something went wrong. Please try again later",
+          500,
+          "SERVER_ERROR"
+        );
+      }
+    }
+    const data = await res.json();
+    await removeCookie("", true);
+    return {
+      success: true,
+      message: "Logout successful",
     };
   } catch (error) {
     return handleServerError(error);
