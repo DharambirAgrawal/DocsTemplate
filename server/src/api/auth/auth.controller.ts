@@ -537,14 +537,14 @@ export const logout = async (
   next: NextFunction
 ) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const refreshToken = authHeader && authHeader.split(" ")[1];
 
-  if (!token) {
+  if (!refreshToken) {
     throw new AppError("Invalid request", 404);
   }
 
   const { email, sessionId, type } = decodeToken(
-    token,
+    refreshToken,
     process.env.JWT_TOKEN_SECRET
   );
 
@@ -557,9 +557,27 @@ export const logout = async (
     throw new AppError("Invalid request", 404);
   }
 
+   const existingUser= await User.findOne({email});
+
+  if (!existingUser) {
+    throw new AppError("User not found", 404);
+  }
+
+
   // Delete the session
   await Session.deleteOne({
     sessionId: sessionId,
+  });
+
+  // Remove the session from the user's sessionIds array
+  existingUser.sessionIds = existingUser.sessionIds.filter(
+    (id) => id.toString() !== sessionId
+  );
+  await existingUser.save();
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).send("Error logging out.");
+    }
   });
 
   res.status(200).json({
