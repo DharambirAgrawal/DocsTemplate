@@ -2,13 +2,56 @@
 
 import { useState, useEffect, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import ImageGrid from "@/app/(dashboard)/components/Images/ImageGrid";
 import Image from "next/image";
 export interface Category {
   id: string;
   name: string;
   checked?: boolean;
 }
+const images = [
+  {
+    id: '1',
+    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
+    title: 'Mountain Landscape',
+    altText: 'Beautiful mountain landscape at sunset',
+    description: 'A stunning view of mountains during golden hour',
+    tags: ['nature', 'landscape', 'mountains']
+  },
+  {
+    id: '2',
+    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
+    title: 'Beach Sunset',
+    altText: 'Colorful sunset at the beach',
+    description: 'A beautiful sunset view from the beach',
+    tags: ['nature', 'sunset', 'beach']
+  },
+  {
+    id: '3',
+    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
+    title: 'City Skyline',
+    altText: 'City skyline at night',
+    description: 'A night view of the city skyline',
+    tags: ['city', 'skyline', 'night']
+  },
+  {
+    id: '4',
+    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
+    title: 'City Skyline',
+    altText: 'City skyline at night',
+    description: 'A night view of the city skyline',
+    tags: ['city', 'skyline', 'night']
+  },
+  {
+    id: '5',
+    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
+    title: 'City Skyline',
+    altText: 'City skyline at night',
+    description: 'A night view of the city skyline',
+    tags: ['city', 'skyline', 'night']
+  },
 
+];
 export interface BlogPost {
   id: string;
   title: string;
@@ -61,7 +104,8 @@ export default function CreatePost() {
   const [newCategory, setNewCategory] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -112,6 +156,11 @@ export default function CreatePost() {
     router.push("/dashboard/posts");
   };
 
+  const handleImageSelect = (image) => {
+    setSelectedImage(image.url);
+    setIsModalOpen(false); // Close the modal after selecting
+  };
+
   useEffect(() => {
     if (formData.imageUrl) {
       setPreviewImage(formData.imageUrl);
@@ -156,10 +205,10 @@ export default function CreatePost() {
 
           <div className="p-6">
             {activeTab === "write" ? (
-              <form onSubmit={(e) => handleSubmit(e, "published")}>
+              <form onSubmit={(e) => handleSubmit(e, "published")} className="l">
                 <div className="space-y-6">
-                  {/* Title & Summary */}
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Title  */}
+                  <div className=" gap-6">
                     <div className="space-y-2">
                       <label
                         htmlFor="title"
@@ -178,55 +227,67 @@ export default function CreatePost() {
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="summary"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Summary
-                      </label>
-                      <input
-                        type="text"
-                        id="summary"
-                        name="summary"
-                        value={formData.summary}
-                        onChange={handleInputChange}
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                        placeholder="Brief summary of your post"
-                        required
-                      />
-                    </div>
+                    
                   </div>
+                  {/* Summary */}
+                  <div className="space-y-2">
+                  <label
+                    htmlFor="metaDescription"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Meta Description
+                  </label>
+                  <textarea
+                    id="metaDescription"
+                    name="metaDescription"
+                    rows={3}
+                    value={formData.metaDescription}
+                    onChange={handleInputChange}
+                    className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="SEO description"
+                  ></textarea>
+                </div>
 
                   {/* Image & Time to Read */}
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="imageUrl"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Featured Image URL
-                      </label>
+                    
+                    <div className="space-y-4">
+                    <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+                      Featured Image URL
+                    </label>
+                    <div className="relative">
                       <input
-                        type="url"
+                        type="text"
                         id="imageUrl"
                         name="imageUrl"
-                        value={formData.imageUrl}
-                        onChange={handleInputChange}
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                        placeholder="https://example.com/image.jpg"
+                        value={selectedImage || ""}
+                        readOnly
+                        onClick={() => setIsModalOpen(true)} // Open modal on click
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors cursor-pointer"
+                        placeholder="Click to select image"
                       />
-                      {previewImage && (
-                        <div className="mt-2 relative h-40 rounded-lg overflow-hidden">
-                          <Image
-                            src={previewImage || "/placeholder.svg"}
-                            alt="Preview"
-                            fill
-                            className="object-cover"
+                    </div>
+            
+                    {/* Modal to select image */}
+                    {isModalOpen && (
+                      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-[100]">
+                        <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
+                          <button
+                            className="absolute top-2 right-2 text-gray-600"
+                            onClick={() => setIsModalOpen(false)}
+                          >
+                            X
+                          </button>
+                          <h2 className="text-xl font-semibold mb-4">Select an Image</h2>
+                          <ImageGrid
+                            images={images}
+                            handleImageClick={handleImageSelect} // Pass the selection handler
+        
                           />
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
                     <div className="space-y-2">
                       <label
                         htmlFor="timeToRead"
@@ -274,7 +335,25 @@ export default function CreatePost() {
                       )}
                     </div>
                     <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-gray-200">
-                      {categories.map((category) => (
+                    <div className="p-4 border-t border-gray-200">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            placeholder="Add new category"
+                            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={addNewCategory}
+                            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>  
+                    {categories.map((category) => (
                         <label
                           key={category.id}
                           className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
@@ -292,24 +371,7 @@ export default function CreatePost() {
                           </span>
                         </label>
                       ))}
-                      <div className="p-4 border-t border-gray-200">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={newCategory}
-                            onChange={(e) => setNewCategory(e.target.value)}
-                            placeholder="Add new category"
-                            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                          <button
-                            type="button"
-                            onClick={addNewCategory}
-                            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                          >
-                            Add
-                          </button>
-                        </div>
-                      </div>
+                      
                     </div>
                   </div>
 

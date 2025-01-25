@@ -1,7 +1,8 @@
 "use client";
 // ImageGallery.tsx
 import React, { useState } from "react";
-import { Copy, X, Trash2, Save } from "lucide-react";
+import { X, Trash2, Save } from "lucide-react";
+import ImageGrid from "./ImageGrid";
 
 // types.ts
 interface ImageType {
@@ -28,21 +29,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   const [editedImage, setEditedImage] = useState<ImageType | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
-  const copyToClipboard = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      // You can add a toast notification here
-    } catch (err) {
-      console.error("Failed to copy URL:", err);
-    }
-  };
-
   const handleImageClick = (image: ImageType) => {
     console.log("Image clicked:", image);
     setSelectedImage(image);
     setEditedImage(image);
     setShowDialog(true);
   };
+ 
 
   const handleSave = () => {
     if (editedImage) {
@@ -61,39 +54,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   return (
     <div className="container mx-auto px-4">
       {/* Image Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
-          <div key={image.id} className="relative group">
-            <div className="aspect-square overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
-            onClick={() => {
-                handleImageClick(image);
-              }}
-            >
-              <img
-                src={image.url}
-                alt={image.altText}
-                className="w-full h-full object-cover cursor-pointer"
-                
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-300" />
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <h3 className="text-white font-medium truncate">
-                  {image.title}
-                </h3>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    copyToClipboard(image.url);
-                  }}
-                  className="absolute top-2 right-2 p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200"
-                >
-                  <Copy className="w-4 h-4 text-gray-700" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+     <ImageGrid images={images} handleImageClick={handleImageClick} />
 
       {/* Image Details Dialog */}
       {showDialog && editedImage && (
