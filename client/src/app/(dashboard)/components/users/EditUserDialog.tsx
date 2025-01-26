@@ -1,23 +1,13 @@
 import { useState } from "react"
 export interface User {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
+    userId: string
     role: string
+    accountStatus: "ACTIVE" | "INACTIVE" | "PENDING"
+    isEmailVerified: boolean
     status: "active" | "inactive"
-    image: string
+    providerProfileImage: string
   }
   
-  export const mockUsers: User[] = Array.from({ length: 50 }, (_, i) => ({
-    id: `user-${i + 1}`,
-    firstName: `First${i + 1}`,
-    lastName: `Last${i + 1}`,
-    email: `user${i + 1}@example.com`,
-    role: i % 3 === 0 ? "Admin" : "User",
-    status: i % 5 === 0 ? "inactive" : "active",
-    image: `https://picsum.photos/seed/${i + 1}/40/40`,
-  }))
   
   
 
@@ -45,48 +35,9 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
       <div className="bg-white p-8 rounded-lg w-full max-w-md shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit User</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-              First Name
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              value={editedUser.firstName}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              value={editedUser.lastName}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={editedUser.email}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+          
+         
+          
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
               Role
@@ -99,10 +50,28 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+              <option value="AUTHOR">Author</option>
             </select>
           </div>
+          <div>
+          <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+            Email Verified
+          </label>
+          <select
+            id="isEmailVerified"
+            name="isEmailVerified"
+            value={editedUser.isEmailVerified ? "Yes" : "No"}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          
+          </select>
+        </div>
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
               Status
@@ -115,8 +84,11 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="active">ACTIVE</option>
+              <option value="inactive">INACTIVE</option>
+              <option value="inactive">PENDING</option>
+              <option value="inactive">SUSPENDED</option>
+
             </select>
           </div>
           <div>
@@ -127,7 +99,7 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
               type="url"
               id="image"
               name="image"
-              value={editedUser.image}
+              value={editedUser.providerProfileImage}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required

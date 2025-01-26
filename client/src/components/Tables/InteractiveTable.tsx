@@ -2,13 +2,16 @@
 import { useState, useEffect } from "react"
 
 export interface User {
-  id: string
+  userId: string
   firstName: string
   lastName: string
   email: string
-  role: string
-  status: "active" | "inactive"
-  image: string
+  role: "USER" | "ADMIN" | "AUTHOR"
+  accountStatus: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED"
+  providerProfileImage: string
+  isEmailVerified: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 interface InteractiveTableProps {
@@ -31,8 +34,8 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
   const [searchTerm, setSearchTerm] = useState("")
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
-  const [roleFilter, setRoleFilter] = useState<"all" | "Admin" | "User">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "INACTIVE" | "ACTIVE" | "PENDING" | "SUSPENDED">("all")
+  const [roleFilter, setRoleFilter] = useState<"all" | "ADMIN" | "USER" | "AUTHOR">("all")
 
   useEffect(() => {
     let filtered = users.filter((user) =>
@@ -40,7 +43,7 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
     )
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((user) => user.status === statusFilter)
+      filtered = filtered.filter((user) => user.accountStatus === statusFilter)
     }
 
     if (roleFilter !== "all") {
@@ -88,21 +91,25 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
         <div className="flex gap-4">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
+            onChange={(e) => setStatusFilter(e.target.value as "all" | "INACTIVE" | "ACTIVE" | "PENDING" | "SUSPENDED")}
             className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="PENDING">Pending</option>
+            <option value="SUSPENDED">Suspended</option>
+
           </select>
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as "all" | "Admin" | "User")}
+            onChange={(e) => setRoleFilter(e.target.value as "all" | "ADMIN" | "USER" | "AUTHOR")}
             className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Roles</option>
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
+            <option value="AUTHOR">Author</option>
           </select>
         </div>
       </div>
@@ -115,15 +122,16 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
               <th className="py-3 px-6 text-left">Email</th>
               <th className="py-3 px-6 text-center">Role</th>
               <th className="py-3 px-6 text-center">Status</th>
+              <th className="py-3 px-6 text-center">Email Verified</th>
               <th className="py-3 px-6 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
             {currentUsers.map((user) => (
-              <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-100">
+              <tr key={user.userId} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left whitespace-nowrap">
                   <img
-                    src={user.image || "/placeholder.svg"}
+                    src={user.providerProfileImage || "/placeholder.svg"}
                     alt={`${user.firstName} ${user.lastName}`}
                     className="w-10 h-10 rounded-full"
                   />
@@ -132,16 +140,23 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
                 <td className="py-3 px-6 text-left">{user.email}</td>
                 <td className="py-3 px-6 text-center">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs ${user.role === "Admin" ? "bg-purple-200 text-purple-800" : "bg-yellow-200 text-yellow-800"}`}
+                    className={`px-3 py-1 rounded-full text-xs ${user.role === "ADMIN" ? "bg-purple-200 text-purple-800" : "bg-yellow-200 text-yellow-800"}`}
                   >
                     {user.role}
                   </span>
                 </td>
                 <td className="py-3 px-6 text-center">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs ${user.status === "active" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}
+                    className={`px-3 py-1 rounded-full text-xs ${user.accountStatus === "ACTIVE" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}
                   >
-                    {user.status}
+                    {user.accountStatus}
+                  </span>
+                </td>
+                <td className="py-3 px-6 text-center">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs ${user.accountStatus ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}
+                  >
+                    {user.isEmailVerified ? "Yes" : "No"}
                   </span>
                 </td>
                 <td className="py-3 px-6 text-center">
@@ -166,7 +181,7 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => handleDelete(user.userId)}
                       className="transform hover:text-red-500 hover:scale-110 transition duration-300 ease-in-out"
                     >
                       <svg
