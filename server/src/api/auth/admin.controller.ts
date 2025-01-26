@@ -11,15 +11,19 @@ export const getUser = async (
     userId,
     page = 1,
     limit = 10,
-    sort = "createdAt",
+    sort = "createdAt", // Default to sorting by `createdAt`
     filter = "",
   } = req.query;
+
   const select =
-    "firstName lastName accountStatus role createdAt updatedAt userId email image accountStatus isEmailVerified";
+    "firstName lastName accountStatus role createdAt updatedAt userId email image accountStatus isEmailVerified -_id providerProfileImage";
 
   // If userId is provided in the params, find and return that specific user
   if (userId) {
-    const user = await User.findOne({usetId:userId}).select(select);
+    const user = await User.findOne({ userId })
+      .select(select)
+      
+
     if (!user) {
       return next(new AppError("User not found", 404)); // Using custom error handler
     }
@@ -38,6 +42,30 @@ export const getUser = async (
     ? { name: { $regex: filter, $options: "i" } }
     : {};
 
+  // If sort is set to "none", don't apply sorting
+  if (sort === "none") {
+    const users = await User.find(filterConditions)
+      .skip(skip)
+      .limit(pageLimit)
+      .select(select) // Only these fields will be returned
+      
+
+    // Count total users for pagination
+    const totalUsers = await User.countDocuments(filterConditions);
+    const totalPages = Math.ceil(totalUsers / pageLimit);
+
+    return res.status(200).json({
+      status: "success",
+      data: users,
+      pagination: {
+        totalUsers,
+        totalPages,
+        currentPage: pageNumber,
+        pageLimit,
+      },
+    });
+  }
+
   // Ensure `sort` is a string and handle multiple values (e.g., array from query params)
   const sortField = Array.isArray(sort) ? sort[0] : (sort as string);
 
@@ -52,7 +80,8 @@ export const getUser = async (
     .skip(skip)
     .limit(pageLimit)
     .sort(sortConditions)
-    .select(select); // Only these fields will be returned
+    .select(select) // Only these fields will be returned
+    .select('-_id'); // Exclude _id field
 
   // Count total users for pagination
   const totalUsers = await User.countDocuments(filterConditions);
@@ -72,9 +101,10 @@ export const getUser = async (
 };
 
 
+
 export const updateUser= async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.userId;
-    const {firstName, lastName, role, email, image, accountStatus, isEmailVerified} = req.body;
+    const {firstName, lastName, role, email, accountStatus, isEmailVerified} = req.body;
     
     const user = await User.findOne({userId:userId});
 
@@ -88,7 +118,6 @@ export const updateUser= async (req: Request, res: Response, next: NextFunction)
     if (accountStatus !== undefined) user.accountStatus = accountStatus;
     if (role !== undefined) user.role = role;
     if (email !== undefined) user.email = email;
-    if (image !== undefined) user.image = image;
     if (accountStatus !== undefined) user.accountStatus = accountStatus;
     if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
 

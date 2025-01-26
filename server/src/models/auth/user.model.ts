@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types, UpdateQuery } from "mongoose";
 import { hashData } from "../../utils/utils";
 import { generateUniqueId } from "../../utils/jwtUtils";
 import Profile,{IProfile} from "../user/ProfileModel";
+
 // Define AccountStatus Enum
 export enum AccountStatus {
   active = "ACTIVE",
@@ -31,7 +32,6 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   profile: Types.ObjectId;
-  image: string;
   password: string;
   accountStatus: AccountStatus;
   isEmailVerified: boolean;
@@ -56,7 +56,6 @@ const userSchema = new Schema<IUser>(
     userId: { type: String, unique: true, required: true, trim: true },
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
-    image: { type: String, trim: true },
     email: { type: String, required: true, unique: true, trim: true },
     profile: {
       type: mongoose.Schema.Types.ObjectId,
@@ -84,7 +83,7 @@ const userSchema = new Schema<IUser>(
       default: "EMAIL",
     },
     providerId: { type: String, unique: true, sparse: true },
-    providerProfileImage: { type: String },
+    providerProfileImage: { type: String, default: '' },
     sessionIds: [{ type: Types.ObjectId, ref: "Session" }],
   },
   {
@@ -123,6 +122,11 @@ userSchema.methods.createProfile = async function () {
     lastName: this.lastName,
     email: this.email,
   });
+
+  if( this.loginProvider !== LoginProvider.email){
+    profile.image = this.providerProfileImage;
+  }
+
   const newProfile = await profile.save();
   this.profile=newProfile._id as Types.ObjectId;
   return newProfile;

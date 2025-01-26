@@ -4,6 +4,7 @@ import { catchAsync } from "../../errors/catchAsync";
 import { register,resendEmailVerification,verifyEmail,forgotPassword,login,logout,resetPassword,suspendAccount,checkresetPasswordToken } from "./auth.controller";
 import { googleRegister } from "./google.controller";
 import { verifyRefreshToken } from "./auth.middleware";
+import { getUser } from "./admin.controller";
 const AuthRouter = express.Router();
 
 
@@ -25,3 +26,8 @@ export const authRouter = AuthRouter
 .get("/logout",catchAsync(logout))
 
 .get("/get-access-token", verifyRefreshToken)
+
+// Admin routes
+
+.get("/users",catchAsync( getUser))
+

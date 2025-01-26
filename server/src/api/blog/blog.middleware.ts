@@ -8,10 +8,12 @@ export const verifyAuthor = async (
   res: Response,
   next: NextFunction
 ) => {
+
   const { accessToken } = req.cookies;
   if (!accessToken || accessToken == undefined) {
     throw new AppError("Invalid request", 401);
   }
+//   TODO: Also check for user role only author can publish 
 
   const userId = await verifyAccessToken(accessToken);
   if (!userId) {
