@@ -76,18 +76,15 @@ export const verifyRefreshToken = catchAsync(
   }
 );
 
-export const verifyAccessToken = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { accessToken } = req.cookies;
-    if (!accessToken || accessToken == undefined) {
-      return next();
-    }
+export const verifyAccessToken = 
+  async (accessToken: string) => {
+   
     const { type, sessionId, email } = await decodeToken(
       accessToken,
       process.env.JWT_TOKEN_SECRET
     );
     if (type != accessTokenPayload.type) {
-      throw new AppError("Invalid request", 404);
+      throw new AppError("Invalid request", 401);
     }
     const session = await Session.findOne({ sessionId }).populate("userId"); // Populate the user data from the `userId` field in the session
 
@@ -104,13 +101,7 @@ export const verifyAccessToken = catchAsync(
       await session.deleteOne();
       throw new AppError("Invalid request", 404);
     }
-    ;
-    return res.json({
-      status: "success",
-      data: {
-        email,
-        role: session.userId.role,
-      },
-    });
+    
+    return session.userId;
   }
-);
+

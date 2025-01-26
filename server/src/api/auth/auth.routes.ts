@@ -13,10 +13,15 @@ export const authRouter = AuthRouter
 
 .post("/register", catchAsync(register))
 .get("/register/:token", catchAsync(verifyEmail))
-.post("/resend-email", catchAsync(resendEmailVerification))
+
 .post("/login",verifyRefreshToken,catchAsync(login))
+
+.post("/resend-email", catchAsync(resendEmailVerification))
 .post("/forget-password",catchAsync(forgotPassword) )  
 .post("/reset-password",catchAsync(resetPassword))
 .get("/reset-password/:token",catchAsync(checkresetPasswordToken))   //static file for reset password
+
 .get("/suspend-account/:token",catchAsync(suspendAccount))
 .get("/logout",catchAsync(logout))
+
+.get("/get-access-token", verifyRefreshToken)
