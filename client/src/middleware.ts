@@ -66,9 +66,9 @@ export async function middleware(request: NextRequest) {
       });
 
       const data = await res.json();
-      console.log(data);
+    
       if (data.status === "success") {
-        console.log(data);
+ 
         // If refresh token is valid, redirect to the dashboard
         return NextResponse.redirect(new URL(REDIRECT_URL, request.url));
       }

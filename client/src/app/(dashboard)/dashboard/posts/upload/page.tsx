@@ -4,6 +4,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import ImageGrid from "@/app/(dashboard)/components/Images/ImageGrid";
 import Image from "next/image";
+import { publishPost } from "../actions";
 export interface Category {
   id: string;
   name: string;
@@ -11,67 +12,64 @@ export interface Category {
 }
 const images = [
   {
-    id: '1',
-    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
-    title: 'Mountain Landscape',
-    altText: 'Beautiful mountain landscape at sunset',
-    description: 'A stunning view of mountains during golden hour',
-    tags: ['nature', 'landscape', 'mountains']
+    id: "1",
+    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
+    title: "Mountain Landscape",
+    altText: "Beautiful mountain landscape at sunset",
+    description: "A stunning view of mountains during golden hour",
+    tags: ["nature", "landscape", "mountains"],
   },
   {
-    id: '2',
-    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
-    title: 'Beach Sunset',
-    altText: 'Colorful sunset at the beach',
-    description: 'A beautiful sunset view from the beach',
-    tags: ['nature', 'sunset', 'beach']
+    id: "2",
+    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
+    title: "Beach Sunset",
+    altText: "Colorful sunset at the beach",
+    description: "A beautiful sunset view from the beach",
+    tags: ["nature", "sunset", "beach"],
   },
   {
-    id: '3',
-    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
-    title: 'City Skyline',
-    altText: 'City skyline at night',
-    description: 'A night view of the city skyline',
-    tags: ['city', 'skyline', 'night']
+    id: "3",
+    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
+    title: "City Skyline",
+    altText: "City skyline at night",
+    description: "A night view of the city skyline",
+    tags: ["city", "skyline", "night"],
   },
   {
-    id: '4',
-    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
-    title: 'City Skyline',
-    altText: 'City skyline at night',
-    description: 'A night view of the city skyline',
-    tags: ['city', 'skyline', 'night']
+    id: "4",
+    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
+    title: "City Skyline",
+    altText: "City skyline at night",
+    description: "A night view of the city skyline",
+    tags: ["city", "skyline", "night"],
   },
   {
-    id: '5',
-    url: 'https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png',
-    title: 'City Skyline',
-    altText: 'City skyline at night',
-    description: 'A night view of the city skyline',
-    tags: ['city', 'skyline', 'night']
+    id: "5",
+    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
+    title: "City Skyline",
+    altText: "City skyline at night",
+    description: "A night view of the city skyline",
+    tags: ["city", "skyline", "night"],
   },
-
 ];
 export interface BlogPost {
   id: string;
   title: string;
   summary: string;
   imageUrl: string;
-  timeToRead: number;
+  timeRead: number;
   categories: string[];
   tags: string[];
   content: string;
   metaTitle: string;
-  metaDescription: string;
+  metaDesc: string;
   metaKeywords: string;
   metaImage: string;
   status: "draft" | "published";
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface FormData
-  extends Omit<BlogPost, "id" | "createdAt" | "updatedAt" | "status"> {}
+  extends Omit<BlogPost, "id" | "status"> {}
 
 const initialCategories: Category[] = [
   { id: "1", name: "Technology" },
@@ -87,12 +85,12 @@ const initialData: FormData = {
   title: "",
   summary: "",
   imageUrl: "",
-  timeToRead: 5,
+  timeRead: 5,
   categories: [],
   tags: [],
   content: "",
   metaTitle: "",
-  metaDescription: "",
+  metaDesc: "",
   metaKeywords: "",
   metaImage: "",
 };
@@ -105,7 +103,6 @@ export default function CreatePost() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -148,16 +145,16 @@ export default function CreatePost() {
     const submitData = {
       ...formData,
       status,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
+
     console.log("Submitting:", submitData);
+    await publishPost(submitData);
     // Here you would typically send the data to your backend
-    router.push("/dashboard/posts");
+    // router.push("/dashboard/posts");
   };
 
-  const handleImageSelect = (image) => {
-    setSelectedImage(image.url);
+  const handleImageSelect = (image:any) => {
+    setFormData((prev) => ({ ...prev, imageUrl: image.url }));
     setIsModalOpen(false); // Close the modal after selecting
   };
 
@@ -205,7 +202,10 @@ export default function CreatePost() {
 
           <div className="p-6">
             {activeTab === "write" ? (
-              <form onSubmit={(e) => handleSubmit(e, "published")} className="l">
+              <form
+                onSubmit={(e) => handleSubmit(e, "published")}
+                className="l"
+              >
                 <div className="space-y-6">
                   {/* Title  */}
                   <div className=" gap-6">
@@ -227,67 +227,69 @@ export default function CreatePost() {
                         required
                       />
                     </div>
-                    
                   </div>
                   {/* Summary */}
                   <div className="space-y-2">
-                  <label
-                    htmlFor="metaDescription"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Meta Description
-                  </label>
-                  <textarea
-                    id="metaDescription"
-                    name="metaDescription"
-                    rows={3}
-                    value={formData.metaDescription}
-                    onChange={handleInputChange}
-                    className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="SEO description"
-                  ></textarea>
-                </div>
+                    <label
+                      htmlFor="metaDescription"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Summary
+                    </label>
+                    <textarea
+                      id="summary"
+                      name="summary"
+                      rows={3}
+                      value={formData.summary}
+                      onChange={handleInputChange}
+                      className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="SEO description"
+                    ></textarea>
+                  </div>
 
                   {/* Image & Time to Read */}
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    
                     <div className="space-y-4">
-                    <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                      Featured Image URL
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        id="imageUrl"
-                        name="imageUrl"
-                        value={selectedImage || ""}
-                        readOnly
-                        onClick={() => setIsModalOpen(true)} // Open modal on click
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors cursor-pointer"
-                        placeholder="Click to select image"
-                      />
-                    </div>
-            
-                    {/* Modal to select image */}
-                    {isModalOpen && (
-                      <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-[100]">
-                        <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
-                          <button
-                            className="absolute top-2 right-2 text-gray-600"
-                            onClick={() => setIsModalOpen(false)}
-                          >
-                            X
-                          </button>
-                          <h2 className="text-xl font-semibold mb-4">Select an Image</h2>
-                          <ImageGrid
-                            images={images}
-                            handleImageClick={handleImageSelect} // Pass the selection handler
-        
-                          />
-                        </div>
+                      <label
+                        htmlFor="imageUrl"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Featured Image URL
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          id="imageUrl"
+                          name="imageUrl"
+                          value={formData.imageUrl || ""}
+                          readOnly
+                          onClick={() => setIsModalOpen(true)} // Open modal on click
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors cursor-pointer"
+                          placeholder="Click to select image"
+                        />
                       </div>
-                    )}
-                  </div>
+
+                      {/* Modal to select image */}
+                      {isModalOpen && (
+                        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-[100]">
+                          <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
+                            <button
+                              className="absolute top-2 right-2 text-gray-600"
+                              onClick={() => setIsModalOpen(false)}
+                            >
+                              X
+                            </button>
+                            <h2 className="text-xl font-semibold mb-4">
+                              Select an Image
+                            </h2>
+                            <ImageGrid
+                              images={images}
+                              handleImageClick={handleImageSelect} // Pass the selection handler
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className="space-y-2">
                       <label
                         htmlFor="timeToRead"
@@ -297,9 +299,9 @@ export default function CreatePost() {
                       </label>
                       <input
                         type="number"
-                        id="timeToRead"
-                        name="timeToRead"
-                        value={formData.timeToRead}
+                        id="timeRead"
+                        name="timeRead"
+                        value={formData.timeRead}
                         onChange={handleInputChange}
                         className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                         min="1"
@@ -335,7 +337,7 @@ export default function CreatePost() {
                       )}
                     </div>
                     <div className="mt-2 max-h-60 overflow-y-auto rounded-lg border border-gray-200">
-                    <div className="p-4 border-t border-gray-200">
+                      <div className="p-4 border-t border-gray-200">
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -352,8 +354,8 @@ export default function CreatePost() {
                             Add
                           </button>
                         </div>
-                      </div>  
-                    {categories.map((category) => (
+                      </div>
+                      {categories.map((category) => (
                         <label
                           key={category.id}
                           className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
@@ -371,7 +373,6 @@ export default function CreatePost() {
                           </span>
                         </label>
                       ))}
-                      
                     </div>
                   </div>
 
@@ -463,10 +464,10 @@ export default function CreatePost() {
                         Meta Description
                       </label>
                       <textarea
-                        id="metaDescription"
-                        name="metaDescription"
+                        id="metaDesc"
+                        name="metaDesc"
                         rows={3}
-                        value={formData.metaDescription}
+                        value={formData.metaDesc}
                         onChange={handleInputChange}
                         className="block w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                         placeholder="SEO description"
@@ -513,7 +514,7 @@ export default function CreatePost() {
                     {formData.summary || "No summary provided"}
                   </p>
                   <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span>{formData.timeToRead} min read</span>
+                    <span>{formData.timeRead} min read</span>
                     <span>•</span>
                     <div className="flex flex-wrap gap-2">
                       {formData.categories.map((category) => (
@@ -560,7 +561,7 @@ export default function CreatePost() {
                         {formData.title.toLowerCase().replace(/ /g, "-")}
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        {formData.metaDescription || formData.summary}
+                        {formData.metaDesc || formData.summary}
                       </p>
                     </div>
                   </div>
