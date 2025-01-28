@@ -30,5 +30,5 @@ export const authRouter = AuthRouter
 // Admin routes
 
 .get("/users",verifyAccessTokenMiddleware ,catchAsync( getUser))
-.post("update-user",verifyAccessTokenMiddleware,catchAsync( updateUser))
+.post("/update-user/:userId",verifyAccessTokenMiddleware,catchAsync( updateUser))
 

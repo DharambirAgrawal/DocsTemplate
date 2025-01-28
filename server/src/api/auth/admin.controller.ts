@@ -9,12 +9,10 @@ export const getUser = async (
   res: Response,
   next: NextFunction
 ) => {
-
   const role = (req as any).role;
-if(role != "ADMIN"){
-  return next(new AppError("Not Authorize to get the users", 400));
-}
-
+  if (role != "ADMIN") {
+    return next(new AppError("Not Authorize to get the users", 400));
+  }
 
   const {
     userId,
@@ -29,9 +27,7 @@ if(role != "ADMIN"){
 
   // If userId is provided in the params, find and return that specific user
   if (userId) {
-    const user = await User.findOne({ userId })
-      .select(select)
-      
+    const user = await User.findOne({ userId }).select(select);
 
     if (!user) {
       return next(new AppError("User not found", 404)); // Using custom error handler
@@ -56,8 +52,7 @@ if(role != "ADMIN"){
     const users = await User.find(filterConditions)
       .skip(skip)
       .limit(pageLimit)
-      .select(select) // Only these fields will be returned
-      
+      .select(select); // Only these fields will be returned
 
     // Count total users for pagination
     const totalUsers = await User.countDocuments(filterConditions);
@@ -90,7 +85,7 @@ if(role != "ADMIN"){
     .limit(pageLimit)
     .sort(sortConditions)
     .select(select) // Only these fields will be returned
-    .select('-_id'); // Exclude _id field
+    .select("-_id"); // Exclude _id field
 
   // Count total users for pagination
   const totalUsers = await User.countDocuments(filterConditions);
@@ -109,68 +104,69 @@ if(role != "ADMIN"){
   });
 };
 
-
-
-export const updateUser= async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const Adminrole = (req as any).role;
 
-if(Adminrole != "ADMIN"){
-  return next(new AppError("Not Authorize to update the user", 400));
-}
+  if (Adminrole != "ADMIN") {
+    return next(new AppError("Not Authorize to update the user", 400));
+  }
 
+  const userId = req.params.userId;
+  if(!userId){
+   throw new AppError("User Id is required", 400)
+  }
+  const { role, status, isEmailVerified } =
+    req.body;
 
-    const userId = req.params.userId;
-    const {firstName, lastName, role, email, accountStatus, isEmailVerified} = req.body;
-    
-    const user = await User.findOne({userId:userId});
+  const user = await User.findOne({ userId: userId });
 
-    if (!user) {
-        throw new AppError('User not found', 404);
-    }
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
 
-
-    if(user.role == "AUTHOR"){
-
-      const author = await Author.findOne({ userId: userId });
-      if(!author){
-        const author = await  createAuthor(userId);
-        if(author.status != "success"){
-          throw new AppError("Error while creating author", 400);
-        }
+  if (role == "AUTHOR") {
+    const author = await Author.findOne({ userId: userId });
+    if (!author) {
+      const author = await createAuthor(userId);
+      if (author.status != "success") {
+        throw new AppError("Error while creating author", 400);
       }
-
     }
+  }
+  console.log(role, status, isEmailVerified);
+console.log(req.body)
+  // Dynamically update only the fields that are provided in the request body
 
+  if (status !== undefined) user.accountStatus = status;
+  if (role !== undefined) user.role = role;
+  if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
 
+  // Save the updated user data to the database
+  await user.save();
 
-    // Dynamically update only the fields that are provided in the request body
-    if (firstName !== undefined) user.firstName = firstName;
-    if (lastName !== undefined) user.lastName = lastName;
-    if (accountStatus !== undefined) user.accountStatus = accountStatus;
-    if (role !== undefined) user.role = role;
-    if (email !== undefined) user.email = email;
-    if (accountStatus !== undefined) user.accountStatus = accountStatus;
-    if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
+  return res.status(200).json({ status: "success", message: "User updated" });
+};
 
-    // Save the updated user data to the database
-    await user.save();
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.params.userId;
 
-    return res.status(200).json({ status: 'success', data: user });
+  // Find and delete the user by userId
+  const user = await User.findOneAndDelete({ userId: userId });
 
-}
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
 
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.params.userId;
-
-    
-        // Find and delete the user by userId
-        const user = await User.findOneAndDelete({userId:userId});
-
-        if (!user) {
-           throw new AppError('User not found', 404);
-        }
-
-        // Successfully deleted
-        return res.status(200).json({ status:"success", message: 'User deleted successfully' });
-   
+  // Successfully deleted
+  return res
+    .status(200)
+    .json({ status: "success", message: "User deleted successfully" });
 };
