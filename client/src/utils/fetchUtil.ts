@@ -1,8 +1,4 @@
 import { getCookie, setCookie } from "@/lib/cookies";
-import { redirect } from 'next/navigation';
-interface RefreshResponse {
-  accessToken: string;
-}
 
 interface FetchOptions extends RequestInit {
   headers?: HeadersInit;

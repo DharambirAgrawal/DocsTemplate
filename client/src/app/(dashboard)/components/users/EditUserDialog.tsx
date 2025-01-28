@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { updateUser } from "../../dashboard/users/actions"
 export interface User {
     userId: string
     role: string
@@ -27,6 +28,8 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log(editedUser)
+    updateUser( editedUser)
     onSave(editedUser)
   }
 
