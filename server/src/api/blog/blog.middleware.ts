@@ -1,4 +1,4 @@
-import { verifyAccessToken } from "../auth/auth.middleware";
+import { verifyAccessToken } from "../auth/auth.helper";
 import { AppError } from "../../errors/AppError";
 import { Request, Response, NextFunction } from "express";
 import Author from "../../models/blog/AuthorModel";
@@ -15,9 +15,14 @@ export const verifyAuthor = async (
   }
 //   TODO: Also check for user role only author can publish 
 
-  const userId = await verifyAccessToken(accessToken);
-  if (!userId) {
+  const {userId, role, status }= await verifyAccessToken(accessToken);
+  
+  if(status == "error"){
     throw new AppError("Invalid request", 401);
+  }
+
+  if(role != "AUTHOR"){
+    throw new AppError("Not Authorize to publish", 400);
   }
 
   const author = await Author.findOne({ userId: userId });

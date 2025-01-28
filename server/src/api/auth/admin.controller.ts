@@ -1,12 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../../errors/AppError";
 import User from "../../models/auth/user.model";
+import Author from "../../models/blog/AuthorModel";
+import { createAuthor } from "../blog/blog.helper";
 
 export const getUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+
+  const role = (req as any).role;
+if(role != "ADMIN"){
+  return next(new AppError("Not Authorize to get the users", 400));
+}
+
+
   const {
     userId,
     page = 1,
@@ -103,6 +112,13 @@ export const getUser = async (
 
 
 export const updateUser= async (req: Request, res: Response, next: NextFunction) => {
+  const Adminrole = (req as any).role;
+
+if(Adminrole != "ADMIN"){
+  return next(new AppError("Not Authorize to update the user", 400));
+}
+
+
     const userId = req.params.userId;
     const {firstName, lastName, role, email, accountStatus, isEmailVerified} = req.body;
     
@@ -111,6 +127,21 @@ export const updateUser= async (req: Request, res: Response, next: NextFunction)
     if (!user) {
         throw new AppError('User not found', 404);
     }
+
+
+    if(user.role == "AUTHOR"){
+
+      const author = await Author.findOne({ userId: userId });
+      if(!author){
+        const author = await  createAuthor(userId);
+        if(author.status != "success"){
+          throw new AppError("Error while creating author", 400);
+        }
+      }
+
+    }
+
+
 
     // Dynamically update only the fields that are provided in the request body
     if (firstName !== undefined) user.firstName = firstName;

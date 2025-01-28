@@ -3,8 +3,8 @@ import passport from "passport";
 import { catchAsync } from "../../errors/catchAsync";
 import { register,resendEmailVerification,verifyEmail,forgotPassword,login,logout,resetPassword,suspendAccount,checkresetPasswordToken } from "./auth.controller";
 import { googleRegister } from "./google.controller";
-import { verifyRefreshToken } from "./auth.middleware";
-import { getUser } from "./admin.controller";
+import { verifyRefreshTokenMiddleware,verifyAccessTokenMiddleware } from "./auth.middleware";
+import { getUser, updateUser } from "./admin.controller";
 const AuthRouter = express.Router();
 
 
@@ -15,7 +15,7 @@ export const authRouter = AuthRouter
 .post("/register", catchAsync(register))
 .get("/register/:token", catchAsync(verifyEmail))
 
-.post("/login",verifyRefreshToken,catchAsync(login))
+.post("/login",verifyRefreshTokenMiddleware,catchAsync(login))
 
 .post("/resend-email", catchAsync(resendEmailVerification))
 .post("/forget-password",catchAsync(forgotPassword) )  
@@ -25,9 +25,10 @@ export const authRouter = AuthRouter
 .get("/suspend-account/:token",catchAsync(suspendAccount))
 .get("/logout",catchAsync(logout))
 
-.get("/get-access-token", verifyRefreshToken)
+.get("/get-access-token", verifyRefreshTokenMiddleware)
 
 // Admin routes
 
-.get("/users",catchAsync( getUser))
+.get("/users",verifyAccessTokenMiddleware ,catchAsync( getUser))
+.post("update-user",verifyAccessTokenMiddleware,catchAsync( updateUser))
 

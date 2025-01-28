@@ -1,21 +1,21 @@
 import { sendEmail } from "../../services/emailService";
 import {
   VERIFY_EMAIL_MESSAGE,
-  SUBSCRIPTION_MESSAGE,
   FORGET_PASSWORD_MESSAGE,
   PASSWORD_CHANGE_SUCCESSFUL_MESSAGE,
 } from "../../utils/EmailMessages";
 import { AppError } from "../../errors/AppError";
 import { validateEmail } from "../../utils/utils";
-import { generateToken } from "../../utils/jwtUtils";
+import { generateToken ,decodeToken} from "../../utils/jwtUtils";
+import Session from "../../models/auth/sesssion.model";
 import {
   verifyEmailPayload,
-  unsubscribeNewsletterPayload,
   resetPasswordPayload,
   suspendAccountPayload,
+  accessTokenPayload
 } from "../../config/tokenPayload";
 import User from "../../models/auth/user.model";
-import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetterModel";
+
 
 export const SendEmailVerificationEmail = async ({
   email,
@@ -142,4 +142,50 @@ export const passwordChangeEmail = async (email: string, name: string) => {
     status: "success",
     message: "Password changed successfully",
   };
+};
+
+
+export const verifyAccessToken = async (accessToken: string) => {
+
+  try {
+    const { } =  decodeToken(
+      accessToken,
+      process.env.JWT_TOKEN_SECRET
+    );
+    
+  } catch (err) {
+    return {
+      status: "error",
+      message: "Invalid token",
+    }
+  }
+   const { type, sessionId, email } = await decodeToken(
+    accessToken,
+    process.env.JWT_TOKEN_SECRET
+  );
+  if (type != accessTokenPayload.type) {
+    throw new AppError("Invalid request", 401);
+  }
+  const session = await Session.findOne({ sessionId }).populate("userId"); // Populate the user data from the `userId` field in the session
+
+  if (!session) {
+    throw new AppError("Session not found", 404);
+  }
+  if (
+    session.userId.email != email ||
+    session.userId.accountStatus != "ACTIVE" ||
+    session.isRevoked ||
+    session.expiresAt <= new Date() ||
+    !session.userId.isEmailVerified
+  ) {
+    await session.deleteOne();
+    throw new AppError("Invalid request", 404);
+  }
+
+  return {
+    status: "success",
+    userId: session.userId._id,
+    email: session.userId.email,
+    role: session.userId.role,
+  }
 };
