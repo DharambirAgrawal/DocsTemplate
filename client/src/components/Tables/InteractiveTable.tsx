@@ -16,18 +16,16 @@ export interface User {
 
 interface InteractiveTableProps {
   users: User[]
-  EditUserDialog: React.FC<{ user: User; onSave: (updatedUser: User) => void; onClose: () => void }>
+  EditUserDialog: React.FC<{ user: any; onClose: () => void  ; setRefresh: React.Dispatch<React.SetStateAction<boolean>>;}>
   usersPerPage: number
-  onSave: (updatedUser: User) => void
-  onDelete: (userId: string) => void
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const InteractiveTable: React.FC<InteractiveTableProps> = ({
   users,
   EditUserDialog,
   usersPerPage,
-  onSave,
-  onDelete,
+  setRefresh
 }) => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>(users)
   const [currentPage, setCurrentPage] = useState(1)
@@ -69,14 +67,8 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (userId: string) => {
-    onDelete(userId)
-  }
 
-  const handleSave = (updatedUser: User) => {
-    onSave(updatedUser)
-    setIsDialogOpen(false)
-  }
+ 
 
   return (
     <div className="mx-auto p-4 bg-gray-50 rounded-lg shadow-lg">
@@ -181,7 +173,7 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(user.userId)}
+                      onClick={() => {}}
                       className="transform hover:text-red-500 hover:scale-110 transition duration-300 ease-in-out"
                     >
                       <svg
@@ -226,7 +218,7 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
         </div>
       </div>
       {isDialogOpen && editingUser && (
-        <EditUserDialog user={editingUser} onSave={handleSave} onClose={() => setIsDialogOpen(false)} />
+        <EditUserDialog user={editingUser} onClose={() => setIsDialogOpen(false)} setRefresh ={setRefresh}/>
       )}
     </div>
   )

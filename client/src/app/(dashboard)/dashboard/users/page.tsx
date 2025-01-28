@@ -4,28 +4,22 @@ import InteractiveTable from "@/components/Tables/InteractiveTable"
 import EditUserDialog from "../../components/users/EditUserDialog"
 import { getUsers } from "./actions"
 export interface User {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
+  userId: string
+  firstName: string
+  lastName: string
+  email: string
+  role: "USER" | "ADMIN" | "AUTHOR"
   accountStatus: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED"
-  providerProfileImage: string;
-  isEmailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  providerProfileImage: string
+  isEmailVerified: boolean
+  createdAt: string
+  updatedAt: string
 }
-
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
+  const [refresh, setRefresh] = useState(false); 
 
-  const handleSave = (updatedUser: User) => {
-    setUsers(users.map((user) => (user.userId === updatedUser.userId ? updatedUser : user)))
-  }
 
-  const handleDelete = (userId: string) => {
-    setUsers(users.filter((user) => user.userId !== userId))
-  }
 
 
   useEffect(() => {
@@ -37,7 +31,7 @@ export default function UsersPage() {
   
     };
     gettingUsers();
-  }, []);
+  }, [refresh]);
 
 
   return (
@@ -47,9 +41,10 @@ export default function UsersPage() {
       <InteractiveTable
       users={users}
       EditUserDialog={EditUserDialog}
+      setRefresh={setRefresh}
       usersPerPage={10}
-      onSave={handleSave}
-      onDelete={handleDelete}
+    
+      
     />
     </div>
   )

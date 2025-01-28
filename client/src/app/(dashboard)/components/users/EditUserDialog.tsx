@@ -1,48 +1,57 @@
-import { useState } from "react"
-import { updateUser } from "../../dashboard/users/actions"
+import { useState } from "react";
+import { updateUser } from "../../dashboard/users/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
 export interface User {
-    userId: string
-    role: string
-    accountStatus: "ACTIVE" | "INACTIVE" | "PENDING"
-    isEmailVerified: boolean
-    status: "active" | "inactive"
-    providerProfileImage: string
-  }
-  
-  
-  
-
-interface EditUserDialogProps {
-  user: User
-  onSave: (updatedUser: User) => void
-  onClose: () => void
+  userId: string;
+  role: string;
+  accountStatus: "ACTIVE" | "INACTIVE" | "PENDING";
+  isEmailVerified: boolean;
+  status: "active" | "inactive";
+  providerProfileImage: string;
 }
 
-const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }) => {
-  const [editedUser, setEditedUser] = useState<User>(user)
+interface EditUserDialogProps {
+  user: User;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setEditedUser((prev) => ({ ...prev, [name]: value }))
-  }
+const EditUserDialog: React.FC<EditUserDialogProps> = ({
+  user,
+ setRefresh,
+  onClose,
+}) => {
+  const [editedUser, setEditedUser] = useState<User>(user);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log(editedUser)
-    updateUser( editedUser)
-    onSave(editedUser)
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setEditedUser((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
       <div className="bg-white p-8 rounded-lg w-full max-w-md shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit User</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
-         
-          
+        <form
+          className="space-y-4"
+          action={async (formData) => {
+            const res = await updateUser(formData, user.userId);
+            if (res.success) {
+              showToast("success", res.message || "Success");
+            } else {
+              showToast("error", res.error?.message || "Something went wrong");
+            }
+            onClose();
+            setRefresh((prev) => !prev);
+          }}
+        >
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Role
             </label>
             <select
@@ -59,24 +68,29 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
             </select>
           </div>
           <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-            Email Verified
-          </label>
-          <select
-            id="isEmailVerified"
-            name="isEmailVerified"
-            value={editedUser.isEmailVerified ? "Yes" : "No"}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          
-          </select>
-        </div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email Verified
+            </label>
+            <select
+              id="isEmailVerified"
+              name="isEmailVerified"
+              value={editedUser.isEmailVerified ? "Yes" : "No"}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Status
             </label>
             <select
@@ -87,26 +101,11 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="active">ACTIVE</option>
-              <option value="inactive">INACTIVE</option>
-              <option value="inactive">PENDING</option>
-              <option value="inactive">SUSPENDED</option>
-
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="PENDING">PENDING</option>
+              <option value="SUSPENDED">SUSPENDED</option>
             </select>
-          </div>
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL
-            </label>
-            <input
-              type="url"
-              id="image"
-              name="image"
-              value={editedUser.providerProfileImage}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
           </div>
           <div className="flex justify-end space-x-4 mt-6">
             <button
@@ -126,8 +125,7 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, onSave, onClose }
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditUserDialog
-
+export default EditUserDialog;
