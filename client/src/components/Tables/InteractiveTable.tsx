@@ -21,6 +21,10 @@ interface InteractiveTableProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface Filter{
+  
+}
+
 const InteractiveTable: React.FC<InteractiveTableProps> = ({
   users,
   EditUserDialog,
@@ -35,6 +39,8 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
   const [statusFilter, setStatusFilter] = useState<"all" | "INACTIVE" | "ACTIVE" | "PENDING" | "SUSPENDED">("all")
   const [roleFilter, setRoleFilter] = useState<"all" | "ADMIN" | "USER" | "AUTHOR">("all")
 
+  const [filter, setFilter] = useState()
+
   useEffect(() => {
     let filtered = users.filter((user) =>
       Object.values(user).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
@@ -47,7 +53,7 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
     if (roleFilter !== "all") {
       filtered = filtered.filter((user) => user.role === roleFilter)
     }
-
+setFilter(filtered)
     setFilteredUsers(filtered)
     setCurrentPage(1)
   }, [searchTerm, users, statusFilter, roleFilter])
@@ -68,7 +74,22 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
   }
 
 
- 
+ const data = {
+  header:[
+    "Image",
+    "Name",
+    "Email",
+    "Role",
+    "Status",
+    "Email Verified",
+    "Actions"
+  ],
+  body:[
+
+  ]
+}
+
+
 
   return (
     <div className="mx-auto p-4 bg-gray-50 rounded-lg shadow-lg">
@@ -109,13 +130,12 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Image</th>
-              <th className="py-3 px-6 text-left">Name</th>
-              <th className="py-3 px-6 text-left">Email</th>
-              <th className="py-3 px-6 text-center">Role</th>
-              <th className="py-3 px-6 text-center">Status</th>
-              <th className="py-3 px-6 text-center">Email Verified</th>
-              <th className="py-3 px-6 text-center">Actions</th>
+            {
+              data.header.map((header, index)=>(
+                <th className="py-3 px-6 text-left" key={index}>{header}</th>
+              ))
+            }
+            
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
