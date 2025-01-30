@@ -4,6 +4,7 @@ import Post from "../../models/blog/PostModel";
 import Category from "../../models/blog/CategoryModel";
 import Tag from "../../models/blog/TagModel";
 import { generateUniqueSlug } from "./blog.helper";
+import { Types } from "mongoose";
 
 export const saveOrPublishPost = async (req: Request, res: Response) => {
   const {
@@ -21,9 +22,9 @@ export const saveOrPublishPost = async (req: Request, res: Response) => {
   } = req.body;
 
   const { publish } = req.query; // Get the query parameter for publish
-  const authorId = (req as any).author;
-  console.log(authorId)
-  console.log('..........')
+  const author = (req as any).author;
+
+  const authorId = author._id;
 
   // Validate required fields based on publish status
   let requiredFields = ["title"]; // Only title is required if not publishing
@@ -98,17 +99,138 @@ export const saveOrPublishPost = async (req: Request, res: Response) => {
     categories: categoryIds,
     tags: tagIds,
     status: publish === "true" ? "PUBLISHED" : "DRAFT",
-    published: publish || false,
+    published: publish === "true" ? true : false,
   };
   const newPost = new Post(postData);
   // Create a new post
   await newPost.saveSlug();
   await newPost.save();
 
+  if (!newPost) {
+    throw new AppError("Post not created", 400);
+  }
+
+  //updating author
+  author.posts.push(newPost._id);
+  await author.save();
+  await Promise.all(
+    categoryIds.map(async (categoryId) => {
+      const category = await Category.findById(categoryId);
+      if (category) {
+        category.posts.push(newPost._id as Types.ObjectId); // Add new post ID to the category's posts
+        await category.save();
+      }
+    })
+  );
+
+  await Promise.all(
+    tagIds.map(async (tagId) => {
+      const tag = await Tag.findById(tagId);
+      if (tag) {
+        tag.posts.push(newPost._id as Types.ObjectId); // Add new post ID to the category's posts
+        await tag.save();
+      }
+    })
+  );
+
   res.status(200).json({
     status: "success",
     data: {
       slug: newPost.slug,
     },
+  });
+};
+
+export const getAllPosts = async (req: Request, res: Response) => {
+  const {
+    recent = false,
+    category,
+    random = false,
+    take = 10,
+    skip = 0,
+  } = req.query;
+
+  // Define the base filter criteria (only published posts)
+  const whereClause: any = {
+    published: true, // Only fetch published posts
+  };
+
+  // If a category is specified, filter by category
+  if (category) {
+    const categoryPosts = await Category.findOne({ slug: category }).populate([
+      {
+        path: "posts", // Populate the 'posts' field
+        select: "slug -_id title imageUrl publishedAt summary metaData", // Select only the required fields for posts
+        populate: [
+          {
+            path: "categories", // Populate the 'user' field within posts
+            select: "name slug -_id", // Select only the 'name' and 'image' fields from the 'user' model
+          },
+          {
+            path: "tags", // Populate the 'user' field within posts
+            select: "name slug -_id",
+          },
+        ],
+      },
+    ]);
+    if (!categoryPosts || categoryPosts.posts.length === 0) {
+      throw new AppError("Category not found", 404);
+    }
+    return res.status(200).json({
+      status: "success",
+      data: categoryPosts.posts,
+    });
+  }
+
+  // Build the Mongoose query
+  let postsQuery: any = {
+    where: whereClause,
+    select: {
+      _id: false,
+      title: true,
+      slug: true,
+      imageUrl: true,
+      publishedAt: true,
+      summary: true,
+      metaData:true,
+      user: {
+        select: { name: true, image: true },
+      },
+    },
+    skip: parseInt(skip as string), // Skip for pagination
+    limit: parseInt(take as string), // Limit the number of posts per page
+  };
+
+  // Sort by recent if needed
+  if (recent === "true") {
+    postsQuery.sort = { publishedAt: -1 }; // Sort by most recent
+  }
+
+  // If "random" is provided, fetch more posts and shuffle later
+  if (random === "true") {
+    postsQuery.limit = 100; // Fetch more posts than required for randomness
+  }
+
+  // Fetch posts from the database and populate categories and tags
+  const posts = await Post.find(whereClause)
+    .select(postsQuery.select)
+    .skip(postsQuery.skip)
+    .limit(postsQuery.limit)
+    .sort(postsQuery.sort)
+    .populate("categories", "name slug -_id") // Only select 'name' and 'slug' from categories
+    .populate("tags", "name slug -_id");
+  if (!posts || posts.length === 0) {
+    throw new AppError("No posts found for the specified filters", 404);
+  }
+
+  // If random is true, shuffle the posts and limit them
+  if (random === "true") {
+    posts.sort(() => Math.random() - 0.5); // Shuffle array
+    posts.splice(parseInt(take as string)); // Limit to 'take' number of posts
+  }
+
+  return res.status(200).json({
+    status: "success",
+    data: posts,
   });
 };

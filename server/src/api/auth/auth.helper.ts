@@ -184,7 +184,7 @@ export const verifyAccessToken = async (accessToken: string) => {
 
   return {
     status: "success",
-    userId: session.userId._id,
+    userId: session.userId.userId,
     email: session.userId.email,
     role: session.userId.role,
   }

@@ -13,7 +13,7 @@ export const verifyAuthor = async (
   if (!accessToken || accessToken == undefined) {
     throw new AppError("Invalid request", 401);
   }
-//   TODO: Also check for user role only author can publish 
+// TODO: Also check for user role only author can publish 
 
   const {userId, role, status }= await verifyAccessToken(accessToken);
   
@@ -22,15 +22,16 @@ export const verifyAuthor = async (
   }
 
   if(role != "AUTHOR"){
-    throw new AppError("Not Authorize to publish", 400);
+    throw new AppError("Not Authorize ", 400);
   }
+
 
   const author = await Author.findOne({ userId: userId });
 
   if (!author) {
-    throw new AppError("Invalid request", 404);
+    throw new AppError("Author not found", 404);
   }
 
-  (req as any).author = author._id;
+  (req as any).author = author;
   next();
 };
