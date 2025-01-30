@@ -31,6 +31,9 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "/dashboard/home",
     "/dashboard/profile",
     "/dashboard/create-post",
+    "/dashboard/posts/upload",
+    "/dashboard/posts/view",
+
     "/dashboard/my-posts",
   ],
   ADMIN: [

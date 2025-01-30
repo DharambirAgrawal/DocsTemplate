@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import ImageGrid from "@/app/(dashboard)/components/Images/ImageGrid";
 import Image from "next/image";
 import { publishPost } from "../actions";
+import { showToast } from "@/features/ToastNotification/useToast";
+
 export interface Category {
   id: string;
   name: string;
@@ -68,8 +70,7 @@ export interface BlogPost {
   status: "draft" | "published";
 }
 
-export interface FormData
-  extends Omit<BlogPost, "id" | "status"> {}
+export interface FormData extends Omit<BlogPost, "id" | "status"> {}
 
 const initialCategories: Category[] = [
   { id: "1", name: "Technology" },
@@ -103,6 +104,7 @@ export default function CreatePost() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -142,18 +144,23 @@ export default function CreatePost() {
 
   const handleSubmit = async (e: FormEvent, status: "draft" | "published") => {
     e.preventDefault();
+    setLoading(true);
     const submitData = {
       ...formData,
       status,
     };
+    const res = await publishPost(submitData);
 
-    console.log("Submitting:", submitData);
-    await publishPost(submitData);
-    // Here you would typically send the data to your backend
-    // router.push("/dashboard/posts");
+    if (res.success) {
+      showToast("success", res.message || "Success");
+    } else {
+      showToast("error", res.error?.message || "Something went wrong");
+    }
+    setFormData(initialData);
+    setLoading(false);
   };
 
-  const handleImageSelect = (image:any) => {
+  const handleImageSelect = (image: any) => {
     setFormData((prev) => ({ ...prev, imageUrl: image.url }));
     setIsModalOpen(false); // Close the modal after selecting
   };
@@ -481,14 +488,21 @@ export default function CreatePost() {
                       type="button"
                       onClick={(e) => handleSubmit(e, "draft")}
                       className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    disabled={loading}
                     >
-                      Save as Draft
+                      {
+                        loading ? "Saving..." : "Save as Draft"
+                      }
+                      
                     </button>
                     <button
                       type="submit"
                       className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    disabled={loading}
                     >
-                      Publish
+                   {
+                        loading ? "Publishing..." : "Publish"
+                   }
                     </button>
                   </div>
                 </div>
