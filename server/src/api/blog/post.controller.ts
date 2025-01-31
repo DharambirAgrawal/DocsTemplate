@@ -5,6 +5,7 @@ import Category from "../../models/blog/CategoryModel";
 import Tag from "../../models/blog/TagModel";
 import { generateUniqueSlug } from "./blog.helper";
 import { Types } from "mongoose";
+import Author from "../../models/blog/AuthorModel";
 
 export const saveOrPublishPost = async (req: Request, res: Response) => {
   const {
@@ -142,6 +143,16 @@ export const saveOrPublishPost = async (req: Request, res: Response) => {
 };
 
 export const getAllPosts = async (req: Request, res: Response) => {
+  const role = (req as any).role;
+  const userId = (req as any).userId;
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorize to get the posts", 400)
+  }
+
+
+
+
+
   const {
     recent = false,
     category,
@@ -150,10 +161,20 @@ export const getAllPosts = async (req: Request, res: Response) => {
     skip = 0,
   } = req.query;
 
+ 
+
   // Define the base filter criteria (only published posts)
   const whereClause: any = {
     published: true, // Only fetch published posts
   };
+
+  if(role == "AUTHOR"){
+    const author = await Author.findOne({userId: userId});
+    if(!author){
+      throw new AppError("Author not found", 404);
+    }
+    whereClause.authorId = author._id;
+  }
 
   // If a category is specified, filter by category
   if (category) {
@@ -161,6 +182,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
       {
         path: "posts", // Populate the 'posts' field
         select: "slug -_id title imageUrl publishedAt summary metaData", // Select only the required fields for posts
+        match: whereClause,
         populate: [
           {
             path: "categories", // Populate the 'user' field within posts
@@ -234,3 +256,6 @@ export const getAllPosts = async (req: Request, res: Response) => {
     data: posts,
   });
 };
+
+
+

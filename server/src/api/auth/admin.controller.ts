@@ -11,7 +11,7 @@ export const getUser = async (
 ) => {
   const role = (req as any).role;
   if (role != "ADMIN") {
-    return next(new AppError("Not Authorize to get the users", 400));
+    throw new AppError("Not Authorize to get the users", 400)
   }
 
   const {

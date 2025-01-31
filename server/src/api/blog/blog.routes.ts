@@ -4,11 +4,12 @@ import {
   saveOrPublishPost,
   getAllPosts
 } from "./post.controller"
+import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
 
 import { verifyAuthor } from "./blog.middleware";
 const BlogRouter = express.Router();
 
 export const blogRouter = BlogRouter
 .post("/publish",catchAsync(verifyAuthor),  catchAsync(saveOrPublishPost))
-.get("/posts",catchAsync(verifyAuthor),catchAsync(getAllPosts))
+.get("/posts",verifyAccessTokenMiddleware,catchAsync(getAllPosts))
 
