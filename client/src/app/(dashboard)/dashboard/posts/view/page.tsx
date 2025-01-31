@@ -1,6 +1,6 @@
 import UserTable from "@/app/(dashboard)/components/users/UserTable"
 import { getPosts } from "../actions"
-export default async function UsersPage() {
+export default async function PostsPage() {
 
 const posts = await getPosts();
 console.log(posts);

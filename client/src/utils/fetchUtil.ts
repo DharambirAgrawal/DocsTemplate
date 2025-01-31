@@ -1,3 +1,4 @@
+'use server'
 import { getCookie, setCookie } from "@/lib/cookies";
 
 interface FetchOptions extends RequestInit {
