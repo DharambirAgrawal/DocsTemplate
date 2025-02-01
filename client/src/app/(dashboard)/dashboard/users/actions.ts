@@ -1,50 +1,54 @@
 "use server";
-import { handleServerError } from "@/lib/error-handler";
+import { asyncErrorHandler } from "@/lib/error-handler";
 import { fetchWithTokenRefresh } from "@/utils/fetchUtil";
 import { AppError } from "@/types/errors";
-export const getUsers = async () => {
-  const response = await fetchWithTokenRefresh("/api/auth/users?sort=none");
+export const getUsers = asyncErrorHandler(async () => {
+  const data = await fetchWithTokenRefresh("/api/auth/users?sort=none");
+  if (!data.success) {
+    throw new AppError(data.message || "Error getting users ");
+  } else {
+    return {
+      success: true,
+      data: data.data,
+      pagination: data.pagination,
+    };
+  }
+});
 
-  console.log(response);
-  return response.data;
-};
-
-export const updateUser = async (formData: any, userId: string) => {
-  try {
-    console.log(formData);
-
-    const role =  formData.get("role")?.toString().trim();
+export const updateUser = asyncErrorHandler(
+  async (formData: any, userId: string) => {
+    const role = formData.get("role")?.toString().trim();
     const isEmailVerified = formData.get("isEmailVerified")?.toString().trim();
     const status = formData.get("status")?.toString().trim();
-    if (!role || !isEmailVerified || !status ) {
+    if (!role || !isEmailVerified || !status) {
       throw new AppError("All fields are required", 400, "VALIDATION_ERROR");
     }
-    const res = await fetchWithTokenRefresh(`/api/auth/update-user/${userId}`, {
+    const data = await fetchWithTokenRefresh(
+      `/api/auth/update-user/${userId}`,
+      {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            role,
-            isEmailVerified: isEmailVerified === "Yes" ? true : false,
-            status,
+          role,
+          isEmailVerified: isEmailVerified === "Yes" ? true : false,
+          status,
         }),
-    });
-    if(res.status== "success"){
-        return {
-            success: true,
-            message: "User updated successfully",
-            data:{
-                role,
-                isEmailVerified,
-                status,
-            }
-          };
-    }else{
-        throw new AppError(res.error?.message || "Something went wrong", 400);
+      }
+    );
+    if (!data.success) {
+      throw new AppError(data.message || "Error updating image");
+    } else {
+      return {
+        success: true,
+        message: "User updated successfully",
+        data: {
+          role,
+          isEmailVerified,
+          status,
+        },
+      };
     }
-    
-  } catch (error) {
-    return handleServerError(error);
   }
-};
+);

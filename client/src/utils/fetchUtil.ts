@@ -1,11 +1,13 @@
 'use server'
 import { getCookie, setCookie } from "@/lib/cookies";
+import { asyncErrorHandler } from "@/lib/error-handler";
+import { AppError } from "@/types/errors";
 
 interface FetchOptions extends RequestInit {
   headers?: HeadersInit;
 }
 
-export const fetchWithTokenRefresh = async (
+export const fetchWithTokenRefresh = asyncErrorHandler( async (
   url: string,
   options: FetchOptions = {},
   baseUrl?: string
@@ -13,13 +15,12 @@ export const fetchWithTokenRefresh = async (
 
 
   const base_url = baseUrl || process.env.SERVER_BASE_URL;
-  try {
     // Get the current access token (could come from cookies/localStorage)
     const accessToken = await getCookie("accessToken");
     const refreshToken = await getCookie("refreshToken");
 
     if(!refreshToken){
-        throw new Error("Invalid refresh token")
+      throw new Error("Invalid refresh token")
     }
     if (!accessToken) {
       const res = await fetch(
@@ -89,16 +90,9 @@ export const fetchWithTokenRefresh = async (
     }
 
     // If the response is OK, return the response data
-    if (response.ok) {
       return await response.json();
-    } else {
-      throw new Error("Failed to fetch data");
-    }
-  } catch (err) {
-    console.error("Error fetching protected resource", err);
-    throw err;
-  }
-};
+   
+});
 
 //   // Example usage for fetching protected resources
 //   const getProtectedData = async () => {

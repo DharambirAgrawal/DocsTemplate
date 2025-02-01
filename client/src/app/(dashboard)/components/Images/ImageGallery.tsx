@@ -3,10 +3,12 @@
 import React, { useState } from "react";
 import { X, Trash2, Save } from "lucide-react";
 import ImageGrid from "./ImageGrid";
-
+import { deleteImagesAction } from "../../dashboard/images/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
+import { updateImageAction } from "../../dashboard/images/actions";
 // types.ts
 interface ImageType {
-  id: string;
+  publicId: string;
   url: string;
   title: string;
   altText: string;
@@ -16,18 +18,17 @@ interface ImageType {
 
 interface ImageGalleryProps {
   images: ImageType[];
-  onSave: (image: ImageType) => void;
-  onDelete: (id: string) => void;
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({
   images,
-  onSave,
-  onDelete,
 }) => {
   const [selectedImage, setSelectedImage] = useState<ImageType | null>(null);
   const [editedImage, setEditedImage] = useState<ImageType | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [loading, setLoading] = useState({
+    type:"",
+    state:false});
 
   const handleImageClick = (image: ImageType) => {
     console.log("Image clicked:", image);
@@ -37,17 +38,43 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   };
  
 
-  const handleSave = () => {
+  const handleSave =async  () => {
     if (editedImage) {
-      onSave(editedImage);
+      setLoading({
+        type:"save",
+        state:true
+      });
+      const res = await updateImageAction(editedImage);
+      if (res.success) {
+        showToast("success", res.message || "Successfully saved image");
+      } else {
+        showToast("error", res.error?.message || "Something went wrong");
+      }
       setShowDialog(false);
+      setLoading({
+        type:"",
+        state:false
+      });
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async() => {
     if (selectedImage) {
-      onDelete(selectedImage.id);
+      setLoading({
+        type:"delete",
+        state:true
+      });
+      const res = await deleteImagesAction(selectedImage.publicId);
+      if (res.success) {
+        showToast("success", res.message || "Successfully deleted image");
+      } else {
+        showToast("error", res.error?.message || "Something went wrong");
+      }
       setShowDialog(false);
+      setLoading({
+        type:"",
+        state:false
+      });
     }
   };
 
@@ -150,18 +177,25 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
                 <div className="flex justify-between pt-4">
                   <button
+                  disabled={loading.state}
                     onClick={handleDelete}
                     className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   >
+                 
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {
+                      loading.type=='delete' && loading.state ? "Deleting..." : "Delete"
+                    }
                   </button>
                   <button
+                  disabled={loading.state}
                     onClick={handleSave}
                     className="flex items-center px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors duration-200"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+                    {
+                      loading.type=='save' && loading.state ? "Saving..." : "Save Changes"
+                    }
                   </button>
                 </div>
               </div>

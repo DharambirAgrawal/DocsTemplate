@@ -65,7 +65,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
+    e.preventDefault(); 
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }

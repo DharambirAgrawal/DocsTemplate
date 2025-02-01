@@ -1,10 +1,9 @@
 "use server";
 import { handleServerError } from "@/lib/error-handler";
+import { asyncErrorHandler } from "@/lib/error-handler";
 import { AppError } from "@/types/errors";
 import { fetchWithTokenRefresh } from "@/utils/fetchUtil";
-export const publishPost = async (formData: any) => {
-  console.log(formData);
-  try {
+export const publishPost = asyncErrorHandler( async (formData: any) => {
 
     const title = formData.title;
     const timeRead = formData.timeRead;
@@ -41,36 +40,29 @@ export const publishPost = async (formData: any) => {
       });
     }
    
-    console.log(data);
-    if(data.status != 'success'){
-      throw new AppError("Post not created", 400);
+    if (!data.success) {
+      throw new AppError(data.message || "Post not created", 400);
+    }else{
+      return data
     }
-    return {
-      success: true,
-      data: data.data,
-    };
-
-  } catch (error) {
-    return handleServerError(error);
-  }
-};
+});
 
 
-export const getPosts = async () => {
-  try {
-    const data = await fetchWithTokenRefresh(`/api/blog/posts?category=design`, {
+export const getPosts =  asyncErrorHandler( async ({
+  recent,
+}:{
+  recent?: boolean
+}) => {
+  
+    const data = await fetchWithTokenRefresh(`/api/blog/posts?recent=${recent}`, {
       method: "GET",
     });
-    console.log(data);
-    console.log(data.data[0].categories)
-    if(data.status != 'success'){
-      throw new AppError("Post not found", 404);
+    if (!data.success) {
+      throw new AppError(data.message || "Post not found", 404);
+    }else{
+      return {
+        success: true,
+        data: data.data,
+      };
     }
-    return {
-      success: true,
-      data: data.data,
-    };
-  } catch (error) {
-    return handleServerError(error);
-  }
-}
+})

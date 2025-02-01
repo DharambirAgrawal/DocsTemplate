@@ -7,6 +7,8 @@
       message: string;
       code?: string;
     };
+    ok?: boolean;
+    pagination?: any
   };
 
   export class AppError extends Error {

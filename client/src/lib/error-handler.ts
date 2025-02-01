@@ -55,3 +55,15 @@ export async function handleServerError(error: unknown): Promise<ServerActionRes
   };
 }
 
+
+export function asyncErrorHandler<T extends (...args: any[]) => Promise<ServerActionResponse>>(fn: T) {
+  return async function (...args: Parameters<T>): Promise<ServerActionResponse> {
+    try {
+      const response = await fn(...args);
+      return response;
+    } catch (error) {
+      return handleServerError(error);
+    }
+  };
+}
+
