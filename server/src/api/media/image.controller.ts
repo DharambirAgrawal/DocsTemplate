@@ -1,41 +1,86 @@
-import { deleteCloudinaryImage, cloudinaryUpload, updateCloudinaryImageMetaData } from "../../services/cloudinaryService";
+import {
+  deleteCloudinaryImage,
+  cloudinaryUpload,
+  updateCloudinaryImageMetaData,
+} from "../../services/cloudinaryService";
 import { Request, Response } from "express";
 import { AppError } from "../../errors/AppError";
 import Image from "../../models/media/ImageModel";
 import { separateCloudinaryBaseUrl } from "../../services/utils";
 
 export const saveImageData = async (req: Request, res: Response) => {
-  if (!req.files || (Array.isArray(req.files) && req.files.length === 0) || (!Array.isArray(req.files) && Object.keys(req.files).length === 0)) {
+
+  const role = (req as any).role;
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorize to Upload image", 400)
+  }
+
+  if (
+    !req.files ||
+    (Array.isArray(req.files) && req.files.length === 0) ||
+    (!Array.isArray(req.files) && Object.keys(req.files).length === 0)
+  ) {
     throw new AppError("No image found", 400);
   }
 
-  // Check if req.files is an array or an object
-  const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+  const { folder } = req.query;
 
-  // Saving image data to the database and cloudinary
-  for (const file of files) {
-    const { buffer, originalname } = file;
-    const folder = "pathgurus/blog";
-    const { secure_url, public_id, format, created_at } = await cloudinaryUpload(buffer, folder);
-    const mainUrl = separateCloudinaryBaseUrl(secure_url);
+  const files = Array.isArray(req.files)
+    ? req.files
+    : Object.values(req.files).flat();
+  const { buffer, originalname } = files[0];
+  const { title, altText, description, tags } = JSON.parse(req.body.details);
 
-    const newImage = new Image({
-      url: mainUrl,
-      publicId: public_id,
-      format: format,
-      createdAt: created_at,
-      title: originalname,
-    });
+  let folderName = "";
 
-    await newImage.save();
+  if (folder === "BLOG") {
+    folderName = "pathgurus/blog";
+  } else if (folder === "MAIN") {
+    folderName = "pathgurus/main";
+  } else if (folder === "USER") {
+    folderName = "pathgurus/user";
+  } else {
+    folderName = "pathgurus/main";
   }
 
-  res.status(200).json({ message: "Saved image data successfully" });
+  const { secure_url, public_id, format, created_at } = await cloudinaryUpload(
+    buffer,
+    {
+      title,
+      altText,
+      description,
+      tags,
+    },
+    folderName
+  );
+  const mainUrl = separateCloudinaryBaseUrl(secure_url);
+
+  const newImage = new Image({
+    url: mainUrl,
+    publicId: public_id,
+    format: format,
+    altText: altText,
+    title: title || originalname,
+    description: description,
+    tags: tags,
+    folderName: folder,
+    createdAt: created_at,
+  });
+
+  await newImage.save();
+
+  res.status(200).json({status:"success", success: true, message: "Saved image data successfully" });
 };
 
-export const UpdateImageData = async (req: Request, res: Response) => {
+export const updateImageData = async (req: Request, res: Response) => {
+
+  const role = (req as any).role;
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorize to Upload image", 400)
+  }
+
   const { url, title, description, tags, publicId, altText } = req.body;
-  
+
   // Check if url or publicId is provided
   if (!url || !publicId) {
     throw new AppError("Resource not found", 400);
@@ -77,6 +122,7 @@ export const UpdateImageData = async (req: Request, res: Response) => {
   // Respond with the updated image data
   res.status(200).json({
     status: "success",
+    success: true,
     data: {
       url: updatedImage.url,
       title: updatedImage.title,
@@ -89,6 +135,12 @@ export const UpdateImageData = async (req: Request, res: Response) => {
 };
 
 export const deleteImage = async (req: Request, res: Response) => {
+
+  const role = (req as any).role;
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorize to Upload image", 400)
+  }
+
   const { publicId } = req.body;
 
   // Check if publicId is provided
@@ -111,11 +163,11 @@ export const deleteImage = async (req: Request, res: Response) => {
   await deleteCloudinaryImage(publicId);
 
   // Respond with a success message
-  res.status(200).json({ message: "Image deleted successfully" });
+  res.status(200).json({ success:true, message: "Image deleted successfully" });
 };
 
 export const getImages = async (req: Request, res: Response) => {
-  const { id, page = 1, recent = false } = req.query;
+  const { id, page = 1, recent = false, folder } = req.query;
 
   // Check if page is provided
   if (!page) {
@@ -124,7 +176,7 @@ export const getImages = async (req: Request, res: Response) => {
 
   // If id is provided, fetch a specific image
   if (id) {
-    const image = await Image.findOne({ publicId: id });
+    const image = await Image.findOne({ publicId: id, folderName: folder|| "MAIN" });
     if (!image) {
       throw new AppError("Image not found", 404);
     }
@@ -133,6 +185,7 @@ export const getImages = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       status: "success",
+      success: true,
       image: {
         url: fullUrl,
         title,
@@ -159,7 +212,8 @@ export const getImages = async (req: Request, res: Response) => {
 
   // Map images to include full URL
   const filterImages = images.map((image) => {
-    const { url, title, description, altText, publicId, tags, createdAt } = image;
+    const { url, title, description, altText, publicId, tags, createdAt } =
+      image;
     const fullUrl = `${process.env.CLOUDINARY_BASE_URL}${url}`;
     return {
       url: fullUrl,
@@ -174,6 +228,7 @@ export const getImages = async (req: Request, res: Response) => {
 
   res.status(200).json({
     status: "success",
-    images: filterImages,
+    success: true,
+    data: filterImages,
   });
-}
+};

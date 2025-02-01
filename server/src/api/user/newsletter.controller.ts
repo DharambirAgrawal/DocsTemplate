@@ -22,6 +22,7 @@ export const subscribeToNewsletter = async (
   }
   return res.status(200).json({
     status: "success",
+    success: true,
     message: subscribe.message,
   });
 };
@@ -58,6 +59,7 @@ export const unsubscribeToNewsletter = async (
 
   return res.status(200).json({
     status: "success",
+    success: true,
     message: "Unsubscribed to newsletter successfully",
   });
 };

@@ -20,6 +20,7 @@ export const testServer = async (req: Request, res: Response, next: NextFunction
   // res.header("Authorization", `Bearer ''sessionocvbo12323423948723948`);
     res.status(200).json({
       message: "Server is up and running",
+      success: true,
     });
   
 }

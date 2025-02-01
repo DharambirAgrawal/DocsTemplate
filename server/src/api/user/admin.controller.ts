@@ -50,6 +50,7 @@ export const getNewsletters = async (
   // Respond with paginated data
   return res.status(200).json({
     status: "success",
+    success: true,
     data: modifiedNewsletters,
     pagination: {
       totalUsers,

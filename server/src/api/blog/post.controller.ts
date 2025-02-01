@@ -135,7 +135,7 @@ export const saveOrPublishPost = async (req: Request, res: Response) => {
   );
 
   res.status(200).json({
-    status: "success",
+    success: true,
     data: {
       slug: newPost.slug,
     },
@@ -199,7 +199,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
       throw new AppError("Category not found", 404);
     }
     return res.status(200).json({
-      status: "success",
+      success: true,
       data: categoryPosts.posts,
     });
   }
@@ -252,7 +252,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
   }
 
   return res.status(200).json({
-    status: "success",
+    success: true,
     data: posts,
   });
 };

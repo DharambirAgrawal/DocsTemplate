@@ -74,6 +74,7 @@ export const getPosts = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     status: "success",
+    success: true,
     data: posts,
   });
 }
@@ -99,6 +100,7 @@ export const getPostcontent = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     status: "success",
+    success: true,
     data: post,
   });
 }

@@ -9,6 +9,7 @@ interface ErrorResponse {
   metadata?: Record<string, any>;
   stack?: string;
   errors?: string[];
+  success: boolean;
 }
 
 export const errorHandler = (
@@ -30,6 +31,7 @@ export const errorHandler = (
 
   const errorResponse: ErrorResponse = {
     status,
+    success: false,
     message: err.message,
   };
 

@@ -34,6 +34,7 @@ export const getUser = async (
     }
     return res.status(200).json({
       status: "success",
+      success: true,
       data: user,
     });
   }
@@ -61,6 +62,7 @@ export const getUser = async (
     return res.status(200).json({
       status: "success",
       data: users,
+      success: true,
       pagination: {
         totalUsers,
         totalPages,
@@ -94,6 +96,7 @@ export const getUser = async (
   // Respond with paginated data
   return res.status(200).json({
     status: "success",
+    success: true,
     data: users,
     pagination: {
       totalUsers,

@@ -7,11 +7,12 @@ cloudinary.config(configCloudinary);
 
 // Type definition for the `data` argument in the `updateCloudinaryImageMetaData` function
 interface ImageMetadata {
-  [key: string]: string;
+  tags: string[]; // Array of tags
+  [key: string]: string | string[]; // Allow other metadata fields (string or an array of strings)
 }
 
 // Type definition for the cloudinaryUpload function parameters
-export const cloudinaryUpload = async (image: Buffer, folder: string): Promise<UploadApiResponse> => {
+export const cloudinaryUpload = async (image: Buffer,  data: ImageMetadata,  folder: string): Promise<UploadApiResponse> => {
   try {
     if (!image || image.length === 0) {
       throw new AppError("No image found", 400);
@@ -25,12 +26,20 @@ export const cloudinaryUpload = async (image: Buffer, folder: string): Promise<U
           transformation: [
             { quality: "auto", fetch_format: "auto" }, // LQIP and auto optimization
           ],
+          context: {
+            title: data.title || "",
+            alt_text: data.altText || "",
+            description: data.description || "",
+            tags: data.tags.join(", "), // Join tags into a string, assuming it's an array
+          },
         },
-        (error: UploadApiErrorResponse, result: UploadApiResponse) => {
+        (error?: UploadApiErrorResponse, result?: UploadApiResponse) => {
           if (error) {
             reject(new AppError("Error uploading image to Cloudinary", 500));
-          } else {
+          } else if (result) {
             resolve(result);
+          } else {
+            reject(new AppError("Unknown error during upload", 500));
           }
         }
       ).end(image);
