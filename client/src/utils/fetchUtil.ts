@@ -1,8 +1,6 @@
-'use server'
+import 'server-only';
 import { getCookie, setCookie } from "@/lib/cookies";
 import { asyncErrorHandler } from "@/lib/error-handler";
-import { AppError } from "@/types/errors";
-
 interface FetchOptions extends RequestInit {
   headers?: HeadersInit;
 }
@@ -12,7 +10,7 @@ export const fetchWithTokenRefresh = asyncErrorHandler( async (
   options: FetchOptions = {},
   baseUrl?: string
 ): Promise<any> => {
-
+'use server'
 
   const base_url = baseUrl || process.env.SERVER_BASE_URL;
     // Get the current access token (could come from cookies/localStorage)
@@ -43,6 +41,15 @@ export const fetchWithTokenRefresh = asyncErrorHandler( async (
         if (!accessToken) {
             throw new Error("No access token found in Set-Cookie header");
         }
+        // const cookieStore = await cookies();
+        // cookieStore.set("accessToken",  accessToken[1], {
+        //   httpOnly: true,      // Can't be accessed via JavaScript
+        //   secure: process.env.NODE_ENV === 'production', // Only send cookies over HTTPS in production
+        //   expires:  24 * 3600 * 1000, // Expiration date
+        //   sameSite: 'lax',     // Allow cookies to be sent in cross-site requests, but with some restrictions
+        //   path: '/',           // Available on all paths of the site
+        //   maxAge: 24 * 3600,
+        // });
       await setCookie("accessToken", accessToken[1], {
         expires: 24 * 3600 * 1000,
         maxAge: 24 * 3600,

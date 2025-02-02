@@ -1,3 +1,4 @@
+import 'server-only';
 import { cookies } from 'next/headers';
 
 export async function setCookie(name: string, value: string, options: any = {}) {

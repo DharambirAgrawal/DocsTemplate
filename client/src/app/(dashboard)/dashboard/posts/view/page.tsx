@@ -3,7 +3,7 @@ import { getPosts } from "../actions"
 export default async function PostsPage() {
 
 const posts = await getPosts({});
-
+console.log(posts)
   if (!posts.success) {
     return (
       <div className="py-8 text-center">
