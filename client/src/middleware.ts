@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -114,11 +113,19 @@ export async function middleware(request: NextRequest) {
         name: "ROLE",
         value: role,
         path: "/",
+        maxAge: 24 * 3600,
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== "development", // Only secure in production
+        sameSite: "lax",
       });
       response.cookies.set({
         name: "accessToken",
         value: accessToken[1],
         path: "/",
+        maxAge: 24 * 3600,
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== "development", // Only secure in production
+        sameSite: "lax",
       });
 
 //handling roles and prermessions

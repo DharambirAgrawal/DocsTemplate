@@ -16,7 +16,7 @@ export const fetchWithTokenRefresh = asyncErrorHandler( async (
     // Get the current access token (could come from cookies/localStorage)
     const accessToken = await getCookie("accessToken");
     const refreshToken = await getCookie("refreshToken");
-
+console.log(accessToken)
     if(!refreshToken){
       throw new Error("Invalid refresh token")
     }
@@ -50,6 +50,8 @@ export const fetchWithTokenRefresh = asyncErrorHandler( async (
         //   path: '/',           // Available on all paths of the site
         //   maxAge: 24 * 3600,
         // });
+        // console.log("Setting access token")
+        // console.log(accessToken[1])
       await setCookie("accessToken", accessToken[1], {
         expires: 24 * 3600 * 1000,
         maxAge: 24 * 3600,

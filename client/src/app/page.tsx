@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PageNavigation } from "@/app/(courses)/components/PageNavigation";
 import DropdownDefaultTwo from "@/components/ui/Dropdown";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
-import Navigation from "@/components/Header";
 import DefaultLayout from "@/components/DefaultLayout";
 export const metadata: Metadata = {
   title: "Introduction | Minimal Docs Site",

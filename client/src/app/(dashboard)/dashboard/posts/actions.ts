@@ -54,16 +54,15 @@ export const getPosts =  asyncErrorHandler( async ({
   recent?: boolean
 }) => {
 
-  const res = await fetch(`${process.env.CLIENT_BASE_URL}/api`,{
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      recent: "Hello world"
-    })
-  })
-  console.log(res)
+  // const res = await fetch(`${process.env.CLIENT_BASE_URL}/api/cookies`,{
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     recent: "Hello world"
+  //   })
+  // })
   
     const data = await fetchWithTokenRefresh(`/api/blog/posts?recent=${recent}`, {
       method: "GET",
