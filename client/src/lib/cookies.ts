@@ -15,6 +15,8 @@ export async function setCookie(name: string, value: string, options: any = {}) 
       options
     })
   });
+
+  console.log(res)
   
 
   if(!res.ok){
