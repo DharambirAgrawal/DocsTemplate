@@ -3,31 +3,12 @@ import { PageNavigation } from "@/app/(courses)/components/PageNavigation";
 import DropdownDefaultTwo from "@/components/ui/Dropdown";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
 import DefaultLayout from "@/components/DefaultLayout";
-import ClientComponents from "@/components/ClientComponents";
-import { headers } from "next/headers";
 export const metadata: Metadata = {
   title: "Introduction | Minimal Docs Site",
   description: "Welcome to our minimal documentation site",
 };
 
 export default async function Home() {
-
-  const res = await fetch(`https://upgraded-space-meme-gv67xr5w9572wvx9-3000.app.github.dev/api/cookies`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.JWT_TOKEN_SECRET}`, // Add Authorization header
-    },
-    body: JSON.stringify({
-      name: 'Bye',
-      value: 'okkkky',
-    })
-  });
-  const res2 = await fetch(`https://upgraded-space-meme-gv67xr5w9572wvx9-3000.app.github.dev/api/cookies`, {
-    method: "GET",
-    headers:await headers()
-   
-  });
   
   return (
 
@@ -38,7 +19,7 @@ export default async function Home() {
           This is a gorgeous minimal documentation site built with Next.js and
           Tailwind CSS.
         </p>
-        <ClientComponents />
+   
         <DropdownDefaultTwo />
         <DefaultSelectOption options={["Option 1", "Option 2", "Option 3"]} />
         <h2 className="mb-4 mt-8 text-2xl font-semibold">Features</h2>
