@@ -16,7 +16,6 @@ export const fetchWithTokenRefresh = asyncErrorHandler( async (
     // Get the current access token (could come from cookies/localStorage)
     const accessToken = await getCookie("accessToken");
     const refreshToken = await getCookie("refreshToken");
-console.log(accessToken)
     if(!refreshToken){
       throw new Error("Invalid refresh token")
     }

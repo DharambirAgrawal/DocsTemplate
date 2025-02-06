@@ -4,18 +4,19 @@ import { showToast } from "@/features/ToastNotification/useToast";
 export interface User {
   userId: string;
   role: string;
-  accountStatus: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED";
+  accountStatus: "ACTIVE" | "INACTIVE" | "PENDING";
   isEmailVerified: boolean;
+  status: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED";
   providerProfileImage: string;
 }
 
-interface EditUserDialogProps {
+interface EditPostDialogProps {
   user: User;
   setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
   onClose: () => void;
 }
 
-const EditUserDialog: React.FC<EditUserDialogProps> = ({
+const EditPostDialog: React.FC<EditPostDialogProps> = ({
   user,
  setRefresh,
   onClose,
@@ -95,7 +96,7 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({
             <select
               id="status"
               name="status"
-              value={editedUser.accountStatus}
+              value={editedUser.status}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -127,4 +128,4 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({
   );
 };
 
-export default EditUserDialog;
+export default EditPostDialog;

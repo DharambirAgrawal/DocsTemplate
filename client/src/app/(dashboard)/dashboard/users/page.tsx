@@ -1,28 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import InteractiveTable from "@/components/Tables/InteractiveTable";
+import UsersTable from "../../components/users/UserTable";
 import EditUserDialog from "../../components/users/EditUserDialog";
 import { getUsers } from "./actions";
-export interface User {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: "USER" | "ADMIN" | "AUTHOR";
-  accountStatus: "ACTIVE" | "INACTIVE" | "PENDING" | "SUSPENDED";
-  providerProfileImage: string;
-  isEmailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { UserType } from "../../components/users/types";
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [refresh, setRefresh] = useState(false);
 
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
+  const [filteredUsers, setFilteredUsers] = useState<UserType[]>(users);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<UserType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "INACTIVE" | "ACTIVE" | "PENDING" | "SUSPENDED"
@@ -31,7 +20,15 @@ export default function UsersPage() {
     "all" | "ADMIN" | "USER" | "AUTHOR"
   >("all");
 
-  const [filter, setFilter] = useState();
+  const [filter, setFilter] = useState({
+    pagination:{
+      currentPage: 1,
+      pageLimit: 10,
+      totalPage: 1,
+      totalUsers: 1
+    }
+
+  });
 
   useEffect(() => {
     let filtered = users.filter((user) =>
@@ -54,6 +51,7 @@ export default function UsersPage() {
   useEffect(() => {
     const gettingUsers = async () => {
       const users = await getUsers();
+console.log(users)
       setUsers(users.data);
      
     };
@@ -69,7 +67,7 @@ export default function UsersPage() {
     setCurrentPage(pageNumber);
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: UserType) => {
     setEditingUser(user);
     setIsDialogOpen(true);
   };
@@ -129,11 +127,12 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <InteractiveTable
+        <UsersTable
           currentBody={filteredUsers}
           action={true}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
+
         />
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center">
           <div className="mb-4 sm:mb-0 text-sm text-gray-600">
