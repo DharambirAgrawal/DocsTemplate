@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import ImageGrid from "@/app/(dashboard)/components/Images/ImageGrid";
 import Image from "next/image";
 import { publishPost } from "../actions";
@@ -97,7 +96,6 @@ const initialData: FormData = {
 };
 
 export default function CreatePost() {
-  const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialData);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [newCategory, setNewCategory] = useState("");

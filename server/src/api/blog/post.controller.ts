@@ -160,7 +160,6 @@ export const getAllPosts = async (req: Request, res: Response) => {
 
   // Define the base filter criteria (only published posts)
   const whereClause: any = {
-    published: true, // Only fetch published posts
   };
 
   if (role == "AUTHOR") {
@@ -214,6 +213,8 @@ export const getAllPosts = async (req: Request, res: Response) => {
       publishedAt: true,
       summary: true,
       metaData: true,
+      published: true,
+      timeRead: true,
     },
     skip: parseInt(skip as string), // Skip for pagination
     limit: parseInt(take as string), // Limit the number of posts per page

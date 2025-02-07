@@ -14,6 +14,9 @@ import { getPosts } from "../../dashboard/posts/actions";
 import { PostType } from "./types";
 import EditPostDialog from "./EditPostsTable";
 
+
+import { useConfirmation } from "@/features/Confirmation/AdvanceConfirmation";
+
 type SortConfig = {
   key:
     | keyof PostType
@@ -55,6 +58,7 @@ const PostsTable = () => {
   const [editingUser, setEditingUser] = useState<PostType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const { confirm } = useConfirmation();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -170,9 +174,37 @@ const PostsTable = () => {
     );
   };
 
-  const handleDelete = (slug: string) => {
+  const handleDelete = async (slug: string) => {
     // Implement your delete functionality here
-    console.log("Deleting post with slug:", slug);
+    const result = await confirm({
+      title: 'Delete Account',
+      description:
+        'Are you sure you want to delete your account? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      contentComponent: ({ onDataChange }) => (
+        <div className="mt-4 space-y-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Type <span className="font-bold text-red-500">"DELETE"</span> to confirm
+          </label>
+          <input
+            type="text"
+            placeholder="DELETE"
+            className="mt-2 block w-full rounded-lg border-2 border-gray-300 dark:border-gray-600 shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 dark:bg-gray-800 dark:placeholder-gray-400 dark:text-white transition-colors py-2 px-3 text-lg"
+            onChange={(e) => onDataChange(e.target.value)}
+          />
+        </div>
+      ),
+    });
+    
+    if (result.confirmed && result.data === 'DELETE') {
+      console.log('Account deleted!');
+      // Place your deletion logic here
+    } else {
+      console.log('Deletion cancelled or confirmation text did not match.');
+    }
+    
   };
 
   return (
@@ -257,6 +289,8 @@ const PostsTable = () => {
       </div>
 
       {/* Table Section */}
+      
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -273,6 +307,12 @@ const PostsTable = () => {
               {/* Summary */}
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                 Summary
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                Published
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                Time Read
               </th>
               {/* Author */}
               <th className="px-6 py-3 text-left">
@@ -375,6 +415,16 @@ const PostsTable = () => {
                     {post.summary}
                   </p>
                 </td>
+                <td className="px-6 py-4">
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {post.published ? "Yes" : "No"}
+                  </p>
+                </td>
+                <td className="px-6 py-4">
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {post.timeRead} min
+                  </p>
+                </td>
                 {/* Author */}
                 <td className="px-6 py-4">
                   <div>
@@ -469,6 +519,7 @@ const PostsTable = () => {
           </tbody>
         </table>
       </div>
+     
 
       {/* Pagination */}
       <div className="px-6 py-4 flex items-center justify-between border-t">

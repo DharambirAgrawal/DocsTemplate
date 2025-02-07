@@ -2,6 +2,7 @@ import "../../styles/globals.css";
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 import dynamic from "next/dynamic";
+import { ConfirmationProvider } from "@/features/Confirmation/AdvanceConfirmation";
 export const metadata = {
   title: "Minimal Docs Site",
   description: "A gorgeous minimal documentation site using Next.js App Router",
@@ -15,10 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-      <ToastProvider>
-      {children}
-      </ToastProvider>
-       
+        <ConfirmationProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ConfirmationProvider>
       </body>
     </html>
   );

@@ -24,4 +24,6 @@ export interface PostType {
   };
   publishedAt: string;
   slug: string;
+  timeRead: number;
+  published: boolean;
 }
