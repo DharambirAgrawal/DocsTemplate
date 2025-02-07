@@ -35,6 +35,7 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "/dashboard/images/upload",
     "/dashboard/images/gallery",
     "/dashboard/my-posts",
+    "/dashboard/preview/blog/*",
   ],
   ADMIN: [
     "/dashboard/home",
@@ -46,6 +47,7 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "/dashboard/posts/view",
     "/dashboard/posts/upload",
     "/dashboard/settings",
+    "/dashboard/preview/blog/*",
   ],
 };
 
@@ -69,9 +71,8 @@ export async function middleware(request: NextRequest) {
       });
 
       const data = await res.json();
-    
+
       if (data.status === "success") {
- 
         // If refresh token is valid, redirect to the dashboard
         return NextResponse.redirect(new URL(REDIRECT_URL, request.url));
       }
@@ -128,13 +129,24 @@ export async function middleware(request: NextRequest) {
         sameSite: "lax",
       });
 
-//handling roles and prermessions
+      //handling roles and prermessions
       const allowedRoutes = ROLE_PERMISSIONS[role] || [];
 
-      if (!allowedRoutes.includes(path)) {
-        return NextResponse.rewrite(new URL('/404', request.url));
-    
+      // if (!allowedRoutes.includes(path)) {
+      //   return NextResponse.rewrite(new URL("/404", request.url));
+      // }
+      // return NextResponse.next();
+      // Check if the path matches the allowed routes for the role
+      const isAllowedRoute = allowedRoutes.some((route) => {
+        // Match dynamic routes (e.g., /dashboard/preview/blog/[slug])
+        const regex = new RegExp(`^${route.replace("*", ".*")}$`);
+        return regex.test(path);
+      });
+
+      if (!isAllowedRoute) {
+        return NextResponse.rewrite(new URL("/404", request.url));
       }
+
       return NextResponse.next();
     } catch (error) {
       console.error("Error validating access token:", error);

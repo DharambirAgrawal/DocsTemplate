@@ -67,12 +67,17 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    if(name === "published"){
-      setFormData((prev) => ({ ...prev, [name]: value === "true"? true : false }));
-      return
+    if (name === "published") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === "true" ? true : false,
+      }));
+      return;
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -116,11 +121,10 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
       return { ...prev, categories: updatedCategories };
     });
   };
-  
 
-  const handleSubmit = async (e: FormEvent, status: "draft" | "published") => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(() => true);
     const submitData = {
       ...formData,
       status,
@@ -155,7 +159,7 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
       <div className="bg-white p-8 rounded-lg w-full max-w-lg shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Post</h2>
         <form
-          onSubmit={(e) => handleSubmit(e, "published")}
+          onSubmit={handleSubmit}
           className="space-y-4 max-h-[80vh] overflow-y-auto"
         >
           <div className="space-y-6">
@@ -200,25 +204,24 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
             </div>
 
             <div>
-            <label
-              htmlFor="published"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Published
-            </label>
-            <select
-              id="published"
-              name="published"
-              value={formData.published? "true" : "false"}
-              onChange={handleInputChange}
-
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="true">true</option>
-              <option value="false">false</option>
-            </select>
-          </div>
+              <label
+                htmlFor="published"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Published
+              </label>
+              <select
+                id="published"
+                name="published"
+                value={formData.published ? "true" : "false"}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+            </div>
 
             {/* Image & Time to Read */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -292,20 +295,19 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
                 {formData.categories.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {formData.categories.map((category) => (
-                    <span
-                    key={category.slug}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700"
-                  >
-                    {category.name}
-                    <button
-                      type="button"
-                      onClick={() => removeCategory(category.slug)}  
-                      className="ml-2 hover:text-blue-900"
-                    >
-                      ×
-                    </button>
-                  </span>
-                  
+                      <span
+                        key={category.slug}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700"
+                      >
+                        {category.name}
+                        <button
+                          type="button"
+                          onClick={() => removeCategory(category.slug)}
+                          className="ml-2 hover:text-blue-900"
+                        >
+                          ×
+                        </button>
+                      </span>
                     ))}
                   </div>
                 )}
@@ -434,26 +436,19 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
             <div className="flex justify-end gap-4">
               <button
                 type="submit"
-                className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 disabled={loading}
                 onClick={(e) => onClose()}
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={(e) => handleSubmit(e, "draft")}
-                className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save as Draft"}
-              </button>
+
               <button
                 type="submit"
                 className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 disabled={loading}
               >
-                {loading ? "Publishing..." : "Publish"}
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </div>

@@ -14,7 +14,6 @@ import { getPosts } from "../../dashboard/posts/actions";
 import { PostType } from "./types";
 import EditPostDialog from "./EditPostsTable";
 
-
 import { useConfirmation } from "@/features/Confirmation/AdvanceConfirmation";
 
 type SortConfig = {
@@ -177,16 +176,17 @@ const PostsTable = () => {
   const handleDelete = async (slug: string) => {
     // Implement your delete functionality here
     const result = await confirm({
-      title: 'Delete Account',
+      title: "Delete Account",
       description:
-        'Are you sure you want to delete your account? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      variant: 'danger',
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
       contentComponent: ({ onDataChange }) => (
         <div className="mt-4 space-y-4">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Type <span className="font-bold text-red-500">"DELETE"</span> to confirm
+            Type <span className="font-bold text-red-500">"DELETE"</span> to
+            confirm
           </label>
           <input
             type="text"
@@ -197,14 +197,13 @@ const PostsTable = () => {
         </div>
       ),
     });
-    
-    if (result.confirmed && result.data === 'DELETE') {
-      console.log('Account deleted!');
+
+    if (result.confirmed && result.data === "DELETE") {
+      console.log("Account deleted!");
       // Place your deletion logic here
     } else {
-      console.log('Deletion cancelled or confirmation text did not match.');
+      console.log("Deletion cancelled or confirmation text did not match.");
     }
-    
   };
 
   return (
@@ -289,7 +288,6 @@ const PostsTable = () => {
       </div>
 
       {/* Table Section */}
-      
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -472,7 +470,7 @@ const PostsTable = () => {
                 </td>
                 <td className="px-6 py-4">
                   <span className="text-sm text-gray-700">
-                  <img
+                    <img
                       src={post.metaData.metaImage || "/placeholder.svg"}
                       alt={post.title}
                       className="w-12 h-12 rounded-lg object-cover"
@@ -507,8 +505,13 @@ const PostsTable = () => {
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => console.log("View", post.slug)}
                       className="p-1 text-gray-600 hover:text-gray-800"
+                      onClick={() =>
+                        window.open(
+                          `/dashboard/preview/blog/${post.slug}`,
+                          "_blank"
+                        )
+                      }
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -519,7 +522,6 @@ const PostsTable = () => {
           </tbody>
         </table>
       </div>
-     
 
       {/* Pagination */}
       <div className="px-6 py-4 flex items-center justify-between border-t">
@@ -587,7 +589,7 @@ const PostsTable = () => {
       </div>
       {isDialogOpen && editingUser && (
         <EditPostDialog
-        setRefresh={setRefresh}
+          setRefresh={setRefresh}
           post={editingUser}
           onClose={() => setIsDialogOpen(false)}
         />
