@@ -159,8 +159,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
   } = req.query;
 
   // Define the base filter criteria (only published posts)
-  const whereClause: any = {
-  };
+  const whereClause: any = {};
 
   if (role == "AUTHOR") {
     const author = await Author.findOne({ userId: userId });
@@ -248,8 +247,9 @@ export const getAllPosts = async (req: Request, res: Response) => {
   // Use Promise.all to ensure author info is fetched for each post
   const postsWithAuthor = await Promise.all(
     posts.map(async (post) => {
-      const author = await Profile.findOne({ userId: ((post.authorId as any)?.userId)})
-        .select("firstName lastName email -_id");
+      const author = await Profile.findOne({
+        userId: (post.authorId as any)?.userId,
+      }).select("firstName lastName email -_id");
 
       if (author) {
         (post as any).author = {
@@ -275,6 +275,73 @@ export const getAllPosts = async (req: Request, res: Response) => {
   });
 };
 
+export const getPostContent = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const role = (req as any).role;
+  const userId = (req as any).userId;
 
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorized to get the posts", 400);
+  }
 
+  if (!slug) {
+    throw new AppError("Slug is required", 400);
+  }
 
+  const whereClause: any = {
+    slug,
+  };
+  let bio;
+  if (role == "AUTHOR") {
+    const author = await Author.findOne({ userId: userId });
+
+    if (!author) {
+      throw new AppError("Author not found", 404);
+    }
+    bio = author.bio;
+    whereClause.authorId = author._id;
+  }
+
+  const post = await Post.findOne(whereClause)
+    .select({
+      _id: false,
+      title: true,
+      slug: true,
+      imageUrl: true,
+      publishedAt: true,
+      summary: true,
+      metaData: true,
+      published: true,
+      timeRead: true,
+      content: true,
+    })
+    .populate("categories", "name slug -_id")
+    .populate("tags", "name slug -_id")
+    .populate("authorId", "userId -_id")
+    .lean();
+
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
+  // Fetch author information
+  const author = await Profile.findOne({
+    userId: (post.authorId as any)?.userId,
+  }).select("firstName lastName email image -_id");
+
+  if (author) {
+    (post as any).author = {
+      firstName: author.firstName,
+      lastName: author.lastName,
+      email: author.email,
+      image: author.image,
+      bio: bio || "",
+    };
+  }
+  delete post.authorId;
+
+  res.status(200).json({
+    success: true,
+    data: post,
+  });
+};
