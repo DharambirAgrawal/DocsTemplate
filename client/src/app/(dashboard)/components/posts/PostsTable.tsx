@@ -15,7 +15,16 @@ import { PostType } from "./types";
 import EditPostDialog from "./EditPostsTable";
 
 type SortConfig = {
-  key: keyof PostType | "author.email" | "categories" | "tags" | "metaTitle" | null;
+  key:
+    | keyof PostType
+    | "author.email"
+    | "categories"
+    | "metaDesc"
+    | "metaImage"
+    | "metaKeywords"
+    | "tags"
+    | "metaTitle"
+    | null;
   direction: "asc" | "desc";
 };
 
@@ -29,7 +38,10 @@ type FilterConfig = {
 
 const PostsTable = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null,
+    direction: "desc",
+  });
   const [filterConfig, setFilterConfig] = useState<FilterConfig>({
     title: "",
     author: "",
@@ -40,8 +52,9 @@ const PostsTable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
-  const [editingUser, setEditingUser] = useState<PostType | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<PostType | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -55,16 +68,20 @@ const PostsTable = () => {
     fetchPosts();
   }, []);
   const handleEdit = (user: PostType) => {
-    setEditingUser(user)
-    setIsDialogOpen(true)
-  }
+    setEditingUser(user);
+    setIsDialogOpen(true);
+  };
 
   const sortedAndFilteredPosts = useMemo(() => {
     let filteredPosts = [...posts];
 
     filteredPosts = filteredPosts.filter((post) => {
-      const matchesTitle = post.title.toLowerCase().includes(filterConfig.title.toLowerCase());
-      const matchesAuthor = post.author.email.toLowerCase().includes(filterConfig.author.toLowerCase());
+      const matchesTitle = post.title
+        .toLowerCase()
+        .includes(filterConfig.title.toLowerCase());
+      const matchesAuthor = post.author.email
+        .toLowerCase()
+        .includes(filterConfig.author.toLowerCase());
       const matchesCategory =
         filterConfig.category === "" ||
         post.categories.some((cat) =>
@@ -77,10 +94,18 @@ const PostsTable = () => {
         );
       const matchesStatus =
         filterConfig.status === "all" ||
-        (filterConfig.status === "published" && new Date(post.publishedAt) <= new Date()) ||
-        (filterConfig.status === "draft" && new Date(post.publishedAt) > new Date());
+        (filterConfig.status === "published" &&
+          new Date(post.publishedAt) <= new Date()) ||
+        (filterConfig.status === "draft" &&
+          new Date(post.publishedAt) > new Date());
 
-      return matchesTitle && matchesAuthor && matchesCategory && matchesTag && matchesStatus;
+      return (
+        matchesTitle &&
+        matchesAuthor &&
+        matchesCategory &&
+        matchesTag &&
+        matchesStatus
+      );
     });
 
     if (sortConfig.key) {
@@ -89,7 +114,7 @@ const PostsTable = () => {
         let bValue: any;
 
         // Handle nested and computed keys
-        if (sortConfig.key.includes(".")) {
+        if (sortConfig.key && sortConfig.key.includes(".")) {
           if (sortConfig.key === "author.email") {
             aValue = a.author.email;
             bValue = b.author.email;
@@ -102,8 +127,8 @@ const PostsTable = () => {
           bValue = b.tags.map((t) => t.name).join(",");
         } else if (sortConfig.key === "metaTitle") {
           // Use the metaTitle from the first metaData object if available
-          aValue = a.metaData[0]?.metaTitle || "";
-          bValue = b.metaData[0]?.metaTitle || "";
+          aValue = a.metaData.metaTitle || "";
+          bValue = b.metaData.metaTitle || "";
         } else {
           aValue = a[sortConfig.key as keyof PostType];
           bValue = b[sortConfig.key as keyof PostType];
@@ -130,7 +155,8 @@ const PostsTable = () => {
   const handleSort = (key: SortConfig["key"]) => {
     setSortConfig((current) => ({
       key,
-      direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
+      direction:
+        current.key === key && current.direction === "asc" ? "desc" : "asc",
     }));
   };
 
@@ -163,7 +189,10 @@ const PostsTable = () => {
                 className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filterConfig.title}
                 onChange={(e) =>
-                  setFilterConfig((prev) => ({ ...prev, title: e.target.value }))
+                  setFilterConfig((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -194,7 +223,10 @@ const PostsTable = () => {
               className="px-4 py-2 border rounded-lg"
               value={filterConfig.category}
               onChange={(e) =>
-                setFilterConfig((prev) => ({ ...prev, category: e.target.value }))
+                setFilterConfig((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
               }
             />
             <input
@@ -269,7 +301,7 @@ const PostsTable = () => {
                   Tags <SortIcon columnKey="tags" />
                 </button>
               </th>
-             
+
               {/* Meta Title */}
               <th className="px-6 py-3 text-left">
                 <button
@@ -279,8 +311,8 @@ const PostsTable = () => {
                   Meta Title <SortIcon columnKey="metaTitle" />
                 </button>
               </th>
-               {/* Meta Description */}
-               <th className="px-6 py-3 text-left">
+              {/* Meta Description */}
+              <th className="px-6 py-3 text-left">
                 <button
                   onClick={() => handleSort("metaDesc")}
                   className="flex items-center gap-1 text-sm font-semibold text-gray-900"
@@ -288,8 +320,8 @@ const PostsTable = () => {
                   Meta Description <SortIcon columnKey="metaDesc" />
                 </button>
               </th>
-               {/* Meta Image */}
-               <th className="px-6 py-3 text-left">
+              {/* Meta Image */}
+              <th className="px-6 py-3 text-left">
                 <button
                   onClick={() => handleSort("metaImage")}
                   className="flex items-center gap-1 text-sm font-semibold text-gray-900"
@@ -297,8 +329,8 @@ const PostsTable = () => {
                   Meta Image <SortIcon columnKey="metaImage" />
                 </button>
               </th>
-               {/* Meta Title */}
-               <th className="px-6 py-3 text-left">
+              {/* Meta Title */}
+              <th className="px-6 py-3 text-left">
                 <button
                   onClick={() => handleSort("metaKeywords")}
                   className="flex items-center gap-1 text-sm font-semibold text-gray-900"
@@ -331,17 +363,25 @@ const PostsTable = () => {
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                     <div>
-                      <h3 className="font-medium text-gray-900">{post.title}</h3>
+                      <h3 className="font-medium text-gray-900">
+                        {post.title}
+                      </h3>
                     </div>
                   </div>
                 </td>
                 {/* Summary */}
                 <td className="px-6 py-4">
-                  <p className="text-sm text-gray-500 line-clamp-2">{post.summary}</p>
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {post.summary}
+                  </p>
                 </td>
                 {/* Author */}
                 <td className="px-6 py-4">
-                  <div>\n                    <p className="text-sm font-medium text-gray-900">{`${post.author.firstName} ${post.author.lastName}`}</p>\n                    <p className="text-sm text-gray-500">{post.author.email}</p>\n                  </div>
+                  <div>
+                    {" "}
+                    <p className="text-sm font-medium text-gray-900">{`${post.author.firstName} ${post.author.lastName}`}</p>{" "}
+                    <p className="text-sm text-gray-500">{post.author.email}</p>{" "}
+                  </div>
                 </td>
                 {/* Categories */}
                 <td className="px-6 py-4">
@@ -372,22 +412,27 @@ const PostsTable = () => {
                 {/* Meta Title */}
                 <td className="px-6 py-4">
                   <span className="text-sm text-gray-700">
-                    {post.metaData[0]?.metaTitle || "-"}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-sm text-gray-700">
                     {post.metaData.metaTitle || "-"}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className="text-sm text-gray-700">
-                    {post.metaData.metaTitle || "-"}
+                    {post.metaData.metaDesc || "-"}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className="text-sm text-gray-700">
-                    {post.metaData[0]?.metaTitle || "-"}
+                  <img
+                      src={post.metaData.metaImage || "/placeholder.svg"}
+                      alt={post.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    {post.metaData.metaImage || "-"}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-sm text-gray-700">
+                    {post.metaData.metaKeywords || "-"}
                   </span>
                 </td>
                 {/* Published Date */}
@@ -400,7 +445,7 @@ const PostsTable = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center gap-3">
                     <button
-                       onClick={() => handleEdit(post)}
+                      onClick={() => handleEdit(post)}
                       className="p-1 text-blue-600 hover:text-blue-800"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -436,7 +481,9 @@ const PostsTable = () => {
             Previous
           </button>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
@@ -452,36 +499,47 @@ const PostsTable = () => {
               </span>{" "}
               to{" "}
               <span className="font-medium">
-                {Math.min(currentPage * postsPerPage, sortedAndFilteredPosts.length)}
+                {Math.min(
+                  currentPage * postsPerPage,
+                  sortedAndFilteredPosts.length
+                )}
               </span>{" "}
               of{" "}
-              <span className="font-medium">{sortedAndFilteredPosts.length}</span>{" "}
+              <span className="font-medium">
+                {sortedAndFilteredPosts.length}
+              </span>{" "}
               results
             </p>
           </div>
           <div>
             <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                    currentPage === page
-                      ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                      : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                  } ${page === 1 ? "rounded-l-md" : ""} ${
-                    page === totalPages ? "rounded-r-md" : ""
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      currentPage === page
+                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                    } ${page === 1 ? "rounded-l-md" : ""} ${
+                      page === totalPages ? "rounded-r-md" : ""
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
             </nav>
           </div>
         </div>
       </div>
       {isDialogOpen && editingUser && (
-        <EditPostDialog post={editingUser} onClose={() => setIsDialogOpen(false)} />
+        <EditPostDialog
+        setRefresh={setRefresh}
+          post={editingUser}
+          onClose={() => setIsDialogOpen(false)}
+        />
       )}
     </div>
   );
