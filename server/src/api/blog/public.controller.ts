@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { AppError } from "../../errors/AppError";
 import Post from "../../models/blog/PostModel";
+import Category from "../../models/blog/CategoryModel";
 
 // Fetch multiple posts with pagination, sorting, and filtering
-export const getPosts = async (req: Request, res: Response) => {
+export const getPublicPosts = async (req: Request, res: Response) => {
   const { recent = false, category, random = false, take = 10, skip = 0 } = req.query;
 
   // Define the base filter criteria (only published posts)
@@ -13,9 +14,34 @@ export const getPosts = async (req: Request, res: Response) => {
 
   // If a category is specified, filter by category
   if (category) {
-    whereClause.categories = {
-      $elemMatch: { slug: category }, // Match category slug
-    };
+    const categoryPosts = await Category.findOne({ slug: category }).populate([
+      {
+        path: "posts", // Populate the 'posts' field
+        select: "slug -_id title imageUrl publishedAt summary metaData", // Select only the required fields for posts
+        match: whereClause,
+        populate: [
+          {
+            path: "categories", // Populate the 'user' field within posts
+            select: "name slug -_id", // Select only the 'name' and 'image' fields from the 'user' model
+          },
+          {
+            path: "tags", // Populate the 'user' field within posts
+            select: "name slug -_id",
+          },
+          {
+            path: 'authorId',
+            select: 'name image -_id'
+          }
+        ],
+      },
+    ]);
+    if (!categoryPosts || categoryPosts.posts.length === 0) {
+      throw new AppError("Category not found", 404);
+    }
+    return res.status(200).json({
+      success: true,
+      data: categoryPosts.posts,
+    });
   }
 
   // Build the Mongoose query
@@ -27,12 +53,6 @@ export const getPosts = async (req: Request, res: Response) => {
       imageUrl: true,
       publishedAt: true,
       summary: true,
-      user: {
-        select: { name: true, image: true },
-      },
-      categories: {
-        select: { name: true, slug: true },
-      },
     },
     skip: parseInt(skip as string), // Skip for pagination
     limit: parseInt(take as string), // Limit the number of posts per page

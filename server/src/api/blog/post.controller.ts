@@ -5,6 +5,7 @@ import Category from "../../models/blog/CategoryModel";
 import Tag from "../../models/blog/TagModel";
 import { generateUniqueSlug } from "./blog.helper";
 import { Types } from "mongoose";
+import Profile from "../../models/user/ProfileModel";
 import Author from "../../models/blog/AuthorModel";
 
 export const saveOrPublishPost = async (req: Request, res: Response) => {
@@ -146,12 +147,8 @@ export const getAllPosts = async (req: Request, res: Response) => {
   const role = (req as any).role;
   const userId = (req as any).userId;
   if (role != "ADMIN" && role != "AUTHOR") {
-    throw new AppError("Not Authorize to get the posts", 400)
+    throw new AppError("Not Authorized to get the posts", 400);
   }
-
-
-
-
 
   const {
     recent = false,
@@ -161,16 +158,14 @@ export const getAllPosts = async (req: Request, res: Response) => {
     skip = 0,
   } = req.query;
 
- 
-
   // Define the base filter criteria (only published posts)
   const whereClause: any = {
     published: true, // Only fetch published posts
   };
 
-  if(role == "AUTHOR"){
-    const author = await Author.findOne({userId: userId});
-    if(!author){
+  if (role == "AUTHOR") {
+    const author = await Author.findOne({ userId: userId });
+    if (!author) {
       throw new AppError("Author not found", 404);
     }
     whereClause.authorId = author._id;
@@ -191,6 +186,10 @@ export const getAllPosts = async (req: Request, res: Response) => {
           {
             path: "tags", // Populate the 'user' field within posts
             select: "name slug -_id",
+          },
+          {
+            path: "authorId",
+            select: "name image -_id",
           },
         ],
       },
@@ -214,10 +213,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
       imageUrl: true,
       publishedAt: true,
       summary: true,
-      metaData:true,
-      user: {
-        select: { name: true, image: true },
-      },
+      metaData: true,
     },
     skip: parseInt(skip as string), // Skip for pagination
     limit: parseInt(take as string), // Limit the number of posts per page
@@ -240,22 +236,44 @@ export const getAllPosts = async (req: Request, res: Response) => {
     .limit(postsQuery.limit)
     .sort(postsQuery.sort)
     .populate("categories", "name slug -_id") // Only select 'name' and 'slug' from categories
-    .populate("tags", "name slug -_id");
+    .populate("tags", "name slug -_id")
+    .populate("authorId", "userId -_id")
+    .lean();
+
   if (!posts || posts.length === 0) {
     throw new AppError("No posts found for the specified filters", 404);
   }
 
+  // Use Promise.all to ensure author info is fetched for each post
+  const postsWithAuthor = await Promise.all(
+    posts.map(async (post) => {
+      const author = await Profile.findOne({ userId: ((post.authorId as any)?.userId)})
+        .select("firstName lastName email -_id");
+
+      if (author) {
+        (post as any).author = {
+          firstName: author.firstName,
+          lastName: author.lastName,
+          email: author.email,
+        };
+      }
+      delete post.authorId;
+      return post;
+    })
+  );
+
   // If random is true, shuffle the posts and limit them
   if (random === "true") {
-    posts.sort(() => Math.random() - 0.5); // Shuffle array
-    posts.splice(parseInt(take as string)); // Limit to 'take' number of posts
+    postsWithAuthor.sort(() => Math.random() - 0.5); // Shuffle array
+    postsWithAuthor.splice(parseInt(take as string)); // Limit to 'take' number of posts
   }
 
   return res.status(200).json({
     success: true,
-    data: posts,
+    data: postsWithAuthor,
   });
 };
+
 
 
 
