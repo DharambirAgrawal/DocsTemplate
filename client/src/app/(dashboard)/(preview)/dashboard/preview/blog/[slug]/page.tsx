@@ -1,6 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { getCookie } from "@/lib/cookies";
+import {
+  getPosts,
+  getCategories,
+} from "@/app/(dashboard)/dashboard/posts/actions";
 import { headers } from "next/headers";
 import { CompileMDX } from "@/features/CompileMdx";
 import ReadingProgress from "@/features/ReadingProgress";
@@ -35,22 +38,23 @@ interface PostProp {
 }
 
 interface TopicProp {
-  status: "error" | "success";
+  success: boolean;
   data: {
     name: string;
-    count: string;
+    postCount: string;
     slug: string;
   }[];
 }
 interface RecentPostProp {
-  status: "error" | "success";
+  success: boolean;
   data: {
     title: string;
     slug: string;
     imageUrl: string;
     publishedAt: string;
-    user: {
-      name: string;
+    author: {
+      firstName: string;
+      lastName: string;
     };
   }[];
 }
@@ -82,7 +86,17 @@ export default async function Page({
       };
     });
 
-  console.log(post);
+  const recentPostsResponse = await getPosts({ recent: true, take: 3 });
+  const recentPosts: RecentPostProp = {
+    success: recentPostsResponse.success,
+    data: recentPostsResponse.data || [],
+  };
+
+  const topicsResponse = await getCategories({ recent: true, limit: 3 });
+  const topics: TopicProp = {
+    success: recentPostsResponse.success,
+    data: topicsResponse.data || [],
+  };
   //   const topics: TopicProp = await fetch(
   //     `${process.env.MAIN_URL}/api/dashboard/getcategories?num=6`,
   //     {
@@ -288,14 +302,14 @@ export default async function Page({
               Recent Posts
             </h2>
             <div className="space-y-4 sm:space-y-6">
-              {/* {recentPosts.data.map((post, index) => (
+              {recentPosts.data.map((post, index) => (
                 <div
                   key={index}
                   className="flex gap-3 sm:gap-4 group cursor-pointer"
                 >
                   <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
                     <Image
-                      src={post.imageUrl || ""}
+                      src={post.imageUrl || "/images/placeholder.png"}
                       alt={post.title}
                       fill
                       className="rounded-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -306,13 +320,13 @@ export default async function Page({
                       {post.title}
                     </h3>
                     <div className="text-xs sm:text-sm text-gray-500 space-x-2">
-                      {post.user && <span>{post.user.name}</span>}
+                      {post.author && <span>{post.author.firstName}</span>}
                       <span>•</span>
                       <span>{formatDate(post.publishedAt)}</span>
                     </div>
                   </div>
                 </div>
-              ))} */}
+              ))}
             </div>
           </div>
 
@@ -322,7 +336,7 @@ export default async function Page({
               Explore Topics
             </h2>
             <div className="space-y-2">
-              {/* {topics.data.map((topic, index) => (
+              {topics.data.map((topic, index) => (
                 <div
                   key={index}
                   className="flex justify-between items-center py-2 rounded-lg group cursor-pointer transition-colors"
@@ -331,10 +345,10 @@ export default async function Page({
                     {topic.name}
                   </span>
                   <span className="text-xs sm:text-sm text-gray-500 border group-hover:bg-blue-500 border-gray-200 px-2 py-0.5 rounded-full">
-                    {topic.count}
+                    {topic.postCount}
                   </span>
                 </div>
-              ))} */}
+              ))}
             </div>
           </div>
 
