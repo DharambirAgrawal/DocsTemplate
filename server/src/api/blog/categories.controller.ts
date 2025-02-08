@@ -69,4 +69,4 @@ export const getCategories = async (req: Request, res: Response) => {
     success: true,
     data: categories,
   });
-}
+};

@@ -345,3 +345,40 @@ export const getPostContent = async (req: Request, res: Response) => {
     data: post,
   });
 };
+
+export const getCategories = async (req: Request, res: Response) => {
+  // Extract role from the request
+  const role = (req as any).role;
+
+  // Authorization check: Only ADMIN or AUTHOR can access
+  if (role !== "ADMIN" && role !== "AUTHOR") {
+    throw new AppError("Not Authorized to get the posts", 400);
+  }
+
+  // Extract query parameters
+  const { recent = false, category, limit = 10 } = req.query;
+
+  // Aggregate categories with the count of posts
+  const categories = await Category.aggregate([
+    {
+      $project: {
+        name: 1, // Include the category name
+        slug: 1, // Include the slug
+        _id: 0,
+        postCount: { $size: "$posts" }, // Count the posts array
+      },
+    },
+    { $limit: Number(limit) }, // Limit the number of categories returned
+  ]);
+
+  // If no categories are found, return an error
+  if (!categories || categories.length === 0) {
+    throw new AppError("No categories found", 404);
+  }
+
+  // Return the result
+  return res.status(200).json({
+    success: true,
+    data: categories,
+  });
+};
