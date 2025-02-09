@@ -76,7 +76,7 @@ interface PostFilters {
   categories?: string[];
   tags?: string[];
   status?: PostStatus;
-  authorId?: string;
+  metaData?: boolean;
   startDate?: Date | string;
   endDate?: Date | string;
   featured?: boolean;
@@ -125,11 +125,11 @@ export const getPosts = async (
       categories,
       tags,
       status,
-      authorId,
       startDate,
       endDate,
       featured,
       recent,
+      metaData,
     } = filters;
 
     // Add pagination params
@@ -145,7 +145,7 @@ export const getPosts = async (
     addParam("categories", categories);
     addParam("tags", tags);
     addParam("status", status);
-    addParam("authorId", authorId);
+    addParam("metaData", metaData);
     addParam("startDate", startDate);
     addParam("endDate", endDate);
     addParam("featured", featured);
