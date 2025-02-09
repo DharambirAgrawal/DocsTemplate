@@ -1,15 +1,13 @@
 "use client";
 import { useActionState } from "react";
-// import { subscribeEmail } from '@/lib/publicActions';
+import { subscribeEmailAction } from "./actions";
 const initialState = {
   type: "",
   content: "",
 };
 const NewsLetter = () => {
-  const subscribeEmail = async (formData: FormData) => {};
-
   const [state, formAction, isPending] = useActionState(
-    subscribeEmail,
+    subscribeEmailAction,
     initialState
   );
   return (
@@ -38,11 +36,11 @@ const NewsLetter = () => {
         </button>
         {state?.content &&
           (state?.type === "error" ? (
-            <div className="mb-4 text-red-500 text-sm text-center">
+            <div className="mb-4 text-red-500 text-md text-center">
               <p>{state.content}</p>
             </div>
           ) : (
-            <div className="mb-4 text-green-500 text-sm text-center">
+            <div className="mb-4 text-green-500 text-md text-center">
               <p>{state.content}</p>
             </div>
           ))}

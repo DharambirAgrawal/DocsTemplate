@@ -1,16 +1,17 @@
-import React from 'react';
-import Link from 'next/link';
-import { getPosts } from '@/lib/publicActions';
-import { formatDate } from '@/lib/utils';
-import Image from 'next/image';
-import { blogMetadata } from '@/lib/metaDatas';
-import type { Metadata } from 'next';
+import React from "react";
+import Link from "next/link";
+import { getPosts } from "../components/actions";
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
+// import { blogMetadata } from '@/lib/metaDatas';
+import type { Metadata } from "next";
 
-export const metadata: Metadata = blogMetadata;
+// export const metadata: Metadata = blogMetadata;
 
 interface PostProps {
-  status: 'error' | 'success';
-  data: {
+  success: boolean;
+  message?: string;
+  data?: {
     title: string;
     slug: string;
     imageUrl: string;
@@ -27,8 +28,9 @@ interface PostProps {
   }[];
 }
 export default async function BlogPage() {
-  const posts: PostProps = await getPosts({ limit: 10, recent: true });
-  if (posts.status === 'error') {
+  const posts: PostProps = await getPosts({ limit: 10, recent: true, page: 1 });
+  console.log(posts);
+  if (!posts.success) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center text-red-500">Failed to load posts</div>
@@ -40,12 +42,12 @@ export default async function BlogPage() {
       {/* Category Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-2">Posts</h1>
-        <p className="text-gray-600">{posts.data.length} Posts</p>
+        <p className="text-gray-600">{posts.data?.length} Posts</p>
       </div>
 
       {/* Posts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-        {posts.data.map((post, index) => (
+        {posts.data?.map((post, index) => (
           <div
             key={index}
             className="group relative flex flex-col rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"

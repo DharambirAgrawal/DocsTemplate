@@ -353,7 +353,7 @@ export default async function Page({
           </div>
 
           {/* Newsletter */}
-          {/* <NewsLetter /> */}
+          <NewsLetter />
         </aside>
       </div>
       <ReadingProgress />
