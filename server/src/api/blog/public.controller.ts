@@ -1,103 +1,138 @@
 import { Request, Response } from "express";
 import { AppError } from "../../errors/AppError";
-import Post from "../../models/blog/PostModel";
-import Category from "../../models/blog/CategoryModel";
+import Post, { PostStatus } from "../../models/blog/PostModel";
+import { buildQuery, executeQuery } from "./blog.helper";
 
-// Fetch multiple posts with pagination, sorting, and filtering
-export const getPublicPosts = async (req: Request, res: Response) => {
-  const { recent = false, category, random = false, take = 10, skip = 0 } = req.query;
+// // Get all published posts, sorted by date
+// GET /api/posts?status=PUBLISHED
 
-  // Define the base filter criteria (only published posts)
-  const whereClause: any = {
-    published: true, // Only fetch published posts
-  };
+// // Search posts with pagination
+// GET /api/posts?search=technology&page=2&limit=20
 
-  // If a category is specified, filter by category
-  if (category) {
-    const categoryPosts = await Category.findOne({ slug: category }).populate([
-      {
-        path: "posts", // Populate the 'posts' field
-        select: "slug -_id title imageUrl publishedAt summary metaData", // Select only the required fields for posts
-        match: whereClause,
-        populate: [
-          {
-            path: "categories", // Populate the 'user' field within posts
-            select: "name slug -_id", // Select only the 'name' and 'image' fields from the 'user' model
-          },
-          {
-            path: "tags", // Populate the 'user' field within posts
-            select: "name slug -_id",
-          },
-          {
-            path: 'authorId',
-            select: 'name image -_id'
-          }
-        ],
-      },
-    ]);
-    if (!categoryPosts || categoryPosts.posts.length === 0) {
-      throw new AppError("Category not found", 404);
+// // Filter by category and date range
+// GET /api/posts?categories=tech,news&startDate=2024-01-01&endDate=2024-12-31
+
+// // Get posts by specific author, sorted by views
+// GET /api/posts?authorId=123&sortBy=views&order=desc
+
+interface SortOptions {
+  field: string;
+  order: "asc" | "desc";
+}
+
+interface PaginationOptions {
+  page: number;
+  limit: number;
+}
+interface FilterOptions {
+  status?: PostStatus;
+  published?: boolean;
+  categories?: string[];
+  tags?: string[];
+  authorId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  search?: string;
+  featured?: boolean;
+}
+
+export const getAdvancedPosts = async (req: Request, res: Response) => {
+  try {
+    // Extract query parameters with defaults
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "publishedAt",
+      order = "desc",
+      search,
+      categories,
+      tags,
+      status,
+      startDate,
+      endDate,
+      authorId,
+      featured,
+    } = req.query;
+
+    // Build filter options
+    const filterOptions: FilterOptions = {};
+
+    // Search functionality across multiple fields
+    if (search) {
+      filterOptions.search = search as string;
     }
+
+    // Date range filter
+    if (startDate || endDate) {
+      const dateFilter: any = {};
+      if (startDate) dateFilter.$gte = new Date(startDate as string);
+      if (endDate) dateFilter.$lte = new Date(endDate as string);
+      filterOptions.startDate = dateFilter.$gte;
+      filterOptions.endDate = dateFilter.$lte;
+    }
+
+    // Category filter
+    if (categories) {
+      filterOptions.categories = (categories as string).split(",");
+    }
+
+    // Tags filter
+    if (tags) {
+      filterOptions.tags = (tags as string).split(",");
+    }
+
+    // Status filter
+    if (status && Object.values(PostStatus).includes(status as PostStatus)) {
+      filterOptions.status = status as PostStatus;
+    }
+
+    // Author filter
+    if (authorId) {
+      filterOptions.authorId = authorId as string;
+    }
+
+    // Featured posts filter
+    if (featured) {
+      filterOptions.featured = featured === "true";
+    }
+
+    // Build the query
+    const query = buildQuery(filterOptions);
+
+    // Sorting options
+    const sortOptions: SortOptions = {
+      field: sortBy as string,
+      order: order as "asc" | "desc",
+    };
+
+    // Pagination options
+    const paginationOptions: PaginationOptions = {
+      page: parseInt(page as string),
+      limit: parseInt(limit as string),
+    };
+
+    // Execute query with pagination
+    const results = await executeQuery(query, sortOptions, paginationOptions);
+
+    // Return response
     return res.status(200).json({
       success: true,
-      data: categoryPosts.posts,
+      data: results.posts,
+      pagination: {
+        total: results.total,
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+        totalPages: Math.ceil(results.total / paginationOptions.limit),
+      },
     });
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError("Error fetching posts", 500);
   }
+};
 
-  // Build the Mongoose query
-  let postsQuery: any = {
-    where: whereClause,
-    select: {
-      title: true,
-      slug: true,
-      imageUrl: true,
-      publishedAt: true,
-      summary: true,
-    },
-    skip: parseInt(skip as string), // Skip for pagination
-    limit: parseInt(take as string), // Limit the number of posts per page
-  };
-
-  // Sort by recent if needed
-  if (recent === "true") {
-    postsQuery.sort = { publishedAt: -1 }; // Sort by most recent
-  }
-
-  // If "random" is provided, fetch more posts and shuffle later
-  if (random === "true") {
-    postsQuery.limit = 100; // Fetch more posts than required for randomness
-  }
-
-  // Fetch posts from the database
-  const posts = await Post.find(whereClause)
-    .select("title slug imageUrl publishedAt summary user categories")
-    .skip(postsQuery.skip)
-    .limit(postsQuery.limit)
-    .sort(postsQuery.sort);
-
-  if (!posts || posts.length === 0) {
-    throw new AppError("No posts found for the specified filters", 404);
-  }
-
-  // If category is provided, filter categories to match the requested one
-  if (category) {
-    posts.forEach((post) => {
-      post.categories = post.categories.filter((cat: any) => cat.slug === category);
-    });
-  }
-
-  // If random is true, shuffle the posts and limit them
-  if (random === "true") {
-    posts.sort(() => Math.random() - 0.5); // Shuffle array
-    posts.splice(parseInt(take as string)); // Limit to 'take' number of posts
-  }
-
-  return res.status(200).json({
-    status: "success",
-    success: true,
-    data: posts,
-  });
-}
 // Fetch a single post by slug with detailed content
 export const getPostcontent = async (req: Request, res: Response) => {
   const { slug } = req.params;
@@ -123,4 +158,4 @@ export const getPostcontent = async (req: Request, res: Response) => {
     success: true,
     data: post,
   });
-}
+};

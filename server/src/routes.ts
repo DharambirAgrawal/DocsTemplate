@@ -6,16 +6,17 @@ import { testRouter } from "./api/test/testRoutes";
 import { blogRouter } from "./api/blog/blog.routes";
 import { authRouter } from "./api/auth/auth.routes";
 import { mediaRouter } from "./api/media/media.routes";
+import { userRouter } from "./api/user/user.routes";
 
 // Define routes function with proper typing for Express app
 const routes = (app: Application): void => {
   // Example route using the upload middleware
   app.use("/api/auth", authRouter);
-  app.use("/api/test", testRouter); 
+  app.use("/api/test", testRouter);
   app.use("/api/blog", blogRouter);
   app.use("/api/media", upload.any(), mediaRouter);
-  // app.use("/api/public/blog", publicBlogRouter);
-  
+  app.use("/api/user", userRouter);
+
   // app.use("/api/auth", authRouter);
   // app.use("/api/public/meta", metaDataRouter);
   // app.use("/api/public", publicRouter);

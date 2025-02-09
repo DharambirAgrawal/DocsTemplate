@@ -6,7 +6,7 @@ import {
   getPostContent,
   getCategories,
 } from "./post.controller";
-import { getPublicPosts } from "./public.controller";
+import { getAdvancedPosts } from "./public.controller";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
 
 import { verifyAuthor } from "./blog.middleware";
@@ -22,4 +22,4 @@ export const blogRouter = BlogRouter.post(
   .get("/categories", verifyAccessTokenMiddleware, catchAsync(getCategories))
 
   //public route
-  .get("/posts", catchAsync(getPublicPosts));
+  .get("/public/posts", catchAsync(getAdvancedPosts));

@@ -10,7 +10,7 @@ export const subscribeToNewsletter = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.body
+  const { email } = req.body;
 
   const subscribe = await subscribetoNewsletter({
     email,
@@ -21,7 +21,6 @@ export const subscribeToNewsletter = async (
     throw new AppError("Error while subscribing to newsletter", 400);
   }
   return res.status(200).json({
-    status: "success",
     success: true,
     message: subscribe.message,
   });
