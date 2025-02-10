@@ -73,7 +73,7 @@ interface PostFilters {
 
   // Filtering
   search?: string;
-  categories?: string[];
+  category?: string;
   tags?: string[];
   status?: PostStatus;
   metaData?: boolean;
@@ -122,7 +122,7 @@ export const getPosts = async (
       sortBy,
       order,
       search,
-      categories,
+      category,
       tags,
       status,
       startDate,
@@ -142,7 +142,7 @@ export const getPosts = async (
 
     // Add filtering params
     addParam("search", search);
-    addParam("categories", categories);
+    addParam("category", category);
     addParam("tags", tags);
     addParam("status", status);
     addParam("metaData", metaData);
