@@ -1,11 +1,13 @@
 import Author from "../../models/blog/AuthorModel";
+import Category from "../../models/blog/CategoryModel";
 import { AppError } from "../../errors/AppError";
 import Post, { PostStatus } from "../../models/blog/PostModel";
 import mongoose from "mongoose";
+import Profile from "../../models/user/ProfileModel";
 interface FilterOptions {
   status?: PostStatus;
   published?: boolean;
-  categories?: string[];
+  category?: string;
   tags?: string[];
   authorId?: string;
   startDate?: Date;
@@ -51,7 +53,9 @@ export const createAuthor = async (userId: string) => {
 
 // Helper function to build the query
 export const buildQuery = (filterOptions: FilterOptions) => {
-  const query: any = {};
+  const query: any = {
+    published: true,
+  };
 
   // Add search conditions
   if (filterOptions.search) {
@@ -77,14 +81,8 @@ export const buildQuery = (filterOptions: FilterOptions) => {
   }
 
   // Add category conditions
-  if (filterOptions.categories && filterOptions.categories.length > 0) {
-    query.categories = {
-      $in: filterOptions.categories.map((cat) =>
-        mongoose.Types.ObjectId.isValid(cat)
-          ? new mongoose.Types.ObjectId(cat)
-          : cat
-      ),
-    };
+  if (filterOptions.category) {
+    query.category = filterOptions.category;
   }
 
   // Add tag conditions
@@ -103,11 +101,6 @@ export const buildQuery = (filterOptions: FilterOptions) => {
     query.status = filterOptions.status;
   }
 
-  // Add author condition
-  if (filterOptions.authorId) {
-    query.authorId = new mongoose.Types.ObjectId(filterOptions.authorId);
-  }
-
   return query;
 };
 
@@ -115,7 +108,8 @@ export const buildQuery = (filterOptions: FilterOptions) => {
 export const executeQuery = async (
   query: any,
   sortOptions: SortOptions,
-  paginationOptions: PaginationOptions
+  paginationOptions: PaginationOptions,
+  select: string
 ) => {
   // Calculate skip value for pagination
   const skip = (paginationOptions.page - 1) * paginationOptions.limit;
@@ -125,32 +119,137 @@ export const executeQuery = async (
     [sortOptions.field, sortOptions.order === "asc" ? 1 : -1],
   ];
 
-  // Execute query with pagination and populate references
-  const posts = await Post.find(query)
-    .select("-_id -__v")
-    .sort(sort)
-    .skip(skip)
-    .limit(paginationOptions.limit)
-    .populate([
-      {
-        path: "categories",
-        select: "name slug -_id",
-      },
-      {
-        path: "tags",
-        select: "name slug -_id",
-      },
-      {
-        path: "authorId",
-        select: "name image -_id",
-      },
-    ]);
+  let posts;
+
+  if (query.category) {
+    posts = await Category.findOne({ slug: query.category })
+      .select("-_id")
+      .populate([
+        {
+          path: "posts", // Populate the 'posts' field
+          select: select,
+          options: {
+            limit: paginationOptions.limit,
+            skip: skip,
+            // sort: sort,
+          },
+          match: {
+            published: true,
+          },
+          populate: [
+            {
+              path: "tags", // Populate the 'user' field within posts
+              select: "name slug -_id",
+            },
+            {
+              path: "authorId",
+              select: "bio title userId -_id",
+            },
+          ],
+        },
+      ])
+      .lean();
+  } else {
+    // Execute query with pagination and populate references
+    posts = await Post.find(query)
+      .select(select)
+      .sort(sort)
+      .skip(skip)
+      .limit(paginationOptions.limit)
+      .populate([
+        {
+          path: "categories",
+          select: "name slug -_id",
+        },
+        {
+          path: "tags",
+          select: "name slug -_id",
+        },
+        {
+          path: "authorId",
+          select: "bio title userId -_id",
+        },
+      ])
+      .lean();
+  }
+
+  if (!posts) {
+    throw new AppError("No posts found", 404);
+  }
+
+  let postsWithAuthor;
+  if (query.category) {
+    postsWithAuthor = await Promise.all(
+      posts.posts.map(async (post) => {
+        // Ensure that post.authorId exists
+        const newPost = { ...post } as any;
+        if (post.authorId) {
+          const author = await Profile.findOne({
+            userId: (post.authorId as any)?.userId,
+          }).select("firstName lastName email image -_id");
+
+          if (author) {
+            // Add author info to the post object
+            newPost.author = {
+              firstName: author.firstName,
+              lastName: author.lastName,
+              email: author.email,
+              bio: (post.authorId as any)?.bio,
+              title: (post.authorId as any)?.title,
+              image: author.image,
+            };
+          }
+        }
+        newPost.categories = [
+          {
+            name: posts.name,
+            slug: posts.slug,
+          },
+        ];
+
+        delete newPost.authorId;
+        return newPost;
+      })
+    );
+  } else {
+    postsWithAuthor = await Promise.all(
+      posts.map(async (post) => {
+        // Ensure that post.authorId exists
+        const newPost = { ...post } as any;
+        if (post.authorId) {
+          const author = await Profile.findOne({
+            userId: (post.authorId as any)?.userId,
+          }).select("firstName lastName email image -_id");
+
+          if (author) {
+            // Add author info to the post object
+            newPost.author = {
+              firstName: author.firstName,
+              lastName: author.lastName,
+              email: author.email,
+              bio: (post.authorId as any)?.bio,
+              title: (post.authorId as any)?.title,
+              image: author.image,
+            };
+          }
+        }
+
+        delete newPost.authorId;
+
+        return newPost;
+      })
+    );
+  }
+
+  // console.log(postsWithAuthor);
 
   // Get total count for pagination
   const total = await Post.countDocuments(query);
+  console.log(total, "total");
+  console.log(postsWithAuthor);
 
   return {
-    posts,
+    posts: postsWithAuthor,
     total,
   };
 };
