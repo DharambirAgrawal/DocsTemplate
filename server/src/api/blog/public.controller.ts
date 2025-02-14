@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppError } from "../../errors/AppError";
 import Post, { PostStatus } from "../../models/blog/PostModel";
 import { buildQuery, executeQuery } from "./blog.helper";
+import Profile from "../../models/user/ProfileModel";
 
 // // Get all published posts, sorted by date
 // GET /api/posts?status=PUBLISHED
@@ -132,27 +133,56 @@ export const getAdvancedPosts = async (req: Request, res: Response) => {
 };
 
 // Fetch a single post by slug with detailed content
-export const getPostcontent = async (req: Request, res: Response) => {
+export const getPublicPostcontent = async (req: Request, res: Response) => {
   const { slug } = req.params;
 
   // Ensure slug is provided
   if (!slug) {
     throw new AppError("Slug is required", 400);
   }
+  const whereClause: any = {
+    slug,
+  };
 
   // Fetch the post with all required fields
-  const post = await Post.findOne({ slug, published: true })
-    .select("title content imageUrl publishedAt tags categories user")
-    .populate("user", "name image summary")
-    .populate("categories", "name slug");
+  const post = await Post.findOne(whereClause)
+    .select({
+      _id: false,
+      title: true,
+      slug: true,
+      imageUrl: true,
+      publishedAt: true,
+      summary: true,
+      metaData: true,
+      published: true,
+      timeRead: true,
+      content: true,
+    })
+    .populate("categories", "name slug -_id")
+    .populate("tags", "name slug -_id")
+    .populate("authorId", "userId -_id")
+    .lean();
 
-  // If post not found, throw error
   if (!post) {
     throw new AppError("Post not found", 404);
   }
 
-  return res.status(200).json({
-    status: "success",
+  // Fetch author information
+  const author = await Profile.findOne({
+    userId: (post.authorId as any)?.userId,
+  }).select("firstName lastName email image -_id");
+
+  if (author) {
+    (post as any).author = {
+      firstName: author.firstName,
+      lastName: author.lastName,
+      email: author.email,
+      image: author.image,
+    };
+  }
+  delete post.authorId;
+
+  res.status(200).json({
     success: true,
     data: post,
   });

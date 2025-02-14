@@ -4,8 +4,9 @@ import { AppError } from "../../errors/AppError";
 import { validateEmail } from "../../utils/utils";
 import { generateToken } from "../../utils/jwtUtils";
 import { unsubscribeNewsletterPayload } from "../../config/tokenPayload";
-import Newsletter, { SubscribeStatusType } from "../../models/user/NewsLetterModel";
-import Profile from "../../models/user/ProfileModel";
+import Newsletter, {
+  SubscribeStatusType,
+} from "../../models/user/NewsLetterModel";
 export const subscribetoNewsletter = async ({
   email,
   subscribe,
@@ -34,9 +35,9 @@ export const subscribetoNewsletter = async ({
 
   if (existingUser && existingUser.status == "ACTIVE") {
     return {
-        status: "success",
-        message: "Already subscribed to newsletter",
-    }
+      status: "success",
+      message: "Already subscribed to newsletter",
+    };
   }
 
   let subscribeUser;
