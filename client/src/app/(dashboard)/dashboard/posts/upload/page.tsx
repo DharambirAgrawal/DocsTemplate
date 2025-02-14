@@ -3,56 +3,16 @@
 import { useState, useEffect, type FormEvent } from "react";
 import ImageGrid from "@/app/(dashboard)/components/Images/ImageGrid";
 import Image from "next/image";
-import { publishPost } from "../actions";
+import { publishPost, getCategories } from "../actions";
+import { getImagesAction } from "../../images/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 
+const initialCategories: Category[] = [];
 export interface Category {
-  id: string;
+  slug?: string;
   name: string;
-  checked?: boolean;
 }
-const images = [
-  {
-    id: "1",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "Mountain Landscape",
-    altText: "Beautiful mountain landscape at sunset",
-    description: "A stunning view of mountains during golden hour",
-    tags: ["nature", "landscape", "mountains"],
-  },
-  {
-    id: "2",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "Beach Sunset",
-    altText: "Colorful sunset at the beach",
-    description: "A beautiful sunset view from the beach",
-    tags: ["nature", "sunset", "beach"],
-  },
-  {
-    id: "3",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-  {
-    id: "4",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-  {
-    id: "5",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-];
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -70,16 +30,6 @@ export interface BlogPost {
 }
 
 export interface FormData extends Omit<BlogPost, "id" | "status"> {}
-
-const initialCategories: Category[] = [
-  { id: "1", name: "Technology" },
-  { id: "2", name: "Design" },
-  { id: "3", name: "Development" },
-  { id: "4", name: "Security & Encryption" },
-  { id: "5", name: "Data Structures" },
-  { id: "6", name: "Cryptography" },
-  { id: "7", name: "File Management" },
-];
 
 const initialData: FormData = {
   title: "",
@@ -103,6 +53,7 @@ export default function CreatePost() {
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState<any[]>([]);
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -122,7 +73,7 @@ export default function CreatePost() {
   const addNewCategory = () => {
     if (newCategory && !categories.find((cat) => cat.name === newCategory)) {
       const newCat: Category = {
-        id: `new-${Date.now()}`,
+        slug: `new-${Date.now()}`,
         name: newCategory,
       };
       setCategories((prev) => [...prev, newCat]);
@@ -168,6 +119,20 @@ export default function CreatePost() {
       setPreviewImage(formData.imageUrl);
     }
   }, [formData.imageUrl]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categories = await getCategories({});
+      const images = await getImagesAction("BLOG");
+      if (images.success) {
+        setImages(images.data);
+      }
+      if (categories.success) {
+        setCategories(categories.data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -362,7 +327,7 @@ export default function CreatePost() {
                       </div>
                       {categories.map((category) => (
                         <label
-                          key={category.id}
+                          key={category.slug}
                           className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
                         >
                           <input
@@ -486,21 +451,16 @@ export default function CreatePost() {
                       type="button"
                       onClick={(e) => handleSubmit(e, "draft")}
                       className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    disabled={loading}
+                      disabled={loading}
                     >
-                      {
-                        loading ? "Saving..." : "Save as Draft"
-                      }
-                      
+                      {loading ? "Saving..." : "Save as Draft"}
                     </button>
                     <button
                       type="submit"
                       className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    disabled={loading}
+                      disabled={loading}
                     >
-                   {
-                        loading ? "Publishing..." : "Publish"
-                   }
+                      {loading ? "Publishing..." : "Publish"}
                     </button>
                   </div>
                 </div>

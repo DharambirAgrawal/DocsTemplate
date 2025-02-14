@@ -199,41 +199,79 @@ export const getPosts = async (
   }
 };
 
-// Example usage:
-/*
-// Basic usage
-const response1 = await getPosts();
+export const getCategories = async (filters: {
+  limit?: number;
+  category?: string;
+  recent?: boolean;
+}) => {
+  try {
+    // Build query parameters
+    const queryParams = new URLSearchParams();
 
-// With pagination
-const response2 = await getPosts({
-  page: 2,
-  limit: 20
-});
+    // Helper function to safely add params
+    const addParam = (key: string, value: any) => {
+      if (value !== undefined && value !== null && value !== "") {
+        if (Array.isArray(value)) {
+          queryParams.append(key, value.join(","));
+        } else if (value instanceof Date) {
+          queryParams.append(key, value.toISOString());
+        } else {
+          queryParams.append(key, String(value));
+        }
+      }
+    };
 
-// With search and filters
-const response3 = await getPosts({
-  search: 'technology',
-  categories: ['tech', 'news'],
-  status: PostStatus.PUBLISHED,
-  startDate: new Date('2024-01-01'),
-  sortBy: 'publishedAt',
-  order: 'desc'
-});
+    // Add all possible filter parameters
+    const { limit = 6, category, recent } = filters;
 
-// With all options
-const response4 = await getPosts({
-  page: 1,
-  limit: 10,
-  search: 'tech',
-  categories: ['technology'],
-  tags: ['featured'],
-  status: PostStatus.PUBLISHED,
-  authorId: '123',
-  startDate: '2024-01-01',
-  endDate: '2024-12-31',
-  featured: true,
-  sortBy: 'views',
-  order: 'desc',
-  recent: true
-});
-*/
+    // Add pagination params
+
+    addParam("limit", limit);
+    addParam("category", category);
+    addParam("recent", recent);
+
+    // Build the URL with query parameters
+    const url = `${
+      process.env.SERVER_BASE_URL
+    }/api/blog/public/categories?${queryParams.toString()}`;
+
+    // Make the request with error handling
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors
+      const errorData = await response.json().catch(() => null);
+      return {
+        success: false,
+        message: errorData?.message || `HTTP error! status: ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      return {
+        success: false,
+        message: data.message || "Failed to fetch posts",
+      };
+    }
+
+    return {
+      success: true,
+      data: data.data,
+      pagination: data.pagination,
+    };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+    };
+  }
+};

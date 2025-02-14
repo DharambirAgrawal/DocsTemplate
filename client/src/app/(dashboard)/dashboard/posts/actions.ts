@@ -74,32 +74,109 @@ export const getPosts = asyncErrorHandler(
   }
 );
 
-export const getCategories = asyncErrorHandler(
-  async ({ recent, limit }: { recent: boolean; limit: number }) => {
-    const params = new URLSearchParams();
+// export const getCategories = asyncErrorHandler(
+//   async ({ recent, limit }: { recent: boolean; limit: number }) => {
+//     const params = new URLSearchParams();
 
-    if (recent !== undefined) {
-      params.append("recent", String(recent));
-    }
+//     if (recent !== undefined) {
+//       params.append("recent", String(recent));
+//     }
 
-    if (limit !== undefined) {
-      params.append("limit", String(limit));
-    }
+//     if (limit !== undefined) {
+//       params.append("limit", String(limit));
+//     }
 
-    const queryString = params.toString();
-    const url = `/api/blog/categories${queryString ? "?" + queryString : ""}`;
+//     const queryString = params.toString();
+//     const url = `/api/blog/categories${queryString ? "?" + queryString : ""}`;
 
-    const data = await fetchWithTokenRefresh(url, {
+//     const data = await fetchWithTokenRefresh(url, {
+//       method: "GET",
+//     });
+
+//     if (!data.success) {
+//       throw new AppError(data.message || "Post not found", 404);
+//     } else {
+//       return {
+//         success: true,
+//         data: data.data,
+//       };
+//     }
+//   }
+// );
+
+export const getCategories = async (filters: {
+  limit?: number;
+  category?: string;
+  recent?: boolean;
+}) => {
+  try {
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+
+    // Helper function to safely add params
+    const addParam = (key: string, value: any) => {
+      if (value !== undefined && value !== null && value !== "") {
+        if (Array.isArray(value)) {
+          queryParams.append(key, value.join(","));
+        } else if (value instanceof Date) {
+          queryParams.append(key, value.toISOString());
+        } else {
+          queryParams.append(key, String(value));
+        }
+      }
+    };
+
+    // Add all possible filter parameters
+    const { limit = 6, category, recent } = filters;
+
+    // Add pagination params
+
+    addParam("limit", limit);
+    addParam("category", category);
+    addParam("recent", recent);
+
+    // Build the URL with query parameters
+    const url = `${
+      process.env.SERVER_BASE_URL
+    }/api/blog/public/categories?${queryParams.toString()}`;
+
+    // Make the request with error handling
+    const response = await fetch(url, {
       method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
-    if (!data.success) {
-      throw new AppError(data.message || "Post not found", 404);
-    } else {
+    if (!response.ok) {
+      // Handle HTTP errors
+      const errorData = await response.json().catch(() => null);
       return {
-        success: true,
-        data: data.data,
+        success: false,
+        message: errorData?.message || `HTTP error! status: ${response.status}`,
       };
     }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      return {
+        success: false,
+        message: data.message || "Failed to fetch posts",
+      };
+    }
+
+    return {
+      success: true,
+      data: data.data,
+      pagination: data.pagination,
+    };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+    };
   }
-);
+};
