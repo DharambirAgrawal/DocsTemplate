@@ -1,10 +1,10 @@
-import { getPosts } from '@/lib/publicActions';
-import { formatDate } from '@/lib/utils';
-import Image from 'next/image';
-import Link from 'next/link';
+import { getPosts } from "../actions";
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
 interface RecentPostProp {
-  status: 'error' | 'success';
-  data: {
+  success: boolean;
+  data?: {
     title: string;
     slug: string;
     imageUrl: string;
@@ -19,6 +19,9 @@ const RecentPosts = async () => {
     limit: 3,
     recent: true,
   });
+  if (!recentPosts.success || !recentPosts.data) {
+    return null;
+  }
   return (
     <div className="space-y-4 sm:space-y-6">
       {recentPosts.data.map((post, index) => (

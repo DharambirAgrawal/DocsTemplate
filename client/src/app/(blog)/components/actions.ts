@@ -275,3 +275,33 @@ export const getCategories = async (filters: {
     };
   }
 };
+
+export const getSpecificBlogAction = async (slug: string) => {
+  try {
+    const res = await fetch(
+      `${process.env.SERVER_BASE_URL}/api/blog/public/posts/${slug}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!res.ok) {
+      return {
+        success: false,
+        content: "Failed to fetch blog post",
+      };
+    }
+    const data = await res.json();
+    return {
+      success: true,
+      data: data.data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      content: "Failed to fetch blog post",
+    };
+  }
+};

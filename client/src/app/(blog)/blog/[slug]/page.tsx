@@ -1,51 +1,48 @@
-import React from 'react';
-import Image from 'next/image';
-import { cache } from 'react';
-import { Suspense } from 'react';
-import { CompileMDX } from '@/features/CompileMdx';
-import ReadingProgress from '@/features/ReadingProgress';
-import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
-import MDXError from '@/features/CompileMdx/MDXError';
-import { formatDate } from '@/lib/utils';
-import { FacebookIcon,InstagramIcon,XIcon } from '@/utils/icons';
+import React from "react";
+import Image from "next/image";
+import { Suspense } from "react";
+import { CompileMDX } from "@/features/CompileMdx";
+import ReadingProgress from "@/features/ReadingProgress";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import MDXError from "@/features/CompileMdx/MDXError";
+import { formatDate } from "@/lib/utils";
+import { FacebookIcon, InstagramIcon, XIcon } from "@/utils/icons";
+import { getSpecificBlogAction } from "../../components/actions";
 // import NewsLetter from '@/components/main/NewsLetter';
 // import RecentPosts from './RecentPosts';
 // import Topics from './Topics';
-import { blogPostMetadata } from '@/lib/metaDatas';
-import {
-  getSpecificBlog,
-  getPostSlugs,
-  getSpecificBlogMetadata,
-} from '@/lib/publicActions';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
+// import { blogPostMetadata } from '@/lib/metaDatas';
+// import {
+//   getSpecificBlog,
+//   getPostSlugs,
+//   getSpecificBlogMetadata,
+// } from '@/lib/publicActions';
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 // Move these to separate components and lazy load them
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const NewsLetter = dynamic(() => import('@/app/(blog)/components/NewsLetter'), {
+const NewsLetter = dynamic(() => import("@/app/(blog)/components/NewsLetter"), {
   loading: () => (
     <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl" />
   ),
 });
 
-const Topics = dynamic(() => import('../../components/blog/Topics'), {
+const Topics = dynamic(() => import("../../components/blog/Topics"), {
   loading: () => (
     <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl" />
   ),
 });
 
-const RecentPosts = dynamic(() => import('../../components/blog/RecentPosts'), {
+const RecentPosts = dynamic(() => import("../../components/blog/RecentPosts"), {
   loading: () => (
     <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl" />
   ),
 });
 
-type Props = {
-  params: Promise<{ slug: string }>;
-};
 interface PostProp {
-  status: 'error' | 'success';
-  data: {
+  success: boolean;
+  data?: {
     title: string;
     content: string;
     tags: {
@@ -59,21 +56,21 @@ interface PostProp {
       name: string;
       slug: string;
     }[];
-    user: {
+    author: {
       image: string;
-      name: string;
-      summary: string;
+      firstName: string;
+      lastName: string;
     };
   };
 }
 
 interface SlugProp {
-  status: 'error' | 'success';
+  status: "error" | "success";
   data: string[];
 }
 
 interface MetaSlugProp {
-  status: 'error' | 'success';
+  status: "error" | "success";
   data: {
     title: string;
     imageUrl: string;
@@ -98,10 +95,10 @@ interface MetaSlugProp {
   };
 }
 
-export const revalidate = 86400;
-export const dynamicParams = true;
+// export const revalidate = 86400;
+// export const dynamicParams = true;
 // export const runtime = 'edge'; // Use edge runtime for faster response
-export const preferredRegion = 'auto'; // Auto-select closest region
+// export const preferredRegion = "auto"; // Auto-select closest region
 
 // export async function generateMetadata(
 //   { params }: Props,
@@ -115,28 +112,28 @@ export const preferredRegion = 'auto'; // Auto-select closest region
 
 //   return blogPostMetadata(post, slug);
 // }
-export const generateMetadata = cache(
-  async ({ params }: Props): Promise<Metadata> => {
-    const slug = (await params).slug;
-    const post: MetaSlugProp = await getSpecificBlogMetadata(slug);
-    if (post.status === 'error') {
-      return notFound();
-    }
+// export const generateMetadata = cache(
+//   async ({ params }: Props): Promise<Metadata> => {
+//     const slug = (await params).slug;
+//     const post: MetaSlugProp = await getSpecificBlogMetadata(slug);
+//     if (post.status === 'error') {
+//       return notFound();
+//     }
 
-    return blogPostMetadata(post, slug);
-  }
-);
+//     return blogPostMetadata(post, slug);
+//   }
+// );
 
-export async function generateStaticParams() {
-  const slugs: SlugProp = await getPostSlugs();
-  if (slugs.status === 'error') {
-    return [];
-  }
+// export async function generateStaticParams() {
+//   const slugs: SlugProp = await getPostSlugs();
+//   if (slugs.status === 'error') {
+//     return [];
+//   }
 
-  return slugs.data.map((slug) => ({
-    slug: slug,
-  }));
-}
+//   return slugs.data.map((slug) => ({
+//     slug: slug,
+//   }));
+// }
 
 export default async function Page({
   params,
@@ -144,27 +141,20 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const slug = (await params).slug;
-  const post: PostProp = await getSpecificBlog(slug);
-  if (post.status === 'error') {
+  const post: PostProp = await getSpecificBlogAction(slug);
+  console.log(post);
+  if (!post.success || !post.data) {
     notFound();
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12 py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
         {/* Main Content Column */}
         <div className="lg:col-span-2">
           {/* Featured Image */}
           <div className="rounded-xl overflow-hidden mb-6 sm:mb-8 relative shadow-lg">
             <div className="aspect-[4/5] sm:aspect-[16/9] relative">
-              {/* <Image
-                src={post.data.imageUrl}
-                fill
-                alt="Featured"
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority
-              /> */}
               <Image
                 src={post.data.imageUrl}
                 fill
@@ -179,7 +169,7 @@ export default async function Page({
               />
               {/* Title Overlay */}
               <div className="absolute inset-0 flex justify-center items-center px-6 sm:px-10 py-4 bg-gradient-to-t from-black via-transparent to-transparent">
-                <h2 className="text-white text-3xl sm:text-5xl font-bold text-center drop-shadow-lg">
+                <h2 className="text-white text-3xl sm:text-5xl font-bold text-center drop-shadow-lg select-none">
                   {post.data.title}
                 </h2>
               </div>
@@ -193,12 +183,12 @@ export default async function Page({
             </h1>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              {post.data.user && (
+              {post.data.author && (
                 <div className="flex items-center">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12">
                     <Image
-                      src={post.data.user.image}
-                      alt={post.data.user.name}
+                      src={post.data.author.image}
+                      alt={post.data.author.firstName}
                       fill
                       className="rounded-full object-cover border-2 border-gray-100"
                       loading="lazy"
@@ -206,7 +196,7 @@ export default async function Page({
                   </div>
                   <div className="ml-3">
                     <span className="text-sm sm:text-base text-gray-900 font-medium hover:text-blue-600 transition-colors">
-                      {post.data.user.name}
+                      {post.data.author.firstName} {post.data.author.lastName}
                     </span>
                   </div>
                 </div>
@@ -284,18 +274,18 @@ export default async function Page({
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 bg-gray-50 p-4 sm:p-6 rounded-xl">
               <div className="relative w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0">
                 <Image
-                  src={post.data.user.image}
-                  alt={post.data.user.name}
+                  src={post.data.author.image}
+                  alt={post.data.author.firstName}
                   fill
                   className="rounded-full object-cover border-4 border-white shadow-md"
                 />
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                  {post.data.user.name}
+                  {post.data.author.firstName} {post.data.author.lastName}
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  {post.data.user.summary}
+                  {/* {post.data.user.summary} */} bio here
                 </p>
               </div>
             </div>

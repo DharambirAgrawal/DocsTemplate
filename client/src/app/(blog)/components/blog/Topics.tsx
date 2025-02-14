@@ -1,10 +1,11 @@
-import { getCategories } from '@/lib/publicActions';
-import Link from 'next/link';
+import { getCategories } from "../actions";
+import Link from "next/link";
 interface TopicProp {
-  status: 'error' | 'success';
-  data: {
+  success: boolean;
+  message?: string;
+  data?: {
     name: string;
-    count: string;
+    postCount: string;
     slug: string;
   }[];
 }
@@ -13,7 +14,7 @@ const Topics = async () => {
 
   return (
     <div className="space-y-2">
-      {topics.data.map((topic, index) => (
+      {topics.data?.map((topic, index) => (
         <Link
           href={`/category/${topic.slug}`}
           key={index}
@@ -23,7 +24,7 @@ const Topics = async () => {
             {topic.name}
           </span>
           <span className="text-xs sm:text-sm text-gray-500 border group-hover:bg-blue-500 border-gray-200 px-2 py-0.5 rounded-full">
-            {topic.count}
+            {topic.postCount}
           </span>
         </Link>
       ))}

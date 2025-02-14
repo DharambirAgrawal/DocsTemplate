@@ -10,9 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <>
-      <DefaultLayout>
-        <main className=" mt-10">{children}</main>
-      </DefaultLayout>
+      <DefaultLayout>{children}</DefaultLayout>
     </>
   );
 }
