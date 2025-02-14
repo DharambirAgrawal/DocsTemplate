@@ -120,6 +120,7 @@ export const executeQuery = async (
   ];
 
   let posts;
+  let total;
 
   if (query.category) {
     posts = await Category.findOne({ slug: query.category })
@@ -149,6 +150,10 @@ export const executeQuery = async (
         },
       ])
       .lean();
+    const cat = await Category.findOne({ slug: query.category });
+    if (cat) {
+      total = cat.posts.length;
+    }
   } else {
     // Execute query with pagination and populate references
     posts = await Post.find(query)
@@ -171,6 +176,7 @@ export const executeQuery = async (
         },
       ])
       .lean();
+    total = await Post.countDocuments(query);
   }
 
   if (!posts) {
@@ -180,7 +186,7 @@ export const executeQuery = async (
   let postsWithAuthor;
   if (query.category) {
     postsWithAuthor = await Promise.all(
-      posts.posts.map(async (post) => {
+      (posts as any).posts.map(async (post: any) => {
         // Ensure that post.authorId exists
         const newPost = { ...post } as any;
         if (post.authorId) {
@@ -202,8 +208,8 @@ export const executeQuery = async (
         }
         newPost.categories = [
           {
-            name: posts.name,
-            slug: posts.slug,
+            name: (posts as any).name,
+            slug: (posts as any).slug,
           },
         ];
 
@@ -213,7 +219,7 @@ export const executeQuery = async (
     );
   } else {
     postsWithAuthor = await Promise.all(
-      posts.map(async (post) => {
+      (posts as any).map(async (post: any) => {
         // Ensure that post.authorId exists
         const newPost = { ...post } as any;
         if (post.authorId) {
@@ -244,12 +250,9 @@ export const executeQuery = async (
   // console.log(postsWithAuthor);
 
   // Get total count for pagination
-  const total = await Post.countDocuments(query);
-  console.log(total, "total");
-  console.log(postsWithAuthor);
 
   return {
     posts: postsWithAuthor,
-    total,
+    total: total || 0,
   };
 };

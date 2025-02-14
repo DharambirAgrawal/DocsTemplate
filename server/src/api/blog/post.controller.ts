@@ -347,14 +347,6 @@ export const getPostContent = async (req: Request, res: Response) => {
 };
 
 export const getCategories = async (req: Request, res: Response) => {
-  // Extract role from the request
-  const role = (req as any).role;
-
-  // Authorization check: Only ADMIN or AUTHOR can access
-  if (role !== "ADMIN" && role !== "AUTHOR") {
-    throw new AppError("Not Authorized to get the posts", 400);
-  }
-
   // Extract query parameters
   const { recent = false, category, limit = 10 } = req.query;
 

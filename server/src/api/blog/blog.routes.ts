@@ -19,7 +19,7 @@ export const blogRouter = BlogRouter.post(
 )
   .get("/posts", verifyAccessTokenMiddleware, catchAsync(getAllPosts))
   .get("/post/:slug", verifyAccessTokenMiddleware, catchAsync(getPostContent))
-  .get("/categories", verifyAccessTokenMiddleware, catchAsync(getCategories))
 
   //public route
-  .get("/public/posts", catchAsync(getAdvancedPosts));
+  .get("/public/posts", catchAsync(getAdvancedPosts))
+  .get("/public/categories", catchAsync(getCategories));

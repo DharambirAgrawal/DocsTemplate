@@ -77,7 +77,7 @@ export const getAdvancedPosts = async (req: Request, res: Response) => {
 
   // Category filter
   if (category) {
-    filterOptions.category = category;
+    filterOptions.category = category as string;
   }
 
   // Tags filter
