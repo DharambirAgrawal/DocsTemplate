@@ -4,11 +4,10 @@ import {
   saveOrPublishPost,
   getAllPosts,
   getPostContent,
-  getCategories,
 } from "./post.controller";
 import { getAdvancedPosts, getPublicPostcontent } from "./public.controller";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
-
+import { getCategories } from "./categories.controller";
 import { verifyAuthor } from "./blog.middleware";
 const BlogRouter = express.Router();
 
