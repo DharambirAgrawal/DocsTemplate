@@ -1,0 +1,27 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.express
+    image: pathgurus-server:1.0
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  # client:
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile.nextjs
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - server # Ensure server starts first, but doesn't guarantee it's ready
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://server:8080 # Ensure client communicates with the 'server' service
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,139 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "docker-compose.yml"
+      - ".github/workflows/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "docker-compose.yml"
+      - ".github/workflows/**"
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      server: ${{ steps.filter.outputs.server }}
+      compose: ${{ steps.filter.outputs.compose }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'client/**'
+            server:
+              - 'server/**'
+            compose:
+              - 'docker-compose.yml'
+
+  build-server:
+    needs: changes
+    if: ${{ needs.changes.outputs.server == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Set up Docker (Install Docker Compose)
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Verify installation
+
+      - name: Build and run server using docker-compose
+        run: |
+          docker-compose -f docker-compose.yml build server   # Build server image
+          # docker-compose -f docker-compose.yml up -d server  # Start server in detached mode
+
+      - name: Listing docker images
+        run: |
+          docker images
+
+      # Deploy to Heroku (Server)
+      - name: Deploy Server to Heroku
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          # Install Heroku CLI
+          curl https://cli-assets.heroku.com/install.sh | sh
+          # Install Heroku CLI
+          curl https://cli-assets.heroku.com/install.sh | sh
+          # Authenticate to Heroku
+          echo "$HEROKU_API_KEY" | heroku auth:token
+          # Log in to Heroku Container Registry
+          heroku container:login
+          # Set the stack to container
+          docker tag pathgurus-server:1.0 registry.heroku.com/$HEROKU_APP_NAME/web  # Tag the image for Heroku
+
+          # Push the Docker image to Heroku
+          docker push registry.heroku.com/$HEROKU_APP_NAME/web
+
+          # Release the Docker image to Heroku
+          heroku container:release web --app $HEROKU_APP_NAME
+
+      - name: Test if server is accessible
+        run: |
+          curl --fail https://pathgurus-server-9084e7049666.herokuapp.com/api/health || exit 1  # Check if server is up and running
+
+      - name: Stop server container
+        run: |
+          docker-compose -f docker-compose.yml down  # Shut down server after testing
+
+  build-client:
+    needs: changes
+    if: ${{ needs.changes.outputs.client == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install Node.js and dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22.12.0" # Specify the version of Node.js you are using
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm install
+
+      # Build the Next.js app
+      # - name: Build Next.js App
+      #   run: |
+      #     cd client
+      #     npm run build
+
+      # Deploy to Vercel
+      - name: Deploy to Vercel
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          APP_URL: "https://pathgurus.com"
+        run: |
+          cd client
+          npm install -g vercel  # Install Vercel CLI
+          npm install  # Install project dependencies
+          # npm run build  # Run build command (change if needed for your framework)
+          vercel --token $VERCEL_TOKEN --prod  # Deploy to Vercel
