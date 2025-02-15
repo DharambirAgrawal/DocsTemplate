@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} antialiased scroll-smooth`}>
         <ConfirmationProvider>
           <ToastProvider>{children}</ToastProvider>
         </ConfirmationProvider>

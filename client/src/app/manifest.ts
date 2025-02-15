@@ -2,12 +2,11 @@ import type { MetadataRoute } from "next";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const categories = await fetch(
-    `${process.env.MAIN_URL}/api/blog/public/categories`,
+    `${process.env.SERVER_BASE_URL}/api/blog/public/categories`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.BLOG_PUBLIC_KEY || "",
       },
     }
   )
