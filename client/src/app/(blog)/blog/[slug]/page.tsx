@@ -142,7 +142,6 @@ export default async function Page({
 }) {
   const slug = (await params).slug;
   const post: PostProp = await getSpecificBlogAction(slug);
-  console.log(post);
   if (!post.success || !post.data) {
     notFound();
   }

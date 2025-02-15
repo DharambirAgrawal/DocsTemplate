@@ -11,10 +11,13 @@ interface TopicProp {
 }
 const Topics = async () => {
   const topics: TopicProp = await getCategories({ limit: 3 });
+  if (!topics.success || !topics.data) {
+    return null;
+  }
 
   return (
     <div className="space-y-2">
-      {topics.data?.map((topic, index) => (
+      {topics.data.map((topic, index) => (
         <Link
           href={`/category/${topic.slug}`}
           key={index}
