@@ -3,11 +3,9 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 import dynamic from "next/dynamic";
 import { ConfirmationProvider } from "@/features/Confirmation/AdvanceConfirmation";
-export const metadata = {
-  title: "Minimal Docs Site",
-  description: "A gorgeous minimal documentation site using Next.js App Router",
-};
+import { landingPageMetadata } from "./metaData";
 import ToastProvider from "@/features/ToastNotification/ToastProvider";
+export const metadata = landingPageMetadata;
 export default function RootLayout({
   children,
 }: {

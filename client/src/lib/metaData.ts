@@ -29,7 +29,7 @@ export const OGimages = [
 ];
 
 export const keywords = await fetch(
-  `${process.env.MAIN_URL}/api/public/meta/getMetaKeywords`,
+  `${process.env.SERVER_BASE_URL}/api/blog/public/tags`,
   {
     method: "GET",
     headers: {
@@ -37,11 +37,15 @@ export const keywords = await fetch(
     },
   }
 )
-  .then((res) => {
+  .then(async (res) => {
     if (!res.ok) {
       throw new Error(`Failed to fetch post: ${res.status}`);
     }
-    return res.json();
+    const data = await res.json();
+    const keywords = data.data.map((item: { name: string }) => {
+      return item.name;
+    });
+    return keywords;
   })
   .catch((error) => {
     console.error("Error fetching the post:", error);

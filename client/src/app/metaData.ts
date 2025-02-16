@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { baseMetadata, keywords } from "@/lib/metaData";
+
 export const landingPageMetadata: Metadata = {
   ...baseMetadata,
   title: {
@@ -15,7 +16,7 @@ export const landingPageMetadata: Metadata = {
       "en-GB": "/en-GB",
     },
   },
-  keywords: keywords.data || [],
+  keywords: keywords.length == 0 ? [] : keywords,
   twitter: {
     card: "summary_large_image",
     title: "Pathgurus - Learn and Teach Online",
