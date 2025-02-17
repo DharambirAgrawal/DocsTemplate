@@ -2,6 +2,7 @@ import { contact } from "@/lib/data";
 import { email } from "@/utils/icons";
 import Link from "next/link";
 import InputField from "@/components/ui/InputTextBox";
+import { contactAction } from "../actions";
 export default function Contact() {
   return (
     <div className="container mx-auto px-4 py-16">
@@ -75,7 +76,10 @@ export default function Contact() {
           </div>
         </div>
         <div className="flex-1">
-          <form className="bg-white rounded-lg shadow-xl p-8 transition-all duration-300 hover:shadow-2xl">
+          <form
+            className="bg-white rounded-lg shadow-xl p-8 transition-all duration-300 hover:shadow-2xl"
+            action={contactAction}
+          >
             <InputField
               label="Name"
               name="name"

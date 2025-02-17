@@ -45,7 +45,6 @@ export default async function CategoryPage({
 }: PageProps) {
   const currentPage = Number(await searchParams.page) || 1;
   const category = (await params).category;
-  console.log(category);
   const postsPerPage = 6;
 
   const categoryPosts = await getPosts({
@@ -55,8 +54,6 @@ export default async function CategoryPage({
     category: category,
   });
 
-  console.log(categoryPosts);
-
   if (!categoryPosts.success) {
     return notFound();
   }
@@ -64,7 +61,17 @@ export default async function CategoryPage({
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <BlogHeader totalPosts={categoryPosts.pagination?.total || 0} />
+        <div className="text-center mb-12 space-y-4">
+          <h1 className="text-4xl font-bold text-gray-900 md:text-5xl lg:text-6xl">
+            {categoryPosts.data[0]?.categories[0]?.name || "Category"}
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Discover {categoryPosts.pagination?.total || 0} stories, thoughts,
+            and insights
+          </p>
+          <div className="w-24 h-1 bg-blue-600 mx-auto rounded-full" />
+        </div>
+
         <BlogGrid posts={categoryPosts.data || []} />
         <Pagination
           currentPage={currentPage}

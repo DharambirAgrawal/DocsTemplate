@@ -11,7 +11,7 @@ const Subscribe = () => {
     initialState
   );
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50" id="subscribe">
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-3xl font-bold mb-4">Subscribe to Our Newsletter</h2>
         <p className="text-gray-600 mb-8">
