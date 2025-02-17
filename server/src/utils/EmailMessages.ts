@@ -1,4 +1,4 @@
-import { APP_NAME} from "./data";
+import { APP_NAME, EMAIL } from "./data";
 
 export const VERIFY_EMAIL_MESSAGE = ({ link }: { link: string }) => {
   return {
@@ -582,5 +582,165 @@ export const SUBSCRIPTION_MESSAGE = (link: string) => {
   </body>
   </html>
       `,
+  };
+};
+
+export const CONTACT_US_MESSAGE = ({}: {}) => {
+  return {
+    subject: `Thank You for Contacting Us`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Contact Us</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .email-container {
+                  max-width: 600px;
+                  margin: 20px auto;
+                  background: #ffffff;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+                  overflow: hidden;
+              }
+              .email-header {
+                  background-color: #4caf50;
+                  color: #ffffff;
+                  padding: 20px;
+                  text-align: center;
+              }
+              .email-body {
+                  padding: 20px;
+                  color: #333333;
+                  line-height: 1.6;
+              }
+              .email-body h1 {
+                  font-size: 24px;
+                  margin-bottom: 10px;
+              }
+              .email-body p {
+                  margin: 10px 0;
+              }
+              .email-footer {
+                  text-align: center;
+                  font-size: 12px;
+                  color: #999999;
+                  padding: 10px 20px;
+              }
+              .email-footer a {
+                  color: #4caf50;
+                  text-decoration: none;
+              }
+              .email-footer a:hover {
+                  text-decoration: underline;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="email-container">
+              <div class="email-header">
+                  <h1>Thank You for Reaching Out!</h1>
+              </div>
+              <div class="email-body">
+                  <p>Hi there,</p>
+                  <p>Thank you for contacting us. We’ve received your message and our team will get back to you as soon as possible. Your feedback is important to us, and we’re here to assist you with anything you need.</p>
+                  <p>If you have any urgent questions, don’t hesitate to reach out to us directly at <a href="mailto:${EMAIL}" class="support-link">${EMAIL}</a>.</p>
+              </div>
+              <div class="email-footer">
+                  <p>If you're having trouble clicking the link, copy and paste the following email address into your email client:</p>
+                  <p><a href="mailto:${EMAIL}">${EMAIL}</a></p>
+                  <p>&copy; ${new Date().getFullYear()} YourApp. All rights reserved.</p>
+              </div>
+          </div>
+      </body>
+      </html>
+    `,
+  };
+};
+
+export const CONTACT_US_COPY_EMAIL = ({
+  name,
+  email,
+  message,
+}: {
+  name: string;
+  email: string;
+  message: string;
+}) => {
+  return {
+    subject: `New Contact Us Submission from ${name}`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Contact Us Message</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .email-container {
+                  max-width: 600px;
+                  margin: 20px auto;
+                  background: #ffffff;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+                  overflow: hidden;
+              }
+              .email-header {
+                  background-color: #4caf50;
+                  color: #ffffff;
+                  padding: 20px;
+                  text-align: center;
+              }
+              .email-body {
+                  padding: 20px;
+                  color: #333333;
+                  line-height: 1.6;
+              }
+              .email-body h1 {
+                  font-size: 24px;
+                  margin-bottom: 10px;
+              }
+              .email-body p {
+                  margin: 10px 0;
+              }
+              .email-footer {
+                  text-align: center;
+                  font-size: 12px;
+                  color: #999999;
+                  padding: 10px 20px;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="email-container">
+              <div class="email-header">
+                  <h1>New Contact Us Submission</h1>
+              </div>
+              <div class="email-body">
+                  <p><strong>Name:</strong> ${name}</p>
+                  <p><strong>Email:</strong> ${email}</p>
+                  <p><strong>Message:</strong></p>
+                  <p>${message}</p>
+              </div>
+              <div class="email-footer">
+                  <p>&copy; ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.</p>
+              </div>
+          </div>
+      </body>
+      </html>
+    `,
   };
 };
