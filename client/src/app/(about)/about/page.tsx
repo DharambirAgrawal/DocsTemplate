@@ -13,24 +13,9 @@ export const metadata: Metadata = aboutUsMetadata;
 export default function About() {
   const teamMembers: TeamMember[] = [
     {
-      name: "Dr. Emily Chen",
-      role: "Founder & CEO",
-      image: "/placeholder.svg?height=150&width=150",
-    },
-    {
-      name: "Prof. James Wilson",
-      role: "Lead Instructor, Computer Science",
-      image: "/placeholder.svg?height=150&width=150",
-    },
-    {
-      name: "Sarah Lopez",
-      role: "Lead Instructor, Design",
-      image: "/placeholder.svg?height=150&width=150",
-    },
-    {
-      name: "Michael Thompson",
-      role: "Head of Content",
-      image: "/placeholder.svg?height=150&width=150",
+      name: "Dharambir Agrawal",
+      role: "Founder & Developer",
+      image: "/teams/Dharambir.jpg",
     },
   ];
 
@@ -73,7 +58,7 @@ export default function About() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="flex flex-wrap justify-center gap-8">
             {teamMembers.map((member) => (
               <div
                 key={member.name}
@@ -98,16 +83,16 @@ export default function About() {
           <h2 className="text-3xl font-bold mb-6 text-blue-600">Our History</h2>
           <div className="bg-white rounded-lg shadow-xl p-8">
             <p className="text-lg leading-relaxed text-gray-700">
-              Founded in 2018 by Dr. Emily Chen, Course & Blog started as a
-              small passion project with just five online courses. Within a
-              year, our user base grew to over 10,000 students, and we expanded
-              our offering to 20 courses. In 2020, we launched our blog, which
-              quickly became a go-to resource for educational insights and
-              career advice. By 2022, we had partnered with leading tech
-              companies to offer specialized certification programs. Today, we
-              serve over 500,000 learners globally, offering 100+ courses across
-              various disciplines, and our blog reaches millions of readers
-              monthly.
+              Course & Blog was founded in 2025 by Dharambir Agrawal with a
+              vision to revolutionize the way people learn and access
+              information. Starting as a small initiative, it quickly grew into
+              a global platform, thanks to its innovative approach and
+              commitment to quality education. Dharambir's passion for teaching
+              and technology drove the creation of a space where learners from
+              all walks of life could come together to gain knowledge and
+              skills. Over the years, Course & Blog has expanded its offerings,
+              reaching thousands of learners worldwide and making a significant
+              impact on the education landscape.
             </p>
           </div>
         </section>
@@ -116,8 +101,8 @@ export default function About() {
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { title: "Blogs Offered", value: "100+" },
-            { title: "Active Learners", value: "500,000+" },
-            { title: "Countries Reached", value: "150+" },
+            { title: "Active Learners", value: "5000+" },
+            { title: "Countries Reached", value: "10+" },
           ].map((stat) => (
             <div
               key={stat.title}

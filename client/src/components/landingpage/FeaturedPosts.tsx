@@ -73,12 +73,12 @@ const PostCard = ({ post }: { post: BlogPost }) => (
       </h3>
       <p className="text-gray-600 mb-4 line-clamp-2">{post.summary}</p>
       <div className="flex flex-wrap gap-2 mb-4">
-        {post.tags.map((tag) => (
+        {post.categories.map((cat) => (
           <span
-            key={tag.name}
+            key={cat.name}
             className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
           >
-            {tag.name}
+            {cat.name}
           </span>
         ))}
       </div>

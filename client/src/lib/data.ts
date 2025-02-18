@@ -8,19 +8,30 @@ import {
 
 export const NAME = "Pathgurus";
 export const navigation = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Blog",
-    href: "/blog",
-  },
-  {
-    name: "Courses",
-    href: "/courses",
-  },
+  { name: "Home", href: "/" },
+  { name: "Blog", href: "/blog" },
+  { name: "Courses", href: "/courses" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
 ];
+export const footerLinks = {
+  Company: [
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+    { name: "Terms", href: "/terms" },
+    { name: "Privacy", href: "/privacy" },
+  ],
+  Resources: [
+    { name: "Blog", href: "/blog" },
+    { name: "Courses", href: "/courses" },
+    { name: "Documentation", href: "/docs" },
+  ],
+  Social: [
+    { name: "Twitter", href: "#" },
+    { name: "GitHub", href: "#" },
+    { name: "LinkedIn", href: "#" },
+  ],
+};
 
 export const contact = {
   social: [

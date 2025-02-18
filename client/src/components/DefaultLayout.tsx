@@ -4,13 +4,6 @@ import Footer from "./Footer";
 interface DefaultLayoutProps {
   children: React.ReactNode;
 }
-export interface FooterSection {
-  [key: string]: NavItem[];
-}
-export interface NavItem {
-  name: string;
-  href: string;
-}
 
 const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   return (
