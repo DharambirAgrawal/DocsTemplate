@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Container } from "@/components/Container";
 import { showToast } from "@/features/ToastNotification/useToast";
 import { TickIcon } from "@/utils/icons";
+import { NAME } from "@/lib/data";
 type AuthPageType = "signin" | "signup" | "forgotpassword" | "resetpassword";
 
 interface DefaultLayoutProps {
@@ -87,15 +88,15 @@ export default function DefaultLayout({
             </Link>
           </p>
         );
-        case "resetpassword":
-          return (
-            <p>
-              Remember your password?{" "}
-              <Link href="/auth/signin" className="text-primary">
-                Sign In
-              </Link>
-            </p>
-          );
+      case "resetpassword":
+        return (
+          <p>
+            Remember your password?{" "}
+            <Link href="/auth/signin" className="text-primary">
+              Sign In
+            </Link>
+          </p>
+        );
       case "signin":
       default:
         return (
@@ -156,21 +157,25 @@ export default function DefaultLayout({
           <div className="flex flex-wrap ">
             <div className="hidden w-full p-7.5 xl:block xl:w-1/2">
               <div className="custom-gradient-1 overflow-hidden rounded-2xl px-12.5 pt-12.5 dark:!bg-dark-2 dark:bg-none">
-                <Link className="mb-10 inline-block" href="/">
-                  <Image
-                    className="hidden dark:block"
-                    src={"/images/logo/logo.svg"}
-                    alt="Logo"
-                    width={176}
-                    height={32}
+                <Link
+                  className="mb-5 inline-block text-3xl font-bold text-primary"
+                  href="/"
+                >
+                  {NAME}
+                  {/* <Image
+                  className="hidden dark:block"
+                  src={"/icons/logo.png"}
+                  alt="Logo"
+                  width={176}
+                  height={32}
                   />
                   <Image
-                    className="dark:hidden"
-                    src={"/images/logo/logo-dark.svg"}
-                    alt="Logo"
-                    width={176}
-                    height={32}
-                  />
+                  className="dark:hidden"
+                  src={"/icons/logo.png"}
+                  alt="Logo"
+                  width={176}
+                  height={32}
+                  /> */}
                 </Link>
                 <p className="mb-3 text-xl font-medium text-dark dark:text-white">
                   {renderHeading().subtitle}
@@ -222,7 +227,7 @@ export default function DefaultLayout({
                     showToast("success", res.message || "Success");
                     if (authPage === "signup") {
                       router.push("/auth/verify-email");
-                    }else if (authPage === "signin"){
+                    } else if (authPage === "signin") {
                       router.push("/dashboard/home");
                     }
                   } else {
@@ -294,12 +299,18 @@ export default function DefaultLayout({
                 {authPage === "signup" && (
                   <div className="text-sm text-gray-500">
                     By creating an account, you agree to our
-                    <Link href="#" className="text-blue-600 hover:underline">
+                    <Link
+                      href="/terms"
+                      className="text-blue-600 hover:underline"
+                    >
                       {" "}
                       Terms and Conditions
                     </Link>{" "}
                     and
-                    <Link href="#" className="text-blue-600 hover:underline">
+                    <Link
+                      href="/privacy"
+                      className="text-blue-600 hover:underline"
+                    >
                       {" "}
                       Privacy Policy
                     </Link>
