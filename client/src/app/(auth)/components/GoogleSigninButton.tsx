@@ -15,9 +15,8 @@ export default function GoogleSigninButton({
 }) {
   const router = useRouter();
   const handelGoogleLogin = async () => {
-    
     const popup = window.open(
-      `https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev/api/auth/google`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
       "Login",
       "width=500,height=600"
     );
@@ -32,14 +31,12 @@ export default function GoogleSigninButton({
   useEffect(() => {
     const messageListener = async (event: MessageEvent) => {
       // Ensure the event is from the correct origin
-      if (
-        event.origin ===
-        "https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev"
-      ) {
+      if (event.origin === process.env.NEXT_PUBLIC_API_URL) {
         const res = await googleLoginAction(event.data);
+        console.log(res);
         if (res.success) {
-          showToast("success", res.message || "Success");  
-            router.push("/dashboard/home");
+          showToast("success", res.message || "Success");
+          router.push("/dashboard/home");
         } else {
           showToast("error", res.error?.message || "Something went wrong");
         }
