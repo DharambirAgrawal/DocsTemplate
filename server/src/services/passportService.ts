@@ -33,11 +33,15 @@ export const passportInitialize = (app: Application) => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        callbackURL: "https://upgraded-space-meme-gv67xr5w9572wvx9-8080.app.github.dev/api/auth/google/callback",
+        callbackURL: `${process.env.BASE_URL}/api/auth/google/callback`,
       },
-      async (accessToken: string, refreshToken: string, profile: Profile, done) => {
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: Profile,
+        done
+      ) => {
         try {
-
           // Return user with tokens
           return done(null, { user: profile });
         } catch (error) {

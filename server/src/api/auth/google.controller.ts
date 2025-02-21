@@ -145,7 +145,7 @@ export const googleRegister = async (req: any, res: any) => {
       //   maxAge: 1000 * 60 * 60 * 24 * 7, // Set the max age for the refresh token (e.g., 30 days)
       // });
       // res.header("Authorization", `Bearer ${login.data.sessionId}`);
-     
+
       return res.send(
         `<script>
           window.opener.postMessage({
@@ -154,7 +154,7 @@ export const googleRegister = async (req: any, res: any) => {
             refreshToken: "${refreshToken}",
             accessToken: "${accessToken}",
             sessionId: "${login.data.sessionId}"
-          }, "https://upgraded-space-meme-gv67xr5w9572wvx9-3000.app.github.dev");
+          }, ${process.env.CLIENT_BASE_URL});
           window.close();
         </script>`
       );
@@ -172,21 +172,30 @@ export const googleRegister = async (req: any, res: any) => {
     }
     const { accessToken, refreshToken } = login.data.tokens;
     //sending token in authorization token
-      return res.send(
-        `<script>
+    return res.send(
+      `<script>
           window.opener.postMessage({
             message: "Login Successful",
             status: "success",
             refreshToken: "${refreshToken}",
             accessToken: "${accessToken}",
             sessionId: "${login.data.sessionId}"
-          }, "https://upgraded-space-meme-gv67xr5w9572wvx9-3000.app.github.dev");
+          },"${process.env.CLIENT_BASE_URL}");
           window.close();
         </script>`
-      );
+    );
     // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   } catch (err: any) {
     console.log(err);
-    return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
+    return res.send(
+      `<script>
+          window.opener.postMessage({
+            message: "Login Failed",
+            status: "fail",
+          },"${process.env.CLIENT_BASE_URL}");
+          window.close();
+        </script>`
+    );
+    // return res.redirect(`${process.env.CLIENT_BASE_URL}/auth/signup`);
   }
 };
