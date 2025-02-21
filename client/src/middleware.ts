@@ -159,6 +159,9 @@ export async function middleware(request: NextRequest) {
     // Here you can optionally verify the access token or check for user roles, if necessary.
   }
 
+  if (path.startsWith("/auth")) {
+    return NextResponse.next();
+  }
   // If we reached here, it means the user is unauthenticated and trying to access a protected route.
   return NextResponse.redirect(new URL("/auth/signin", request.url));
 }
