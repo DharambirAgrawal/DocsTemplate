@@ -11,7 +11,7 @@ export const getUser = async (
 ) => {
   const role = (req as any).role;
   if (role != "ADMIN") {
-    throw new AppError("Not Authorize to get the users", 400)
+    throw new AppError("Not Authorize to get the users", 400);
   }
 
   const {
@@ -119,11 +119,10 @@ export const updateUser = async (
   }
 
   const userId = req.params.userId;
-  if(!userId){
-   throw new AppError("User Id is required", 400)
+  if (!userId) {
+    throw new AppError("User Id is required", 400);
   }
-  const { role, status, isEmailVerified } =
-    req.body;
+  const { role, status, isEmailVerified } = req.body;
 
   const user = await User.findOne({ userId: userId });
 
@@ -141,7 +140,7 @@ export const updateUser = async (
     }
   }
   console.log(role, status, isEmailVerified);
-console.log(req.body)
+  console.log(req.body);
   // Dynamically update only the fields that are provided in the request body
 
   if (status !== undefined) user.accountStatus = status;
@@ -151,7 +150,9 @@ console.log(req.body)
   // Save the updated user data to the database
   await user.save();
 
-  return res.status(200).json({ status: "success", message: "User updated" });
+  return res
+    .status(200)
+    .json({ success: true, status: "success", message: "User updated" });
 };
 
 export const deleteUser = async (
@@ -171,5 +172,5 @@ export const deleteUser = async (
   // Successfully deleted
   return res
     .status(200)
-    .json({ status: "success", message: "User deleted successfully" });
+    .json({ success: true, message: "User deleted successfully" });
 };
