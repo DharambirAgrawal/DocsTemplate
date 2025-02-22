@@ -55,13 +55,12 @@ const Header = (props: {
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
 
-          <Link className="block flex-shrink-0 lg:hidden" href="/">
-            <Image
-              width={32}
-              height={32}
-              src={"/images/logo/logo-icon.svg"}
-              alt="Logo"
-            />
+          <Link
+            className="flex-shrink-0 gap-4 lg:hidden flex items-center justify-between"
+            href="/"
+          >
+            <Image width={32} height={32} src={"/icons/logo.png"} alt="Logo" />
+            <p className="text-xl font-semibold">Pathgurus</p>
           </Link>
         </div>
 
@@ -70,7 +69,6 @@ const Header = (props: {
             <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
               Dashboard
             </h1>
-            <p className="font-medium">Next.js Admin Dashboard Solution</p>
           </div>
         </div>
 
@@ -85,7 +83,7 @@ const Header = (props: {
             {/* <!-- Dark Mode Toggle --> */}
 
             {/* <!-- Notification Menu Area --> */}
-       
+
             {/* <!-- Notification Menu Area --> */}
           </ul>
 

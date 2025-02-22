@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarItem from "@/app/(dashboard)/components/Sidebar/SidebarItem";
@@ -257,7 +256,7 @@ const menuGroups = [
         label: "Profile",
         route: "/dashboard/profile",
       },
-    
+
       {
         icon: (
           <svg
@@ -278,11 +277,8 @@ const menuGroups = [
         ),
         label: "Tables",
         route: "#",
-        children: [
-          { label: "Tables", route: "/dashboard/tables" },
-        ],
+        children: [{ label: "Tables", route: "/dashboard/tables" }],
       },
-      
     ],
   },
   {
@@ -308,15 +304,12 @@ const menuGroups = [
         ),
         label: "Settings",
         route: "/dashboard/settings",
-       
       },
     ],
   },
 ];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const pathname = usePathname();
-
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
 
   return (
@@ -329,26 +322,30 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         }`}
       >
         {/* <!-- SIDEBAR HEADER --> */}
-        <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5 xl:py-10">
-          <Link href="/">
+        <div className="flex items-center justify-between gap-4 px-6 py-5.5 lg:py-6.5 xl:py-10">
+          <Link href="/" className="flex items-center gap-2">
+            {/* Logo for light mode */}
             <Image
-              width={176}
-              height={32}
-              src={"/images/logo/logo-dark.svg"}
+              width={40} // Increased size
+              height={40} // Increased size
+              src="/icons/logo.png"
               alt="Logo"
               priority
               className="dark:hidden"
               style={{ width: "auto", height: "auto" }}
             />
+            {/* Logo for dark mode */}
             <Image
-              width={176}
-              height={32}
-              src={"/images/logo/logo.svg"}
+              width={40} // Increased size
+              height={40} // Increased size
+              src="/icons/logo.png"
               alt="Logo"
               priority
               className="hidden dark:block"
               style={{ width: "auto", height: "auto" }}
             />
+            {/* Pathgurus Name */}
+            <p className="text-xl font-semibold">Pathgurus</p>
           </Link>
 
           <button
@@ -370,6 +367,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </svg>
           </button>
         </div>
+
         {/* <!-- SIDEBAR HEADER --> */}
 
         <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">

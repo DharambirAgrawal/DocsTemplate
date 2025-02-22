@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
+import { getProfile } from "../../dashboard/home/actions";
 import ClickOutside from "@/components/ClickOutside";
 import { logoutAction } from "@/app/(auth)/components/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
@@ -10,6 +10,26 @@ import { showToast } from "@/features/ToastNotification/useToast";
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
+  const [profile, setProfile] = useState<any>({
+    name: "",
+    email: "",
+    image: "",
+  });
+
+  useEffect(() => {
+    const getData = async () => {
+      const profile = await getProfile();
+      if (profile.success) {
+        setProfile({
+          name: `${profile.data.firstName} ${profile.data.lastName}`,
+          email: profile.data.email,
+          image: profile.data.image,
+        });
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -22,7 +42,7 @@ const DropdownUser = () => {
           <Image
             width={112}
             height={112}
-            src="/images/user/user-03.png"
+            src={profile.image || "/"}
             style={{
               width: "auto",
               height: "auto",
@@ -33,7 +53,7 @@ const DropdownUser = () => {
         </span>
 
         <span className="flex items-center gap-2 font-medium text-dark dark:text-dark-6">
-          <span className="hidden lg:block">Jhon Smith</span>
+          <span className="hidden lg:block">{profile.name}</span>
 
           <svg
             className={`fill-current duration-200 ease-in ${
@@ -65,7 +85,7 @@ const DropdownUser = () => {
               <Image
                 width={112}
                 height={112}
-                src="/images/user/user-03.png"
+                src={profile.image || "/"}
                 style={{
                   width: "auto",
                   height: "auto",
@@ -79,10 +99,10 @@ const DropdownUser = () => {
 
             <span className="block">
               <span className="block font-medium text-dark dark:text-white">
-                Jhon Smith
+                {profile.name}
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
-                jonson@nextadmin.com
+                {profile.email}
               </span>
             </span>
           </div>
