@@ -20,29 +20,26 @@ interface ImageGalleryProps {
   images: ImageType[];
 }
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({
-  images,
-}) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
   const [selectedImage, setSelectedImage] = useState<ImageType | null>(null);
   const [editedImage, setEditedImage] = useState<ImageType | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [loading, setLoading] = useState({
-    type:"",
-    state:false});
+    type: "",
+    state: false,
+  });
 
   const handleImageClick = (image: ImageType) => {
-    console.log("Image clicked:", image);
     setSelectedImage(image);
     setEditedImage(image);
     setShowDialog(true);
   };
- 
 
-  const handleSave =async  () => {
+  const handleSave = async () => {
     if (editedImage) {
       setLoading({
-        type:"save",
-        state:true
+        type: "save",
+        state: true,
       });
       const res = await updateImageAction(editedImage);
       if (res.success) {
@@ -52,17 +49,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       }
       setShowDialog(false);
       setLoading({
-        type:"",
-        state:false
+        type: "",
+        state: false,
       });
     }
   };
 
-  const handleDelete = async() => {
+  const handleDelete = async () => {
     if (selectedImage) {
       setLoading({
-        type:"delete",
-        state:true
+        type: "delete",
+        state: true,
       });
       const res = await deleteImagesAction(selectedImage.publicId);
       if (res.success) {
@@ -72,8 +69,8 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       }
       setShowDialog(false);
       setLoading({
-        type:"",
-        state:false
+        type: "",
+        state: false,
       });
     }
   };
@@ -81,7 +78,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   return (
     <div className="container mx-auto px-4">
       {/* Image Grid */}
-     <ImageGrid images={images} handleImageClick={handleImageClick} />
+      <ImageGrid images={images} handleImageClick={handleImageClick} />
 
       {/* Image Details Dialog */}
       {showDialog && editedImage && (
@@ -177,25 +174,24 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
                 <div className="flex justify-between pt-4">
                   <button
-                  disabled={loading.state}
+                    disabled={loading.state}
                     onClick={handleDelete}
                     className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   >
-                 
                     <Trash2 className="w-4 h-4 mr-2" />
-                    {
-                      loading.type=='delete' && loading.state ? "Deleting..." : "Delete"
-                    }
+                    {loading.type == "delete" && loading.state
+                      ? "Deleting..."
+                      : "Delete"}
                   </button>
                   <button
-                  disabled={loading.state}
+                    disabled={loading.state}
                     onClick={handleSave}
                     className="flex items-center px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors duration-200"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {
-                      loading.type=='save' && loading.state ? "Saving..." : "Save Changes"
-                    }
+                    {loading.type == "save" && loading.state
+                      ? "Saving..."
+                      : "Save Changes"}
                   </button>
                 </div>
               </div>

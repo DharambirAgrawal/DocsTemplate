@@ -21,13 +21,12 @@ export default function UsersPage() {
   >("all");
 
   const [filter, setFilter] = useState({
-    pagination:{
+    pagination: {
       currentPage: 1,
       pageLimit: 10,
       totalPage: 1,
-      totalUsers: 1
-    }
-
+      totalUsers: 1,
+    },
   });
 
   useEffect(() => {
@@ -51,9 +50,7 @@ export default function UsersPage() {
   useEffect(() => {
     const gettingUsers = async () => {
       const users = await getUsers();
-console.log(users)
       setUsers(users.data);
-     
     };
     gettingUsers();
   }, [refresh]);
@@ -132,7 +129,6 @@ console.log(users)
           action={true}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
-
         />
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center">
           <div className="mb-4 sm:mb-0 text-sm text-gray-600">

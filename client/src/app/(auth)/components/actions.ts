@@ -311,7 +311,6 @@ export const resetPasswordAction = async (formData: FormData) => {
       .trim();
     const token = formData.get("token")?.toString().trim();
     const allLogout = formData.get("allLogout")?.toString().trim();
-    console.log(formData);
     if (!password || !confirmPassword || !token) {
       throw new AppError("All fields are required", 400, "VALIDATION_ERROR");
     }

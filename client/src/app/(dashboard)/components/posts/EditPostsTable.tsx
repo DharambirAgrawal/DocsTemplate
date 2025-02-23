@@ -3,54 +3,14 @@ import { useState, useEffect, type FormEvent } from "react";
 import ImageGrid from "../Images/ImageGrid";
 import { showToast } from "@/features/ToastNotification/useToast";
 import { PostType } from "./types";
-
+import { getImagesAction } from "../../dashboard/images/actions";
+import { getCategories } from "@/app/(blog)/components/actions";
 interface EditPostDialogProps {
   post: PostType;
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   onClose: () => void;
 }
-const images = [
-  {
-    id: "1",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "Mountain Landscape",
-    altText: "Beautiful mountain landscape at sunset",
-    description: "A stunning view of mountains during golden hour",
-    tags: ["nature", "landscape", "mountains"],
-  },
-  {
-    id: "2",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "Beach Sunset",
-    altText: "Colorful sunset at the beach",
-    description: "A beautiful sunset view from the beach",
-    tags: ["nature", "sunset", "beach"],
-  },
-  {
-    id: "3",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-  {
-    id: "4",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-  {
-    id: "5",
-    url: "https://res.cloudinary.com/dsz3rgtpj/image/upload/v1735753884/pathgurus/blog/dfjv6o4td21o0rtqdigd.png",
-    title: "City Skyline",
-    altText: "City skyline at night",
-    description: "A night view of the city skyline",
-    tags: ["city", "skyline", "night"],
-  },
-];
+
 const EditPostDialog: React.FC<EditPostDialogProps> = ({
   post,
   setRefresh,
@@ -62,8 +22,8 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   });
   const [categories, setCategories] = useState(post.categories);
   const [newCategory, setNewCategory] = useState("");
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+  const [images, setImages] = useState<any[]>([]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const handleInputChange = (
@@ -129,7 +89,6 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
       ...formData,
       status,
     };
-    console.log(submitData);
     const res = {
       success: true,
       message: "Post updated successfully",
@@ -137,7 +96,7 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
     if (res.success) {
       showToast("success", res.message || "Success");
     } else {
-      showToast("error", res.error?.message || "Something went wrong");
+      // showToast("error", res.error?.message || "Something went wrong");
     }
 
     setLoading(false);
@@ -149,10 +108,18 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   };
 
   useEffect(() => {
-    if (formData.imageUrl) {
-      setPreviewImage(formData.imageUrl);
-    }
-  }, [formData.imageUrl]);
+    const fetchCategories = async () => {
+      const categories = await getCategories({});
+      const images = await getImagesAction("BLOG");
+      if (images.success) {
+        setImages(images.data);
+      }
+      if (categories.success) {
+        setCategories(categories.data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">

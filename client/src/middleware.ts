@@ -110,15 +110,16 @@ export async function middleware(request: NextRequest) {
         throw new Error("No access token in Set-Cookie header");
       }
       const { role } = data.data as { role: UserRole };
-      response.cookies.set({
-        name: "ROLE",
-        value: role,
-        path: "/",
-        maxAge: 24 * 3600,
-        httpOnly: true,
-        secure: process.env.NODE_ENV !== "development", // Only secure in production
-        sameSite: "lax",
-      });
+      response.headers.set("x-role", role); // Custom header with role
+      // response.cookies.set({
+      //   name: "role",
+      //   value: role,
+      //   path: "/",
+      //   maxAge: 24 * 3600,
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV !== "development", // Only secure in production
+      //   sameSite: "lax",
+      // });
       response.cookies.set({
         name: "accessToken",
         value: accessToken[1],
@@ -146,8 +147,8 @@ export async function middleware(request: NextRequest) {
       if (!isAllowedRoute) {
         return NextResponse.rewrite(new URL("/404", request.url));
       }
-
-      return NextResponse.next();
+      return response;
+      // return NextResponse.next();
     } catch (error) {
       console.error("Error validating access token:", error);
       const response = NextResponse.redirect(

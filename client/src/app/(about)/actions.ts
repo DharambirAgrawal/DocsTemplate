@@ -27,7 +27,6 @@ export const contactAction = async (formData: FormData) => {
       }
     );
     const data = await res.json();
-    console.log(data);
   } catch (e) {
     console.log(e);
   }

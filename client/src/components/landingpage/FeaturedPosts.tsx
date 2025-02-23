@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getPosts } from "@/app/(blog)/components/actions";
+
 interface BlogPost {
   title: string;
   timeRead: string;
@@ -22,10 +23,12 @@ interface BlogPost {
     image: string;
   };
 }
+
 interface ResponseType {
   success: boolean;
   data?: BlogPost[];
 }
+
 const PostCard = ({ post }: { post: BlogPost }) => (
   <article className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
     <div className="relative h-64">
@@ -104,54 +107,8 @@ const PostCard = ({ post }: { post: BlogPost }) => (
     </div>
   </article>
 );
+
 const FeaturedPosts = async () => {
-  //   const featuredPosts: BlogPost[] = [
-  //     {
-  //       id: "1",
-  //       title: "Building Scalable Applications with Next.js 14",
-  //       excerpt:
-  //         "Explore the latest features in Next.js 14 and learn how to build high-performance web applications",
-  //       date: "2025-02-15",
-  //       readTime: "8 min read",
-  //       category: "Development",
-  //       image: "/api/placeholder/800/600",
-  //       author: {
-  //         name: "Alex Mitchell",
-  //         avatar: "/api/placeholder/40/40",
-  //       },
-  //       tags: ["Next.js", "React", "Performance"],
-  //     },
-  //     {
-  //       id: "2",
-  //       title: "Modern UI Design Trends for 2025",
-  //       excerpt:
-  //         "Discover the latest UI design trends shaping the future of web interfaces",
-  //       date: "2025-02-14",
-  //       readTime: "6 min read",
-  //       category: "Design",
-  //       image: "/api/placeholder/800/600",
-  //       author: {
-  //         name: "Sarah Chen",
-  //         avatar: "/api/placeholder/40/40",
-  //       },
-  //       tags: ["UI/UX", "Design Trends", "Web Design"],
-  //     },
-  //     {
-  //       id: "3",
-  //       title: "Advanced State Management Patterns",
-  //       excerpt:
-  //         "Deep dive into modern state management solutions for complex applications",
-  //       date: "2025-02-13",
-  //       readTime: "12 min read",
-  //       category: "Development",
-  //       image: "/api/placeholder/800/600",
-  //       author: {
-  //         name: "James Wilson",
-  //         avatar: "/api/placeholder/40/40",
-  //       },
-  //       tags: ["Redux", "Zustand", "State Management"],
-  //     },
-  //   ];
   const featuredPosts: ResponseType = await getPosts({
     limit: 3,
     recent: true,
@@ -175,12 +132,12 @@ const FeaturedPosts = async () => {
   return (
     <section className="py-24 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="flex items-center justify-between mb-12 flex-wrap">
+          <div className="mb-4 sm:mb-0">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Featured Articles
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg sm:text-xl text-gray-600">
               Hand-picked content to keep you inspired and informed
             </p>
           </div>
@@ -204,7 +161,7 @@ const FeaturedPosts = async () => {
             </svg>
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredPosts.data.map((post) => (
             <PostCard key={post.slug} post={post} />
           ))}

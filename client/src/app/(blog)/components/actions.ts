@@ -27,8 +27,6 @@ export async function subscribeEmailAction(prevState: any, formData: FormData) {
         body: JSON.stringify({ email }),
       }
     );
-    console.log(res);
-    console.log(await res.json());
     if (!res.ok) {
       if (res.status === 400) {
         return {
