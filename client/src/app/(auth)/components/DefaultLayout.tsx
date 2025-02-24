@@ -288,13 +288,14 @@ export default function DefaultLayout({
 
                 <div className="mb-4.5">
                   <ButtonUI
-                    children={buttonText}
                     className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
                     type="submit"
                     size="lg"
                     variant="default"
                     {...buttonProps} // Spread additional button props
-                  />
+                  >
+                    {buttonText}
+                  </ButtonUI>
                 </div>
                 {authPage === "signup" && (
                   <div className="text-sm text-gray-500">

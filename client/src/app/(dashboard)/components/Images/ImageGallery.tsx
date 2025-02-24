@@ -6,6 +6,7 @@ import ImageGrid from "./ImageGrid";
 import { deleteImagesAction } from "../../dashboard/images/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 import { updateImageAction } from "../../dashboard/images/actions";
+import Image from "next/image";
 // types.ts
 interface ImageType {
   publicId: string;
@@ -97,7 +98,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="aspect-square rounded-lg overflow-hidden">
-                <img
+                <Image
                   src={editedImage.url}
                   alt={editedImage.altText}
                   className="w-full h-full object-cover"

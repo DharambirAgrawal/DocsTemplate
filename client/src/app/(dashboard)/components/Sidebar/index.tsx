@@ -7,6 +7,23 @@ import ClickOutside from "@/components/ClickOutside";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getroles } from "../actions";
 import { useEffect, useState } from "react";
+interface MenuItem {
+  icon?: React.ReactNode;
+  label: string;
+  route: string;
+  role?: string[];
+  children?: {
+    label: string;
+    route: string;
+    role?: string[];
+  }[];
+}
+
+interface MenuGroup {
+  name: string;
+  menuItems: MenuItem[];
+}
+
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -239,7 +256,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Posts",
           route: "#",
           children: [
-            { label: "View", route: "/dashboard/posts/view", role: ["AUTHOR"] },
+            {
+              label: "View",
+              route: "/dashboard/posts/view",
+              role: ["AUTHOR", "ADMIN"],
+            },
             {
               label: "Upload",
               route: "/dashboard/posts/upload",
@@ -340,20 +361,52 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     };
     getData();
   }, []);
-  const filteredMenuItems = menuGroups.filter((item) => {
-    const hasRole = item.menuItems.some((menuItem) =>
-      menuItem.role ? menuItem.role.includes(role) : true
-    );
-    return hasRole;
-  });
-  const menuGroup = filteredMenuItems.map((group) => ({
-    ...group,
-    menuItems: group.menuItems.filter((menuItem) =>
-      menuItem.role ? menuItem.role.includes(role) : true
-    ),
-  }));
-  console.log(menuGroup);
-  console.log(filteredMenuItems);
+
+  const filterMenuItems = (
+    menuGroups: MenuGroup[],
+    userRole: string[]
+  ): MenuGroup[] => {
+    return menuGroups
+      .map((group) => ({
+        ...group,
+        menuItems: group.menuItems
+          .filter((item) => {
+            // Check if the item itself is accessible to the user role
+            const isMainItemAccessible = item.role?.some((r) =>
+              userRole.includes(r)
+            );
+
+            // If there are children, filter them based on role
+            if (item.children) {
+              const filteredChildren = item.children.filter((child) =>
+                child.role?.some((r) => userRole.includes(r))
+              );
+
+              // Return true if there are any accessible children
+              return filteredChildren.length > 0;
+            }
+
+            // If no children, return based on main item accessibility
+            return isMainItemAccessible;
+          })
+          .map((item) => {
+            // If item has children, filter them
+            if (item.children) {
+              return {
+                ...item,
+                children: item.children.filter((child) =>
+                  child.role?.some((r) => userRole.includes(r))
+                ),
+              };
+            }
+            return item;
+          }),
+      }))
+      .filter((group) => group.menuItems.length > 0); // Remove empty groups
+  };
+
+  // Add this line before mapping the menuGroups in the JSX
+  const filteredMenuGroups = filterMenuItems(menuGroups, role);
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
       <aside
@@ -415,7 +468,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
           {/* <!-- Sidebar Menu --> */}
           <nav className="mt-1 px-4 lg:px-6">
-            {menuGroups.map((group, groupIndex) => (
+            {filteredMenuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
                   {group.name}

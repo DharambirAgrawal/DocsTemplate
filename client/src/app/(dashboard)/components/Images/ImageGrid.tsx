@@ -1,5 +1,5 @@
 import { Copy } from "lucide-react";
-
+import Image from "next/image";
 interface ImageProp {
   images: {
     url: string;
@@ -9,10 +9,7 @@ interface ImageProp {
   handleImageClick?: (image: any) => void;
 }
 
-const ImageGrid = ({
-  images,
-  handleImageClick,
-}: ImageProp) => {
+const ImageGrid = ({ images, handleImageClick }: ImageProp) => {
   const copyToClipboard = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
@@ -29,14 +26,12 @@ const ImageGrid = ({
           <div
             className="aspect-square overflow-hidden rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
             onClick={() => {
-            
-                if (handleImageClick) {
-                  handleImageClick(image);
-                
+              if (handleImageClick) {
+                handleImageClick(image);
               }
             }}
           >
-            <img
+            <Image
               src={image.url}
               alt={image.altText}
               className="w-full h-full object-cover cursor-pointer"

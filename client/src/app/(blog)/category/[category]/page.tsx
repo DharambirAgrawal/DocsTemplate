@@ -29,11 +29,12 @@ import { notFound } from "next/navigation";
 // }
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
   params: Promise<{ category: string }>;
 }
+
 export const revalidate = 86400;
 export const dynamicParams = true;
 
@@ -43,7 +44,8 @@ export default async function CategoryPage({
   searchParams,
   params,
 }: PageProps) {
-  const currentPage = Number(await searchParams.page) || 1;
+  const searchParamsResolved = await searchParams;
+  const currentPage = Number(searchParamsResolved.page) || 1;
   const category = (await params).category;
   const postsPerPage = 6;
 

@@ -5,17 +5,18 @@ import BlogGrid from "../components/blog/BlogGrid";
 import BlogHeader from "../components/blog/BlogHeader";
 import Pagination from "../components/blog/Pagination";
 import type { Metadata } from "next";
-
+import { blogMetadata } from "../metaData";
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 }
 
-// // export const metadata: Metadata = blogMetadata;
+export const metadata: Metadata = blogMetadata;
 
 export default async function BlogPage({ searchParams }: PageProps) {
-  const currentPage = Number(searchParams.page) || 1;
+  const searchParamsResolved = await searchParams;
+  const currentPage = Number(searchParamsResolved?.page) || 1;
   const postsPerPage = 6;
 
   const posts = await getPosts({

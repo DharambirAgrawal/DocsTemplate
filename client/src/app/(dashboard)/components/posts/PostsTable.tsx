@@ -13,7 +13,7 @@ import { formatDate } from "@/lib/utils";
 import { getPosts } from "../../dashboard/posts/actions";
 import { PostType } from "./types";
 import EditPostDialog from "./EditPostsTable";
-
+import Image from "next/image";
 import { useConfirmation } from "@/features/Confirmation/AdvanceConfirmation";
 
 type SortConfig = {
@@ -395,7 +395,7 @@ const PostsTable = () => {
                 {/* Title with thumbnail */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={post.imageUrl || "/placeholder.svg"}
                       alt={post.title}
                       className="w-12 h-12 rounded-lg object-cover"
@@ -470,7 +470,7 @@ const PostsTable = () => {
                 </td>
                 <td className="px-6 py-4">
                   <span className="text-sm text-gray-700">
-                    <img
+                    <Image
                       src={post.metaData.metaImage || "/placeholder.svg"}
                       alt={post.title}
                       className="w-12 h-12 rounded-lg object-cover"

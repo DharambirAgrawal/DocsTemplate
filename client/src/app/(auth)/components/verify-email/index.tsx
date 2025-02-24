@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function VerifyEmail({ email }: { email: string }) {
   const [canResend, setCanResend] = useState(true);
   const [countdown, setCountdown] = useState(0);
-  
+
   useEffect(() => {
     // Check if the cooldown has expired on page load (you can get this data from the backend)
     const lastSentAt = localStorage.getItem("lastVerificationSentAt");
@@ -48,10 +48,11 @@ export default function VerifyEmail({ email }: { email: string }) {
       setCanResend(false);
       setCountdown(2 * 60); // 2 minutes cooldown
     } else {
-        localStorage.setItem("lastVerificationSentAt", Date.now().toString());
-        setCanResend(false);
-        setCountdown(2 * 60); // 2 minutes cooldown
-      showToast("error", res.error?.message || "Something went wrong.");
+      localStorage.setItem("lastVerificationSentAt", Date.now().toString());
+      setCanResend(false);
+      setCountdown(2 * 60); // 2 minutes cooldown
+      // showToast("error", res.error?.message || "Something went wrong.");
+      showToast("error", "Something went wrong.");
     }
   };
 
@@ -67,7 +68,8 @@ export default function VerifyEmail({ email }: { email: string }) {
         </p>
 
         <p className="text-gray-500 mt-4 text-center">
-          Please check your inbox and click on the verification link to activate your account.
+          Please check your inbox and click on the verification link to activate
+          your account.
         </p>
 
         <p className="text-gray-500 mt-2 text-center">
@@ -75,7 +77,9 @@ export default function VerifyEmail({ email }: { email: string }) {
           <button
             disabled={!canResend}
             onClick={handleResendEmail}
-            className={`text-indigo-600 font-semibold hover:underline ${!canResend ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`text-indigo-600 font-semibold hover:underline ${
+              !canResend ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             resend it here.
           </button>
@@ -99,7 +103,8 @@ export default function VerifyEmail({ email }: { email: string }) {
 
         <div className="mt-4 text-center text-sm text-gray-500">
           <p>
-            If you don’t see the email in your inbox, please check your spam folder.
+            If you don’t see the email in your inbox, please check your spam
+            folder.
           </p>
         </div>
       </div>

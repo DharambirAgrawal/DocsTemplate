@@ -1,12 +1,12 @@
 "use client";
 
 import { UserType } from "./types";
-
+import Image from "next/image";
 interface ActionRequiredProps {
   action: true;
   // handleEdit: (body: Record<string, any>) => void;
-  handleEdit:(user: UserType) => void
-  handleDelete: (userId: string) => void
+  handleEdit: (user: UserType) => void;
+  handleDelete: (userId: string) => void;
 }
 
 // Define a type for when action is false (optional handlers)
@@ -18,7 +18,7 @@ interface NoActionRequiredProps {
 
 // Combine the two using a conditional type
 type UserTableProps = (ActionRequiredProps | NoActionRequiredProps) & {
-  currentBody:UserType[];
+  currentBody: UserType[];
 };
 
 const UsersTable: React.FC<UserTableProps> = ({
@@ -60,7 +60,7 @@ const UsersTable: React.FC<UserTableProps> = ({
               className="border-b border-gray-200 hover:bg-gray-100"
             >
               <td className="py-3 px-6 text-left whitespace-nowrap">
-                <img
+                <Image
                   src={user.providerProfileImage || "/placeholder.svg"}
                   alt={`${user.firstName} ${user.lastName}`}
                   className="w-10 h-10 rounded-full"

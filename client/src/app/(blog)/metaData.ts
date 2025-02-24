@@ -36,7 +36,7 @@ export const categoryMetadata: Metadata = {
 
 export const blogMetadata: Metadata = {
   ...baseMetadata,
-  title: "Blog | Pathgurus",
+  title: "Blog",
   description:
     "Explore our blog for the latest news, updates, and insights on online learning and teaching.",
   robots: {
