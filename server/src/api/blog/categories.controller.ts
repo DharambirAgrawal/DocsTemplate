@@ -85,7 +85,7 @@ export const getCategories = async (req: Request, res: Response) => {
         postCount: { $size: "$posts" }, // Count the posts array
       },
     },
-    { $limit: Number(limit) }, // Limit the number of categories returned
+    // { $limit: Number(limit) }, // Limit the number of categories returned
   ]);
 
   // If no categories are found, return an error

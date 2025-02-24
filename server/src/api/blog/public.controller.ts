@@ -187,3 +187,27 @@ export const getPublicPostcontent = async (req: Request, res: Response) => {
     data: post,
   });
 };
+
+export const getPublicAllPosts = async (req: Request, res: Response) => {
+  const posts = await Post.find({ published: true })
+    .select({
+      _id: false,
+      title: true,
+      slug: true,
+      imageUrl: true,
+      publishedAt: true,
+      summary: true,
+      metaData: true,
+      published: true,
+      timeRead: true,
+    })
+    .lean();
+  if (!posts) {
+    throw new AppError("Posts not found", 404);
+  }
+  // Fetch author information
+  return res.status(200).json({
+    success: true,
+    data: posts,
+  });
+};

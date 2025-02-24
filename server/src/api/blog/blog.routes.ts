@@ -5,7 +5,11 @@ import {
   getAllPosts,
   getPostContent,
 } from "./post.controller";
-import { getAdvancedPosts, getPublicPostcontent } from "./public.controller";
+import {
+  getAdvancedPosts,
+  getPublicAllPosts,
+  getPublicPostcontent,
+} from "./public.controller";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
 import { getCategories } from "./categories.controller";
 import { verifyAuthor } from "./blog.middleware";
@@ -24,4 +28,5 @@ export const blogRouter = BlogRouter.post(
   .get("/public/posts", catchAsync(getAdvancedPosts))
   .get("/public/posts/:slug", catchAsync(getPublicPostcontent))
   .get("/public/categories", catchAsync(getCategories))
-  .get("/public/tags", catchAsync(getTags));
+  .get("/public/tags", catchAsync(getTags))
+  .get("/public/allposts", catchAsync(getPublicAllPosts));
