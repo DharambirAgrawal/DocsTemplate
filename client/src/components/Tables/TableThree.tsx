@@ -1,6 +1,4 @@
-import { Package } from "@/types/package";
-
-const packageData: Package[] = [
+const packageData = [
   {
     name: "Free package",
     price: 0.0,
@@ -52,7 +50,9 @@ const TableThree = () => {
             {packageData.map((packageItem, index) => (
               <tr key={index}>
                 <td
-                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 xl:pl-7.5 ${index === packageData.length - 1 ? "border-b-0" : "border-b"}`}
+                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 xl:pl-7.5 ${
+                    index === packageData.length - 1 ? "border-b-0" : "border-b"
+                  }`}
                 >
                   <h5 className="text-dark dark:text-white">
                     {packageItem.name}
@@ -62,29 +62,35 @@ const TableThree = () => {
                   </p>
                 </td>
                 <td
-                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${index === packageData.length - 1 ? "border-b-0" : "border-b"}`}
+                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${
+                    index === packageData.length - 1 ? "border-b-0" : "border-b"
+                  }`}
                 >
                   <p className="text-dark dark:text-white">
                     {packageItem.invoiceDate}
                   </p>
                 </td>
                 <td
-                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${index === packageData.length - 1 ? "border-b-0" : "border-b"}`}
+                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${
+                    index === packageData.length - 1 ? "border-b-0" : "border-b"
+                  }`}
                 >
                   <p
                     className={`inline-flex rounded-full px-3.5 py-1 text-body-sm font-medium ${
                       packageItem.status === "Paid"
                         ? "bg-[#219653]/[0.08] text-[#219653]"
                         : packageItem.status === "Unpaid"
-                          ? "bg-[#D34053]/[0.08] text-[#D34053]"
-                          : "bg-[#FFA70B]/[0.08] text-[#FFA70B]"
+                        ? "bg-[#D34053]/[0.08] text-[#D34053]"
+                        : "bg-[#FFA70B]/[0.08] text-[#FFA70B]"
                     }`}
                   >
                     {packageItem.status}
                   </p>
                 </td>
                 <td
-                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 xl:pr-7.5 ${index === packageData.length - 1 ? "border-b-0" : "border-b"}`}
+                  className={`border-[#eee] px-4 py-4 dark:border-dark-3 xl:pr-7.5 ${
+                    index === packageData.length - 1 ? "border-b-0" : "border-b"
+                  }`}
                 >
                   <div className="flex items-center justify-end space-x-3.5">
                     <button className="hover:text-primary">

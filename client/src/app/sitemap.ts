@@ -1,8 +1,8 @@
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from "next";
 
 // Types for your data
 interface BlogPostProps {
-  status: 'success' | 'error';
+  success: boolean;
   data: {
     publishedAt: string;
     slug: string;
@@ -13,7 +13,7 @@ interface BlogPostProps {
 }
 
 interface CategoryProps {
-  status: 'success' | 'error';
+  success: boolean;
   data: {
     name: string;
     slug: string;
@@ -24,12 +24,11 @@ interface CategoryProps {
 async function getAllBlogPosts() {
   // Replace with your actual data fetching logic
   const posts: BlogPostProps = await fetch(
-    `${process.env.MAIN_URL}/api/public/meta/posts`,
+    `${process.env.SERVER_BASE_URL}/api/blog/public/allposts`,
     {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.BLOG_PUBLIC_KEY || '',
+        "Content-Type": "application/json",
       },
     }
   ).then((res) => res.json());
@@ -40,12 +39,11 @@ async function getAllBlogPosts() {
 async function getAllCategories() {
   // Replace with your actual data fetching logic
   const categories: CategoryProps = await fetch(
-    `${process.env.MAIN_URL}/api/public/meta/categories`,
+    `${process.env.SERVER_BASE_URL}/api/blog/public/categories?limit=0`,
     {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.BLOG_PUBLIC_KEY || '',
+        "Content-Type": "application/json",
       },
     }
   ).then((res) => res.json());
@@ -56,7 +54,7 @@ async function getAllCategories() {
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.APP_URL + '';
+  const baseUrl = process.env.CLIENT_BASE_URL + "";
 
   // Fetch your dynamic data
   const blogPosts = await getAllBlogPosts();
@@ -67,37 +65,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: baseUrl,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'daily' as const,
+      changeFrequency: "daily" as const,
       priority: 1,
     },
     {
       url: `${baseUrl}/blog`,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'daily' as const,
+      changeFrequency: "daily" as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/about/us`,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'monthly' as const,
+      changeFrequency: "monthly" as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/about/privacy`,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'monthly' as const,
+      changeFrequency: "monthly" as const,
       priority: 0.6,
     },
     {
       url: `${baseUrl}/about/terms`,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'monthly' as const,
+      changeFrequency: "monthly" as const,
       priority: 0.6,
     },
     {
       url: `${baseUrl}/auth/login`,
       lastModified: new Date().toISOString(),
-      changeFrequency: 'monthly' as const,
+      changeFrequency: "monthly" as const,
       priority: 0.6,
     },
   ];
@@ -106,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogEntries = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: post.publishedAt,
-    changeFrequency: 'weekly' as const,
+    changeFrequency: "weekly" as const,
     priority: 0.9,
     // Optional: Include images if they're important for SEO
     images: [post.imageUrl],
@@ -116,7 +114,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryEntries = categories.map((category) => ({
     url: `${baseUrl}/category/${category.slug}`,
     lastModified: category.updatedAt,
-    changeFrequency: 'weekly' as const,
+    changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
 
