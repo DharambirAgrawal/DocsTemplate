@@ -109,7 +109,7 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const categories = await getCategories({});
+      const categories = await getCategories({ limit: 0 });
       const images = await getImagesAction("BLOG");
       if (images.success) {
         setImages(images.data);

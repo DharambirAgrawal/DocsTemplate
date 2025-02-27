@@ -24,7 +24,7 @@ const colors = [
 ];
 
 const PopularCategories = async () => {
-  const categories: CategoryProps = await getCategories({});
+  const categories: CategoryProps = await getCategories({ limit: 0 });
   if (
     !categories.success ||
     categories.data?.length === 0 ||
