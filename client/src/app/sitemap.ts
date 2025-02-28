@@ -61,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categories = await getAllCategories();
 
   // Static pages with their priorities
+  // TODO: update static pages
   const staticPages = [
     {
       url: baseUrl,
@@ -75,19 +76,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/about/us`,
+      url: `${baseUrl}/about`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/about/privacy`,
+      url: `${baseUrl}/contact`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/privacy`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly" as const,
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/about/terms`,
+      url: `${baseUrl}/terms`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly" as const,
       priority: 0.6,
