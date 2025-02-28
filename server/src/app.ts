@@ -16,12 +16,10 @@
 // const storage = multer.memoryStorage();
 // connectDB();
 
-
-
 // // Middleware to initialize passport and handle session
 // app.use(cors({
 //   credentials: true, // Allow sending cookies along with the request
-  
+
 // }));
 // app.use(logger);
 // app.use(
@@ -58,6 +56,7 @@ import { logger } from "./utils/logger";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./services/MongoDBService";
 import routes from "./routes";
+import "./services/updateSessions";
 
 dotenv.config();
 
@@ -65,20 +64,22 @@ const app = express();
 connectDB();
 
 // Configure multer storage (in-memory storage in this case)
-export const upload = multer({
-
-});
+export const upload = multer({});
 
 // Middleware to initialize passport and handle session
-app.use(cors({
-  credentials: true, // Allow sending cookies along with the request
-}));
+app.use(
+  cors({
+    credentials: true, // Allow sending cookies along with the request
+  })
+);
 app.use(logger);
-app.use(cookieSession({
-  name: "session",
-  keys: ["key1", "key2"],
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
-}));
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+);
 
 passportInitialize(app);
 app.use(passportMiddleware);
@@ -86,7 +87,7 @@ app.use(passportMiddleware);
 // Multer should be first to handle file uploads
 
 // Now handle URL-encoded and JSON body parsing
-app.use(express.json());         // For parsing JSON bodies
+app.use(express.json()); // For parsing JSON bodies
 app.use(express.urlencoded({ extended: true })); // For parsing form data (if needed)
 
 // Other middlewares
