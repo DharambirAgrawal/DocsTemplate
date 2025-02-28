@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import Image from "../../models/media/ImageModel";
 // import { AppError } from "../../errors/AppError";
 // import { generateUniqueSlug } from "../blog/blog.helper";
 // import Category from "../../models/blog/CategoryModel";
@@ -145,270 +146,58 @@ export const testServer = async (
 // };
 
 // export const transfer_data = async (req: Request, res: Response) => {
-//   const authorId = "id-1737563022519-63pbj05no";
+//   try {
+//     const response = await fetch("http://localhost:8000/api/transfer/transfer");
+//     const data = await response.json();
 
-//   const author = await Author.findOne({ userId: authorId });
-//   const response = await fetch("http://localhost:8000/api/transfer/transfer");
-//   const data = await response.json();
+//     // Assuming 'data' is an array of images
+//     const savedImages = [];
 
-//   if (!author) {
-//     throw new AppError("Author not found", 400);
-//   }
+//     // Loop through each item in the array and create a new image document
+//     for (const imageData of data.data) {
+//       const {
+//         url,
+//         createdAt,
+//         updatedAt,
+//         format,
+//         altText,
+//         title,
+//         description,
+//         tags,
+//         publicId,
+//       } = imageData;
 
-//   // We need to handle multiple posts
-//   const postsCreated = await Promise.all(
-//     data.data.map(async (postData: any) => {
-//       // Create or connect categories
-//       const categoriesToConnectOrCreate = postData.categories.map(
-//         async (category: { name: string }) => {
-//           let categoryDoc = await Category.findOne({
-//             slug: generateUniqueSlug(category.name),
-//           });
-//           if (!categoryDoc) {
-//             categoryDoc = await Category.create({
-//               name: category.name,
-//               slug: generateUniqueSlug(category.name),
-//             });
-//           }
-//           return categoryDoc._id;
-//         }
-//       );
+//       // Create a new image document
+//       const newImage = new Image({
+//         url,
+//         createdAt,
+//         updatedAt,
+//         format,
+//         altText,
+//         title,
+//         description,
+//         tags,
+//         publicId,
+//         folderName: "BLOG",
+//       });
 
-//       // Create or connect tags
-//       const tagsToConnectOrCreate = postData.tags.map(
-//         async (tag: { name: string }) => {
-//           let tagDoc = await Tag.findOne({
-//             slug: generateUniqueSlug(tag.name),
-//           });
-//           if (!tagDoc) {
-//             tagDoc = await Tag.create({
-//               name: tag.name,
-//               slug: generateUniqueSlug(tag.name),
-//             });
-//           }
-//           return tagDoc._id;
-//         }
-//       );
+//       // Save the image document to the database
+//       const savedImage = await newImage.save();
 
-//       // Wait for all categories and tags to be populated
-//       const [categoryIds, tagIds] = await Promise.all([
-//         Promise.all(categoriesToConnectOrCreate),
-//         Promise.all(tagsToConnectOrCreate),
-//       ]);
-
-//       // Prepare data for saving the post
-//       const postDataToSave = {
-//         title: postData.title,
-//         timeRead: postData.timeRead,
-//         publishedAt: postData.publishedAt,
-//         createdAt: postData.createdAt,
-//         updatedAt: postData.updatedAt,
-//         content: postData.content,
-//         summary: postData.summary,
-//         expiresAt: postData.expiresAt,
-//         imageUrl: postData.imageUrl,
-//         views: postData.views,
-//         metaData: {
-//           metaTitle: postData.metaTitle,
-//           metaDesc: postData.metaDesc,
-//           metaKeywords: postData.metaKeywords,
-//           metaImage: postData.metaImage,
-//         },
-//         authorId: author._id,
-//         categories: categoryIds,
-//         tags: tagIds,
-//         status: postData.status,
-//         published: postData.published,
-//       };
-
-//       const newPost = new Post(postDataToSave);
-//       // Create a new post
-//       await newPost.saveSlug();
-//       await newPost.save();
-
-//       if (!newPost) {
-//         throw new AppError("Post not created", 400);
-//       }
-
-//       //updating author
-//       author.posts.push(newPost._id);
-//       await author.save();
-
-//       await Promise.all(
-//         categoryIds.map(async (categoryId) => {
-//           const category = await Category.findById(categoryId);
-//           if (category) {
-//             category.posts.push(newPost._id as Types.ObjectId); // Add new post ID to the category's posts
-//             await category.save();
-//           }
-//         })
-//       );
-
-//       await Promise.all(
-//         tagIds.map(async (tagId) => {
-//           const tag = await Tag.findById(tagId);
-//           if (tag) {
-//             tag.posts.push(newPost._id as Types.ObjectId); // Add new post ID to the tag's posts
-//             await tag.save();
-//           }
-//         })
-//       );
-
-//       return { slug: newPost.slug }; // Return the slug for each created post
-//     })
-//   );
-
-//   res.status(200).json({
-//     success: true,
-//     data: postsCreated, // Return all the slugs of created posts
-//   });
-// };
-
-// export const transfer_data = async (req: Request, res: Response) => {
-//   const authorId = "id-1737563022519-63pbj05no";
-
-//   const author = await Author.findOne({ userId: authorId });
-//   const response = await fetch("http://localhost:8000/api/transfer/transfer");
-//   const data1 = await response.json();
-//   const data = data1.data;
-
-//   // Make sure author exists
-//   if (!author) {
-//     throw new AppError("Author not found", 400);
-//   }
-
-//   // Process all posts in the data array
-//   for (const postData of data) {
-//     // Create or connect categories
-//     const categoriesToConnectOrCreate = postData.categories.map(
-//       async (category: { name: string }) => {
-//         let categoryDoc = await Category.findOne({
-//           slug: generateUniqueSlug(category.name),
-//         });
-//         if (!categoryDoc) {
-//           categoryDoc = await Category.create({
-//             name: category.name,
-//             slug: generateUniqueSlug(category.name),
-//           });
-//         }
-//         return categoryDoc._id;
-//       }
-//     );
-
-//     // Create or connect tags
-//     const tagsToConnectOrCreate = postData.tags.map(
-//       async (tag: { name: string }) => {
-//         let tagDoc = await Tag.findOne({ slug: generateUniqueSlug(tag.name) });
-//         if (!tagDoc) {
-//           tagDoc = await Tag.create({
-//             name: tag.name,
-//             slug: generateUniqueSlug(tag.name),
-//           });
-//         }
-//         return tagDoc._id;
-//       }
-//     );
-
-//     // Wait for all categories and tags to be populated
-//     const [categoryIds, tagIds] = await Promise.all([
-//       Promise.all(categoriesToConnectOrCreate),
-//       Promise.all(tagsToConnectOrCreate),
-//     ]);
-
-//     // Prepare post data for saving
-//     const postDataForSave = {
-//       title: postData.title,
-//       timeRead: postData.timeRead,
-//       publishedAt: postData.publishedAt,
-//       createdAt: postData.createdAt,
-//       updatedAt: postData.updatedAt,
-//       content: postData.content,
-//       summary: postData.summary,
-//       expiresAt: postData.expiresAt,
-//       imageUrl: postData.imageUrl,
-//       views: postData.views,
-//       metaData: {
-//         metaTitle: postData.metaTitle,
-//         metaDesc: postData.metaDesc,
-//         metaKeywords: postData.metaKeywords,
-//         metaImage: postData.metaImage,
-//       },
-//       authorId: author._id,
-//       categories: categoryIds,
-//       tags: tagIds,
-//       status: postData.status,
-//       published: postData.published,
-//     };
-
-//     // Create and save the new post
-//     const newPost = new Post(postDataForSave);
-//     await newPost.saveSlug();
-//     await newPost.save();
-
-//     // If post creation fails
-//     if (!newPost) {
-//       throw new AppError("Post not created", 400);
+//       // Push the saved image data to an array
+//       savedImages.push(savedImage);
 //     }
 
-//     // Associate the new post with the author
-//     author.posts.push(newPost._id);
-//     await author.save();
-
-//     // Update the categories and tags with the new post ID
-//     await Promise.all(
-//       categoryIds.map(async (categoryId) => {
-//         const category = await Category.findById(categoryId);
-//         if (category) {
-//           category.posts.push(newPost._id as Types.ObjectId);
-//           await category.save();
-//         }
-//       })
-//     );
-
-//     await Promise.all(
-//       tagIds.map(async (tagId) => {
-//         const tag = await Tag.findById(tagId);
-//         if (tag) {
-//           tag.posts.push(newPost._id as Types.ObjectId);
-//           await tag.save();
-//         }
-//       })
-//     );
+//     // Return a response with all saved images
+//     res.status(200).json({
+//       success: true,
+//       data: savedImages, // Return all the saved images
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while transferring data.",
+//     });
 //   }
-
-//   // Send response after processing all posts
-//   res.status(200).json({
-//     success: true,
-//     message: "All posts transferred successfully.",
-//   });
-// };
-
-// // export const test = async (req: Request, res: Response) => {
-// //   const tag = await Tag.find().lean();
-
-// //   res.status(200).json({
-// //     data: tag,
-// //   });
-// // };
-// export const test = async (req: Request, res: Response) => {
-//   const tags = await Tag.find().lean();
-
-//   // Create a map to track the frequency of names
-//   const nameFrequency: { [key: string]: number } = {};
-
-//   // Iterate over the tags to count the occurrences of each name
-//   tags.forEach((tag) => {
-//     const name = tag.name;
-//     nameFrequency[name] = (nameFrequency[name] || 0) + 1;
-//   });
-
-//   // Filter out the names that are repeated (frequency > 1)
-//   const repeatedNames = Object.keys(nameFrequency).filter(
-//     (name) => nameFrequency[name] > 1
-//   );
-
-//   res.status(200).json({
-//     data: tags,
-//     repeatedNames, // Return the repeated names as part of the response
-//   });
 // };

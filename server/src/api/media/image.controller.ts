@@ -9,10 +9,9 @@ import Image from "../../models/media/ImageModel";
 import { separateCloudinaryBaseUrl } from "../../services/utils";
 
 export const saveImageData = async (req: Request, res: Response) => {
-
   const role = (req as any).role;
   if (role != "ADMIN" && role != "AUTHOR") {
-    throw new AppError("Not Authorize to Upload image", 400)
+    throw new AppError("Not Authorize to Upload image", 400);
   }
 
   if (
@@ -69,14 +68,17 @@ export const saveImageData = async (req: Request, res: Response) => {
 
   await newImage.save();
 
-  res.status(200).json({status:"success", success: true, message: "Saved image data successfully" });
+  res.status(200).json({
+    status: "success",
+    success: true,
+    message: "Saved image data successfully",
+  });
 };
 
 export const updateImageData = async (req: Request, res: Response) => {
-
   const role = (req as any).role;
   if (role != "ADMIN" && role != "AUTHOR") {
-    throw new AppError("Not Authorize to Upload image", 400)
+    throw new AppError("Not Authorize to Upload image", 400);
   }
 
   const { url, title, description, tags, publicId, altText } = req.body;
@@ -135,10 +137,9 @@ export const updateImageData = async (req: Request, res: Response) => {
 };
 
 export const deleteImage = async (req: Request, res: Response) => {
-
   const role = (req as any).role;
   if (role != "ADMIN" && role != "AUTHOR") {
-    throw new AppError("Not Authorize to Upload image", 400)
+    throw new AppError("Not Authorize to Upload image", 400);
   }
 
   const { publicId } = req.body;
@@ -163,20 +164,94 @@ export const deleteImage = async (req: Request, res: Response) => {
   await deleteCloudinaryImage(publicId);
 
   // Respond with a success message
-  res.status(200).json({ success:true, message: "Image deleted successfully" });
+  res
+    .status(200)
+    .json({ success: true, message: "Image deleted successfully" });
 };
 
-export const getImages = async (req: Request, res: Response) => {
-  const { id, page = 1, recent = false, folder } = req.query;
+// export const getImages = async (req: Request, res: Response) => {
+//   const { id, page = 1, recent = false, folder, limit = 10 } = req.query;
 
-  // Check if page is provided
+//   // Check if page is provided
+//   if (!page) {
+//     throw new AppError("Page parameter is required", 400);
+//   }
+
+//   // If id is provided, fetch a specific image
+//   if (id) {
+//     const image = await Image.findOne({
+//       publicId: id,
+//       folderName: folder || "MAIN",
+//     });
+//     if (!image) {
+//       throw new AppError("Image not found", 404);
+//     }
+//     const { url, title, format, description, altText, tags, createdAt } = image;
+//     const fullUrl = `${process.env.CLOUDINARY_BASE_URL}${url}`;
+
+//     return res.status(200).json({
+//       status: "success",
+//       success: true,
+//       image: {
+//         url: fullUrl,
+//         title,
+//         format,
+//         description,
+//         altText,
+//         publicId: id,
+//         tags,
+//         createdAt,
+//       },
+//     });
+//   }
+
+//   // Pagination: set the number of images per page (e.g., 10 images per page)
+//   const skip = (Number(page) - 1) * Number(limit);
+
+//   // Get all images with pagination and filtering by recent
+//   const images = await Image.find()
+//     .skip(skip)
+//     .limit(Number(limit))
+//     .sort({ createdAt: recent === "true" ? -1 : 1 }) // Order by recent or oldest
+//     .select("title url description altText publicId tags createdAt");
+
+//   // Map images to include full URL
+//   const filterImages = images.map((image) => {
+//     const { url, title, description, altText, publicId, tags, createdAt } =
+//       image;
+//     const fullUrl = `${process.env.CLOUDINARY_BASE_URL}${url}`;
+//     return {
+//       url: fullUrl,
+//       title,
+//       description,
+//       altText,
+//       publicId,
+//       tags,
+//       createdAt,
+//     };
+//   });
+
+//   res.status(200).json({
+//     status: "success",
+//     success: true,
+//     data: filterImages,
+//   });
+// };
+
+export const getImages = async (req: Request, res: Response) => {
+  const { id, page = 1, recent = false, folder, limit = 10 } = req.query;
+
+  // Validate page and limit
   if (!page) {
     throw new AppError("Page parameter is required", 400);
   }
 
   // If id is provided, fetch a specific image
   if (id) {
-    const image = await Image.findOne({ publicId: id, folderName: folder|| "MAIN" });
+    const image = await Image.findOne({
+      publicId: id,
+      folderName: folder || "MAIN",
+    });
     if (!image) {
       throw new AppError("Image not found", 404);
     }
@@ -199,14 +274,18 @@ export const getImages = async (req: Request, res: Response) => {
     });
   }
 
-  // Pagination: set the number of images per page (e.g., 10 images per page)
-  const limit = 10;
-  const skip = (Number(page) - 1) * limit;
+  // Pagination: calculate the number of items to skip and limit per page
+  const skip = (Number(page) - 1) * Number(limit);
 
-  // Get all images with pagination and filtering by recent
+  // Get the total number of images
+  const totalImages = await Image.countDocuments({
+    folderName: folder || "MAIN",
+  });
+
+  // Get the paginated images with sorting by recent or oldest
   const images = await Image.find()
     .skip(skip)
-    .limit(limit)
+    .limit(Number(limit))
     .sort({ createdAt: recent === "true" ? -1 : 1 }) // Order by recent or oldest
     .select("title url description altText publicId tags createdAt");
 
@@ -226,9 +305,18 @@ export const getImages = async (req: Request, res: Response) => {
     };
   });
 
+  // Calculate total pages
+  const totalPages = Math.ceil(totalImages / Number(limit));
+
   res.status(200).json({
     status: "success",
     success: true,
     data: filterImages,
+    pagination: {
+      currentPage: Number(page),
+      totalPages,
+      totalImages,
+      limit: Number(limit),
+    },
   });
 };

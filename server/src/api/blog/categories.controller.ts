@@ -133,7 +133,6 @@ export const getCategories = async (req: Request, res: Response) => {
   if (!categories || categories.length === 0) {
     throw new AppError("No categories found", 404);
   }
-  console.log(categories);
 
   return res.status(200).json({
     status: "success",
