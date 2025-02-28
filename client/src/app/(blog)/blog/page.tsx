@@ -60,7 +60,7 @@ import Pagination from "../components/blog/Pagination";
 import type { Metadata } from "next";
 import { blogMetadata } from "../metaData";
 interface PageProps {
-  params: Promise<{
+  searchParams: Promise<{
     page?: string;
   }>;
 }
@@ -68,29 +68,28 @@ interface PageProps {
 export const metadata: Metadata = blogMetadata;
 
 // Generate Static Parameters (for pagination)
-export async function generateStaticParams() {
-  const postsPerPage = 6;
-  const posts = await getPosts({
-    limit: postsPerPage,
-    page: 1,
-    recent: true,
-  });
+// export async function generateStaticParams() {
+//   const postsPerPage = 6;
+//   const posts = await getPosts({
+//     limit: postsPerPage,
+//     page: 1,
+//     recent: true,
+//   });
 
-  const totalPages = posts.pagination?.totalPages || 1;
+//   const totalPages = posts.pagination?.totalPages || 1;
 
-  const paths = Array.from({ length: totalPages }).map((_, index) => ({
-    page: (index + 1).toString(),
-  }));
+//   const paths = Array.from({ length: totalPages }).map((_, index) => ({
+//     page: (index + 1).toString(),
+//   }));
 
-  return paths;
-}
+//   return paths;
+// }
 
 // Main BlogPage component (Static rendering)
-export default async function BlogPage({ params }: PageProps) {
-  const searchParamsResolved = await params;
+export default async function BlogPage({ searchParams }: PageProps) {
+  const searchParamsResolved = await searchParams;
   const currentPage = Number(searchParamsResolved.page) || 1;
   const postsPerPage = 6;
-
   // Fetch the posts for the specific page
   const posts = await getPosts({
     limit: postsPerPage,

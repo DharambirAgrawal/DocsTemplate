@@ -135,7 +135,7 @@ export async function generateStaticParams() {
     return [];
   }
   return categories.data.map((slug) => ({
-    slug: slug.slug,
+    category: slug.slug,
   }));
 }
 export const revalidate = 86400;

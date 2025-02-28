@@ -100,8 +100,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
               <div className="aspect-square rounded-lg overflow-hidden">
                 <Image
                   src={editedImage.url}
-                  alt={editedImage.altText}
+                  alt={editedImage.altText || "image"}
                   className="w-full h-full object-cover"
+                  width={500}
+                  height={500}
                 />
               </div>
 

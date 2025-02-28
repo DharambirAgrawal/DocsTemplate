@@ -1,19 +1,36 @@
 import ImageGallery from "@/app/(dashboard)/components/Images/ImageGallery";
 import { getImagesAction } from "../actions";
-const  GalleryPage = async() => {
+import Pagination from "@/app/(blog)/components/blog/Pagination";
 
-  const res = await getImagesAction("BLOG");
+interface PageProps {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+const GalleryPage = async ({ searchParams }: PageProps) => {
+  const searchParamsResolved = await searchParams;
+  const currentPage = Number(searchParamsResolved.page) || 1;
+  const imagesPerPage = 10;
+  const res = await getImagesAction({
+    folder: "BLOG",
+    limit: imagesPerPage,
+    page: currentPage,
+  });
 
   if (!res.success) {
     return (
       <div className="py-8 text-center">
-        <h2 className="text-xl font-bold text-red-500 mb-2">Images not found</h2>
-        <p className="text-gray-600">Please try again or contact support if the problem persists.</p>
+        <h2 className="text-xl font-bold text-red-500 mb-2">
+          Images not found
+        </h2>
+        <p className="text-gray-600">
+          Please try again or contact support if the problem persists.
+        </p>
       </div>
     );
   }
 
-  if(res.data.length === 0) {
+  if (res.data.length === 0) {
     return (
       <div className="py-8 text-center">
         <h2 className="text-xl font-bold text-red-500 mb-2">No images found</h2>
@@ -24,9 +41,10 @@ const  GalleryPage = async() => {
 
   return (
     <div className="py-8">
-      <ImageGallery
-        images={res.data}
-     
+      <ImageGallery images={res.data} />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={res.pagination?.totalPages || 1}
       />
     </div>
   );

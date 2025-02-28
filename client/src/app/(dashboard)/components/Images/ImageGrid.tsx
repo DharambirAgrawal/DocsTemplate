@@ -33,8 +33,10 @@ const ImageGrid = ({ images, handleImageClick }: ImageProp) => {
           >
             <Image
               src={image.url}
-              alt={image.altText}
+              alt={image.altText || "image"}
               className="w-full h-full object-cover cursor-pointer"
+              width={300}
+              height={300}
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-300" />
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
