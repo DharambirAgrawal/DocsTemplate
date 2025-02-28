@@ -27,20 +27,23 @@ export const OGimages = [
     alt: "Pathgurus | Inspiring Ideas Everyday",
   },
 ];
+
 export interface MetaSlugProp {
-  status: "error" | "success";
-  data: {
+  success: boolean;
+  data?: {
     title: string;
     imageUrl: string;
     publishedAt: string;
-    metaDesc: string;
-    metaKeywords: string;
-    metaTitle: string;
+    metaData: {
+      metaDesc: string;
+      metaKeywords: string;
+      metaTitle: string;
+    };
     summary: string;
-    user: {
-      name: string;
+    author: {
       image: string;
-      summary: string;
+      firstName: string;
+      lastName: string;
     };
     categories: {
       name: string;
@@ -52,7 +55,6 @@ export interface MetaSlugProp {
     }[];
   };
 }
-
 export const keywords = await fetch(
   `${process.env.SERVER_BASE_URL}/api/blog/public/tags`,
   {

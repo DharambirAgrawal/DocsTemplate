@@ -304,3 +304,34 @@ export const getSpecificBlogAction = async (slug: string) => {
   }
 };
 
+export async function getAllBlogPosts() {
+  // Replace with your actual data fetching logic
+  try {
+    const res = await fetch(
+      `${process.env.SERVER_BASE_URL}/api/blog/public/allposts`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!res.ok) {
+      return {
+        success: false,
+        data: [],
+      };
+    }
+    const data = await res.json();
+    return {
+      success: true,
+      data: data.data,
+    };
+  } catch (err) {
+    console.error("Error fetching posts:", err);
+    return {
+      success: false,
+      data: [],
+    };
+  }
+}

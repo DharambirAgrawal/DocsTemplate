@@ -1,25 +1,19 @@
 import React from "react";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { CompileMDX } from "@/features/CompileMdx";
 import ReadingProgress from "@/features/ReadingProgress";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import MDXError from "@/features/CompileMdx/MDXError";
 import { formatDate } from "@/lib/utils";
 import { FacebookIcon, InstagramIcon, XIcon } from "@/utils/icons";
-import { getSpecificBlogAction } from "../../components/actions";
-// import NewsLetter from '@/components/main/NewsLetter';
-// import RecentPosts from './RecentPosts';
-// import Topics from './Topics';
-// import { blogPostMetadata } from '@/lib/metaDatas';
-// import {
-//   getSpecificBlog,
-//   getPostSlugs,
-//   getSpecificBlogMetadata,
-// } from '@/lib/publicActions';
+import { blogPostMetadata } from "../../metaData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-// Move these to separate components and lazy load them
+import {
+  getSpecificBlogAction,
+  getAllBlogPosts,
+} from "../../components/actions";
 import dynamic from "next/dynamic";
 
 const NewsLetter = dynamic(() => import("@/app/(blog)/components/NewsLetter"), {
@@ -64,25 +58,22 @@ interface PostProp {
   };
 }
 
-interface SlugProp {
-  status: "error" | "success";
-  data: string[];
-}
-
 interface MetaSlugProp {
-  status: "error" | "success";
-  data: {
+  success: boolean;
+  data?: {
     title: string;
     imageUrl: string;
     publishedAt: string;
-    metaDesc: string;
-    metaKeywords: string;
-    metaTitle: string;
+    metaData: {
+      metaDesc: string;
+      metaKeywords: string;
+      metaTitle: string;
+    };
     summary: string;
-    user: {
-      name: string;
+    author: {
       image: string;
-      summary: string;
+      firstName: string;
+      lastName: string;
     };
     categories: {
       name: string;
@@ -94,46 +85,45 @@ interface MetaSlugProp {
     }[];
   };
 }
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+interface BlogPostProps {
+  success: boolean;
+  data: {
+    publishedAt: string;
+    slug: string;
+    updatedAt: string;
+    imageUrl: string;
+    categories: { slug: string }[];
+  }[];
+}
+export const revalidate = 86400;
+export const dynamicParams = true;
+export const preferredRegion = "auto"; // Auto-select closest region
 
-// export const revalidate = 86400;
-// export const dynamicParams = true;
-// export const runtime = 'edge'; // Use edge runtime for faster response
-// export const preferredRegion = "auto"; // Auto-select closest region
+export const generateMetadata = cache(
+  async ({ params }: Props): Promise<Metadata> => {
+    const slug = (await params).slug;
+    const post: MetaSlugProp = await getSpecificBlogAction(slug);
+    if (!post.success || !post.data) {
+      return notFound();
+    }
 
-// export async function generateMetadata(
-//   { params }: Props,
-//   parent: ResolvingMetadata
-// ): Promise<Metadata> {
-//   const slug = (await params).slug;
-//   const post: MetaSlugProp = await getSpecificBlogMetadata(slug);
-//   if (post.status === 'error') {
-//     return notFound();
-//   }
+    return blogPostMetadata(post, slug);
+  }
+);
 
-//   return blogPostMetadata(post, slug);
-// }
-// export const generateMetadata = cache(
-//   async ({ params }: Props): Promise<Metadata> => {
-//     const slug = (await params).slug;
-//     const post: MetaSlugProp = await getSpecificBlogMetadata(slug);
-//     if (post.status === 'error') {
-//       return notFound();
-//     }
+export async function generateStaticParams() {
+  const slugs: BlogPostProps = await getAllBlogPosts();
+  if (!slugs.success) {
+    return [];
+  }
 
-//     return blogPostMetadata(post, slug);
-//   }
-// );
-
-// export async function generateStaticParams() {
-//   const slugs: SlugProp = await getPostSlugs();
-//   if (slugs.status === 'error') {
-//     return [];
-//   }
-
-//   return slugs.data.map((slug) => ({
-//     slug: slug,
-//   }));
-// }
+  return slugs.data.map((post) => ({
+    slug: post.slug,
+  }));
+}
 
 export default async function Page({
   params,
@@ -145,7 +135,6 @@ export default async function Page({
   if (!post.success || !post.data) {
     notFound();
   }
-  console.log(post);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -222,23 +211,6 @@ export default async function Page({
           </div>
 
           {/* Content */}
-          {/* <article
-            className="prose prose-base sm:prose-lg max-w-none 
-            prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 
-            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal
-            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline 
-            prose-img:rounded-xl prose-strong:text-gray-900
-            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-            sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl
-            prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
-            prose-blockquote:border-l-4 prose-blockquote:border-blue-500
-            prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
-            prose-li:marker:text-gray-400"
-          >
-            <ErrorBoundary errorComponent={MDXError}>
-              <CompileMDX source={post.data.content} />
-            </ErrorBoundary>
-          </article> */}
           <article
             className="prose prose-base sm:prose-lg max-w-none 
             prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 

@@ -90,10 +90,21 @@ import { getPosts } from "../../components/actions";
 import BlogGrid from "../../components/blog/BlogGrid";
 import Pagination from "../../components/blog/Pagination";
 import type { Metadata, ResolvingMetadata } from "next";
+import { categoryMetadata } from "../../metaData";
 import { notFound } from "next/navigation";
+import { getCategories } from "../../components/actions";
+
+interface CategoryProps {
+  success: boolean;
+  data?: {
+    name: string;
+    count: number;
+    slug: string;
+  }[];
+}
 
 interface PageProps {
-  params: { category: string }; // Category parameter
+  params: Promise<{ category: string }>;
   searchParams: Promise<{
     page?: string;
   }>;
@@ -118,29 +129,38 @@ export async function generateMetadata(
     },
   };
 }
-
+export async function generateStaticParams() {
+  const categories: CategoryProps = await getCategories({ limit: 0 });
+  if (!categories.success || !categories.data) {
+    return [];
+  }
+  return categories.data.map((slug) => ({
+    slug: slug.slug,
+  }));
+}
 export const revalidate = 86400;
 export const dynamicParams = true;
 // Static Params Generation (for pagination)
-export async function generateStaticParams() {
-  // Get available categories, ideally from an API or static list
-  const categories = ["technology", "design", "marketing"]; // Example categories, adjust as necessary
+// export async function generateStaticParams() {
+//   // Get available categories, ideally from an API or static list
+//   const categories = ["technology", "design", "marketing"]; // Example categories, adjust as necessary
 
-  // Generate static paths for each category and paginated page
-  const paths = [];
-  for (const category of categories) {
-    const postsPerPage = 6;
-    const posts = await getPosts({ limit: postsPerPage, page: 1, category });
-    const totalPages = posts.pagination?.totalPages || 1;
+//   // Generate static paths for each category and paginated page
+//   const paths = [];
+//   for (const category of categories) {
+//     const postsPerPage = 6;
+//     const posts = await getPosts({ limit: postsPerPage, page: 1, category });
+//     const totalPages = posts.pagination?.totalPages || 1;
 
-    // Generate a path for each page in each category
-    for (let i = 1; i <= totalPages; i++) {
-      paths.push({ category, page: i.toString() });
-    }
-  }
+//     // Generate a path for each page in each category
+//     for (let i = 1; i <= totalPages; i++) {
+//       paths.push({ category, page: i.toString() });
+//     }
+//   }
+//   console.log(paths);
 
-  return paths;
-}
+//   return paths;
+// }
 
 // Main Component for Category Page
 export default async function CategoryPage({
@@ -149,7 +169,7 @@ export default async function CategoryPage({
 }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const currentPage = Number(resolvedSearchParams.page) || 1;
-  const category = params.category;
+  const category = (await params).category;
   const postsPerPage = 6;
 
   // Fetch the posts for the category and page

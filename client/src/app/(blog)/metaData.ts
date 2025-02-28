@@ -65,22 +65,23 @@ export const blogMetadata: Metadata = {
 };
 
 export const blogPostMetadata = (post: MetaSlugProp, slug: string) => {
+  if (!post.data) return blogMetadata;
   return {
-    title: post.data.metaTitle || post.data.title,
-    description: post.data.metaDesc || post.data.summary,
-    keywords: post.data.metaKeywords?.split(",").map((k) => k.trim()),
+    title: post.data.metaData.metaTitle || post.data.title,
+    description: post.data.metaData.metaDesc || post.data.summary,
+    keywords: post.data.metaData.metaKeywords?.split(",").map((k) => k.trim()),
     authors: [
       {
-        name: post.data.user.name,
-        url: `/author/${encodeURIComponent(post.data.user.name)}`,
+        name: post.data.author.firstName + " " + post.data.author.lastName,
+        url: `/author/${encodeURIComponent(post.data.author.firstName)}`,
       },
     ],
     openGraph: {
-      title: post.data.metaTitle || post.data.title,
-      description: post.data.metaDesc || post.data.summary,
+      title: post.data.metaData.metaTitle || post.data.title,
+      description: post.data.metaData.metaDesc || post.data.summary,
       url: `${process.env.APP_URL}/blog/${slug}`,
       publishedTime: post.data.publishedAt,
-      authors: [post.data.user.name],
+      authors: [post.data.author.firstName + " " + post.data.author.lastName],
       siteName: "Pathgurus",
 
       tags: [
@@ -90,8 +91,8 @@ export const blogPostMetadata = (post: MetaSlugProp, slug: string) => {
     },
     twitter: {
       card: "summary_large_image",
-      title: post.data.metaTitle || post.data.title,
-      description: post.data.metaDesc || post.data.summary,
+      title: post.data.metaData.metaTitle || post.data.title,
+      description: post.data.metaData.metaDesc || post.data.summary,
       site: "@pathgurus",
 
       creator: "@pathgurus",
