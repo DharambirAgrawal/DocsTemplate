@@ -88,7 +88,6 @@
 import React from "react";
 import { getPosts } from "../../components/actions";
 import BlogGrid from "../../components/blog/BlogGrid";
-import BlogHeader from "../../components/blog/BlogHeader";
 import Pagination from "../../components/blog/Pagination";
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
@@ -100,6 +99,28 @@ interface PageProps {
   }>;
 }
 
+export async function generateMetadata(
+  { params }: PageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+
+  const slug = (await params).category;
+  const category = slug.replace(/[\d]/g, "").replace(/-/g, " ").toUpperCase();
+  return {
+    ...categoryMetadata,
+    title: `${category} Blogs`,
+    description: `Explore our ${category} courses. Find the perfect learning path in ${category}.`,
+    openGraph: {
+      ...categoryMetadata.openGraph,
+      title: `${category} Blogs | Pathgurus`,
+      url: `https://pathgurus.com/categories/${category}`,
+    },
+  };
+}
+
+export const revalidate = 86400;
+export const dynamicParams = true;
 // Static Params Generation (for pagination)
 export async function generateStaticParams() {
   // Get available categories, ideally from an API or static list
