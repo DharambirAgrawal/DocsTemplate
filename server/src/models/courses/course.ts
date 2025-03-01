@@ -1,32 +1,42 @@
 import mongoose, { Document, Schema } from "mongoose";
-
-// Interface for the Course document with metadata
+import { generateUniqueSlug } from "../../api/courses/course.helper";
+export enum CourseStatus {
+  DRAFT = "DRAFT",
+  PUBLISHED = "PUBLISHED",
+  ARCHIVED = "ARCHIVED",
+}
+interface ISection {
+  title: string;
+  content: string;
+  slug: string;
+  order: number;
+  metaData: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+interface IContentGroup {
+  title: string;
+  order: number;
+  sections: ISection[];
+}
 export interface ICourse extends Document {
   title: string;
   description: string;
   duration: string; // E.g., '2 hours', '5 weeks', etc.
-  level: "beginner" | "intermediate" | "advanced";
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   category: string; // E.g., 'Web Development', 'Frontend', etc.
   slug: string; // Slug for SEO-friendly URL
   saveSlug: () => Promise<string>;
-  authorId?: mongoose.Types.ObjectId;
-  content: Array<{
-    sectionTitle: string;
-    sectionContent: string;
-    slug: string; // Slug for SEO-friendly URL
-    group: string; // New field for grouping sections (e.g., 'Basic', 'OOP', 'Loops')
-    order: number; // Field to specify the order of the sections within a group
-    metadata: {
-      sectionMetaTitle: string; // SEO title for the section
-      sectionMetaDesc: string; // SEO description for the section
-      sectionMetaKeywords: string[]; // SEO keywords for the section
-    };
-    createdAt: Date; // Timestamp for the section
-    updatedAt: Date; // Timestamp for the section
-  }>;
+  authorId: mongoose.Types.ObjectId[];
+  contentGroups: IContentGroup[];
+  status: CourseStatus;
   createdAt: Date;
   updatedAt: Date;
-  metadata: {
+  metaData: {
     tags: string[]; // Tags for better categorization and search
     views: number; // View count for the course
     seoTitle: string; // Custom SEO title for the page
@@ -34,6 +44,64 @@ export interface ICourse extends Document {
     seoKeywords: string[]; // Custom SEO keywords
   };
 }
+
+// Mongoose Schema for Section
+const SectionSchema = new Schema<ISection>(
+  {
+    title: {
+      type: String,
+      required: [true, "Section title is required"],
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: [true, "Section content is required"],
+    },
+    slug: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    order: {
+      type: Number,
+      required: true,
+      min: [0, "Order must be a positive number"],
+    },
+    metaData: {
+      metaTitle: {
+        type: String,
+        required: [true, "SEO title is required"],
+        trim: true,
+      },
+      metaDescription: {
+        type: String,
+        required: [true, "SEO description is required"],
+        trim: true,
+      },
+      metaKeywords: {
+        type: [String],
+        default: [],
+      },
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+// Mongoose Schema for Content Group
+const ContentGroupSchema = new Schema<IContentGroup>({
+  title: {
+    type: String,
+    required: [true, "Group title is required"],
+    trim: true,
+  },
+  order: {
+    type: Number,
+    required: true,
+    min: [0, "Order must be a positive number"],
+  },
+  sections: [SectionSchema],
+});
 
 // Mongoose Schema for the Course with metadata
 const courseSchema = new Schema<ICourse>(
@@ -69,66 +137,14 @@ const courseSchema = new Schema<ICourse>(
       unique: true,
       trim: true,
     },
-    authorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Author",
-      default: null,
+    authorId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Author" }],
+    status: {
+      type: String,
+      enum: Object.values(CourseStatus),
+      default: CourseStatus.DRAFT,
     },
-    content: [
-      {
-        sectionTitle: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        sectionContent: {
-          type: String,
-          required: true,
-        },
-        slug: {
-          type: String,
-          required: true,
-          unique: true,
-          trim: true,
-        },
-        group: {
-          type: String,
-          required: true,
-          trim: true, // New field for grouping
-        },
-        order: {
-          type: Number,
-          required: true,
-          default: 0, // Default order value for each section
-        },
-        metadata: {
-          sectionMetaTitle: {
-            type: String,
-            required: true,
-            trim: true,
-          },
-          sectionMetaDesc: {
-            type: String,
-            required: true,
-            trim: true,
-          },
-          sectionMetaKeywords: {
-            type: [String],
-            required: true,
-            default: [],
-          },
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-        updatedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    metadata: {
+    contentGroups: [ContentGroupSchema],
+    metaData: {
       tags: {
         type: [String],
         required: true,
@@ -157,9 +173,52 @@ const courseSchema = new Schema<ICourse>(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields for the whole document
+    timestamps: true,
   }
 );
+
+courseSchema.methods.saveSlug = async function () {
+  const baseSlug = generateUniqueSlug(this.title);
+  let slug = baseSlug;
+  let slugExists = await Course.findOne({ slug });
+
+  // If the slug already exists, append a number to make it unique
+  let counter = 1;
+  while (slugExists) {
+    slug = `${baseSlug}-${counter}`;
+    slugExists = await Course.findOne({ slug });
+    counter++;
+  }
+  this.slug = slug;
+  return slug;
+};
+
+// Custom validation for ensuring groups are ordered correctly
+courseSchema.pre("validate", function (next) {
+  // Check if contentGroups have unique order values
+  const groupOrders = this.contentGroups.map((group) => group.order);
+  const uniqueGroupOrders = new Set(groupOrders);
+
+  if (groupOrders.length !== uniqueGroupOrders.size) {
+    return next(new Error("Content groups must have unique order values"));
+  }
+
+  // Check if sections within each group have unique order values
+  for (const group of this.contentGroups) {
+    const sectionOrders = group.sections.map((section) => section.order);
+    const uniqueSectionOrders = new Set(sectionOrders);
+
+    if (sectionOrders.length !== uniqueSectionOrders.size) {
+      return next(
+        new Error(
+          `Sections in group "${group.title}" must have unique order values`
+        )
+      );
+    }
+  }
+
+  next();
+});
 
 // Create a model from the schema
 const Course = mongoose.model<ICourse>("Course", courseSchema);
