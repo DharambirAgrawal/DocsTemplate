@@ -36,8 +36,9 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "/dashboard/images/gallery",
     "/dashboard/my-posts",
     "/dashboard/preview/blog/*",
-    "/dashboard/course/upload",
+    "/dashboard/course/upload/*",
     "/dashboard/course/view",
+    "/dashboard/course/upload",
   ],
   ADMIN: [
     "/dashboard/home",
@@ -49,6 +50,7 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "/dashboard/posts/view",
     "/dashboard/posts/upload",
     "/dashboard/settings",
+    "/dashboard/course/upload/*",
     "/dashboard/course/upload",
     "/dashboard/course/view",
     "/dashboard/preview/blog/*",

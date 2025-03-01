@@ -1,5 +1,8 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { publishCourse } from "../../dashboard/course/actions";
+import { title } from "process";
+import { showToast } from "@/features/ToastNotification/useToast";
 
 interface Metadata {
   tags: string[];
@@ -39,6 +42,7 @@ const AddCourseForm = ({ onCancel }: AddCourseFormProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentTag, setCurrentTag] = useState<string>("");
   const [currentKeyword, setCurrentKeyword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Handle form input changes
   const handleChange = (
@@ -140,62 +144,33 @@ const AddCourseForm = ({ onCancel }: AddCourseFormProps) => {
     }
   };
 
-  // Validate the form
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Title is required";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
-    if (!formData.duration.trim()) {
-      newErrors.duration = "Duration is required";
-    }
-
-    if (!formData.category.trim()) {
-      newErrors.category = "Category is required";
-    }
-
-    if (!formData.metadata.seoTitle.trim()) {
-      newErrors["metadata.seoTitle"] = "SEO Title is required";
-    }
-
-    if (!formData.metadata.seoDescription.trim()) {
-      newErrors["metadata.seoDescription"] = "SEO Description is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   // Handle form submission
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, status: string) => {
     e.preventDefault();
-
-    if (validateForm()) {
-      // Generate a slug from the title
-      const slug = formData.title
-        .toLowerCase()
-        .replace(/[^\w\s]/gi, "")
-        .replace(/\s+/g, "-");
-
-      // Create the complete course object
-      const courseData = {
-        ...formData,
-        slug,
-        content: [], // Empty content array initially
-      };
-
-      // onSave(courseData);
+    setLoading(true);
+    // Create the complete course object
+    const courseData = {
+      title: formData.title,
+      description: formData.description,
+      duration: formData.duration,
+      level: formData.level,
+      category: formData.category,
+      status: status,
+      ...formData.metadata,
+    };
+    const res = await publishCourse(courseData);
+    if (!res.success) {
+      showToast("error", res.error?.message || "Something went wrong");
+      setLoading(false);
+      return;
     }
+    showToast("success", res.message || "Course published successfully");
+    setLoading(false);
+    onCancel();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={(e) => handleSubmit(e, "publish")}>
       {/* Basic Information */}
       <div>
         <h4 className="text-sm font-medium text-gray-700 mb-3">
@@ -487,10 +462,20 @@ const AddCourseForm = ({ onCancel }: AddCourseFormProps) => {
           Cancel
         </button>
         <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+          type="button"
+          onClick={(e) => handleSubmit(e, "draft")}
+          className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={loading}
         >
-          Save Course
+          {loading ? "Saving..." : "Save as Draft"}
+        </button>
+        <button
+          type="submit"
+          onClick={(e) => handleSubmit(e, "publish")}
+          className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={loading}
+        >
+          {loading ? "Publishing..." : "Publish"}
         </button>
       </div>
     </form>
