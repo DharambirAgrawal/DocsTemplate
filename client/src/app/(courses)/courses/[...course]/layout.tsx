@@ -9,7 +9,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return notFound();
+  // return notFound();
   return (
     <>
       <DefaultLayout>
