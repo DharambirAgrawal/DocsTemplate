@@ -14,6 +14,8 @@ export interface ICourse extends Document {
     sectionTitle: string;
     sectionContent: string;
     slug: string; // Slug for SEO-friendly URL
+    group: string; // New field for grouping sections (e.g., 'Basic', 'OOP', 'Loops')
+    order: number; // Field to specify the order of the sections within a group
     metadata: {
       sectionMetaTitle: string; // SEO title for the section
       sectionMetaDesc: string; // SEO description for the section
@@ -89,10 +91,15 @@ const courseSchema = new Schema<ICourse>(
           unique: true,
           trim: true,
         },
-        published: {
-          type: Boolean,
+        group: {
+          type: String,
           required: true,
-          default: false,
+          trim: true, // New field for grouping
+        },
+        order: {
+          type: Number,
+          required: true,
+          default: 0, // Default order value for each section
         },
         metadata: {
           sectionMetaTitle: {
@@ -111,7 +118,6 @@ const courseSchema = new Schema<ICourse>(
             default: [],
           },
         },
-        // Add timestamps to each section
         createdAt: {
           type: Date,
           default: Date.now,
