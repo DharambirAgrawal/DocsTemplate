@@ -64,6 +64,8 @@ const UsersTable: React.FC<UserTableProps> = ({
                   src={user.providerProfileImage || "/placeholder.svg"}
                   alt={`${user.firstName} ${user.lastName}`}
                   className="w-10 h-10 rounded-full"
+                  width={40}
+                  height={40}
                 />
               </td>
               <td className="py-3 px-6 text-left">{`${user.firstName} ${user.lastName}`}</td>

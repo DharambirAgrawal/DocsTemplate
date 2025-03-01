@@ -10,7 +10,13 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <DashboardHome />
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <p>
+          We are currently working on it to prepare. Sorry for the
+          inconvenience.
+        </p>
+      </div>
+      {/* <DashboardHome /> */}
     </>
   );
 }

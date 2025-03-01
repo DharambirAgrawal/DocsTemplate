@@ -17,14 +17,14 @@ const REDIRECT_URL = "/dashboard/home";
 const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   USER: [
     "/dashboard/home",
-    "/dashboard/profile",
-    "/dashboard/calendar",
-    "/dashboard/images/upload",
-    "/dashboard/images/gallery",
-    "/dashboard/users",
-    "/dashboard/posts/view",
-    "/dashboard/posts/upload",
-    "/dashboard/settings",
+    // "/dashboard/profile",
+    // "/dashboard/calendar",
+    // "/dashboard/images/upload",
+    // "/dashboard/images/gallery",
+    // "/dashboard/users",
+    // "/dashboard/posts/view",
+    // "/dashboard/posts/upload",
+    // "/dashboard/settings",
   ],
   AUTHOR: [
     "/dashboard/home",
