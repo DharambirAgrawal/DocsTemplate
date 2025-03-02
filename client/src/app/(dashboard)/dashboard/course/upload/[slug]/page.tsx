@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import DraggableTable from "@/app/(dashboard)/components/courses/DragTable";
 
 const CourseContentPage = () => {
   const router = useRouter();
@@ -814,6 +815,7 @@ const CourseContentPage = () => {
           </div>
         </div>
       )}
+      <DraggableTable />
     </div>
   );
 };

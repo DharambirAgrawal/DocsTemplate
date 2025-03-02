@@ -6,6 +6,7 @@ import Link from "next/link";
 import { deleteCourseAction } from "../../dashboard/course/actions";
 import { useConfirmation } from "@/features/Confirmation/AdvanceConfirmation";
 import { showToast } from "@/features/ToastNotification/useToast";
+import EditCourseForm from "./EditCourseForm";
 
 // Define the types for course data
 interface Course {
@@ -16,7 +17,11 @@ interface Course {
   category: string;
   duration: string;
   metaData: {
-    views: number;
+    tags: string[];
+    seoTitle: string;
+    seoDescription: string;
+    seoKeywords: string[];
+    views?: number;
   };
 }
 const getCourseCache = cache(getCourses);
@@ -24,6 +29,8 @@ const getCourseCache = cache(getCourses);
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]); // Type the state for courses
   const [isLoading, setIsLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const { confirm } = useConfirmation();
   const handleRefresh = async () => {
     setIsLoading(true);
@@ -79,6 +86,15 @@ const CourseTable = () => {
       showToast("error", res.error?.message || "Something went wrong");
       return;
     }
+  };
+
+  const closeEditCourseModal = (): void => {
+    setShowEditModal(false);
+  };
+
+  const handleEdit = (course: Course) => {
+    setSelectedCourse(course);
+    setShowEditModal(true);
   };
 
   return (
@@ -195,7 +211,11 @@ const CourseTable = () => {
                   >
                     Add Content
                   </Link>
-                  <button className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md text-sm">
+                  <button
+                    className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md text-sm"
+                    onClick={() => handleEdit(course)}
+                    type="button"
+                  >
                     Edit
                   </button>
                   <button
@@ -210,6 +230,27 @@ const CourseTable = () => {
             </li>
           ))}
         </ul>
+      )}
+
+      {showEditModal && selectedCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+          <div className="bg-white rounded-lg max-w-lg w-full mx-4 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Edit Course</h3>
+            </div>
+            <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <p className="text-sm text-gray-600 mb-4">
+                Edit the details of the course below.
+              </p>
+
+              {/* Add course form will be implemented in the next part */}
+              <EditCourseForm
+                onCancel={closeEditCourseModal}
+                course={selectedCourse}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
