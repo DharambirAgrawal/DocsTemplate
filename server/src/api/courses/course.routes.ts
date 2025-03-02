@@ -21,4 +21,4 @@ export const courseRouter = CourseRouter.post(
     verifyAccessTokenMiddleware,
     catchAsync(deleteCourse)
   )
-  .put("/update", catchAsync(updateCourse));
+  .put("/update", verifyAccessTokenMiddleware, catchAsync(updateCourse));
