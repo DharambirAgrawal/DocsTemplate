@@ -80,8 +80,8 @@ const CourseTable = () => {
     if (result.confirmed && result.data === "DELETE") {
       const res = await deleteCourseAction(slug);
       if (res.success) {
-        return showToast("success", res.message || "Success");
         handleRefresh();
+        return showToast("success", res.message || "Success");
       }
       showToast("error", res.error?.message || "Something went wrong");
       return;

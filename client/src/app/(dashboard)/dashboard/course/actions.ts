@@ -143,3 +143,67 @@ export const updateCourseAction = asyncErrorHandler(async (formData: any) => {
     };
   }
 });
+
+export const getCourseAction = asyncErrorHandler(async (slug: string) => {
+  if (!slug) {
+    throw new AppError("Slug is required", 400);
+  }
+  const data = await fetchWithTokenRefresh(`/api/course/course/${slug}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!data.success) {
+    throw new AppError(data.message || "Course not found", 400);
+  } else {
+    return {
+      data: data.data,
+      success: data.success,
+    };
+  }
+});
+
+export const updateCourseContentAction = asyncErrorHandler(
+  async (formData: any, type: string) => {
+    if (type == "group") {
+      const requiredFields = ["slug", "title"];
+      const missingFields = requiredFields.filter((field) => !formData[field]);
+      if (missingFields.length > 0) {
+        throw new AppError(
+          `Missing required fields: ${missingFields.join(", ")}`,
+          400
+        );
+      }
+    } else {
+      const requiredFields = ["content", "title", "id"];
+      const missingFields = requiredFields.filter((field) => !formData[field]);
+      if (missingFields.length > 0) {
+        throw new AppError(
+          `Missing required fields: ${missingFields.join(", ")}`,
+          400
+        );
+      }
+    }
+
+    const data = await fetchWithTokenRefresh(
+      `/api/course/updatecontent/${formData.slug}?type=${type}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
+
+    if (!data.success) {
+      throw new AppError(data.message || "Course not updated", 400);
+    } else {
+      return {
+        data: data.data,
+        success: data.success,
+      };
+    }
+  }
+);
