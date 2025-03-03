@@ -11,6 +11,7 @@ interface ICourseContent extends Document {
     metaDescription: string;
     metaKeywords: string[];
   };
+  saveSlug: () => Promise<string>;
   createdAt: Date;
   updatedAt: Date;
 }

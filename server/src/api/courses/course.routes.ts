@@ -6,8 +6,8 @@ import {
   deleteCourse,
   updateCourse,
   getCourse,
-  editCourseContent,
 } from "./course.controller";
+import { uploadCourseContent } from "./content.controller";
 import { verifyAuthor } from "../blog/blog.middleware";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
 const CourseRouter = express.Router();
@@ -26,7 +26,7 @@ export const courseRouter = CourseRouter.post(
   .put("/update", verifyAccessTokenMiddleware, catchAsync(updateCourse))
   .get("/course/:slug", verifyAccessTokenMiddleware, catchAsync(getCourse))
   .put(
-    "/updatecontent/:slug",
+    "/publishcontent/:slug",
     verifyAccessTokenMiddleware,
-    catchAsync(editCourseContent)
+    catchAsync(uploadCourseContent)
   );
