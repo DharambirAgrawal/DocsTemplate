@@ -7,7 +7,6 @@ const CourseContentPage = async ({
 }) => {
   const slug = (await params).slug;
   const course = await getCourseAction(slug);
-  console.log("course", course);
   if (!course.success) {
     return <div>Course not found</div>;
   }

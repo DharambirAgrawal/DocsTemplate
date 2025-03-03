@@ -187,7 +187,7 @@ export const updateCourseContentAction = asyncErrorHandler(
     }
 
     const data = await fetchWithTokenRefresh(
-      `/api/course/updatecontent/${formData.slug}?type=${type}`,
+      `/api/course/publishcontent/${formData.slug}?type=${type}`,
       {
         method: "PUT",
         headers: {
@@ -200,6 +200,12 @@ export const updateCourseContentAction = asyncErrorHandler(
     if (!data.success) {
       throw new AppError(data.message || "Course not updated", 400);
     } else {
+      revalidatePath(
+        `(dashboard)/dashboard/course/upload/${formData.slug}`,
+        "page"
+      );
+      revalidatePath(`/dashboard/course/upload/${formData.slug}`);
+
       return {
         data: data.data,
         success: data.success,

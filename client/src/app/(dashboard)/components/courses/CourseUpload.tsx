@@ -6,11 +6,14 @@ import { updateCourseContentAction } from "../../dashboard/course/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 import AddContent from "./AddContent";
 import EditContent from "./EditContent";
+import { getCourseAction } from "../../dashboard/course/actions";
+
 interface CourseSectionType {
+  _id: string;
   title: string;
   content: string;
   slug: string;
-  order?: number;
+  order: number;
   metaData: {
     metaTitle: string;
     metaDescription: string;
@@ -44,14 +47,49 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
 
   const [showAddGroupModal, setShowAddGroupModal] = useState(false);
   const [newGroup, setNewGroup] = useState("");
+  const [editSection, setEditSection] = useState<CourseSectionType | null>(
+    null
+  );
 
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<{
+    _id: string;
+    title: string;
+    order: number;
+    sections: CourseSectionType[];
+  }>();
 
-  // Group content sections by their group
+  // Function to refresh course data
+  const refreshCourseData = async () => {
+    setIsLoading(true);
+    try {
+      const refreshedCourse = await getCourseAction(course.slug);
+      if (refreshedCourse.success) {
+        setCourse(refreshedCourse.data);
+      } else {
+        showToast("error", "Failed to refresh course data");
+      }
+    } catch (error) {
+      console.error("Error refreshing course data:", error);
+      showToast("error", "An error occurred while refreshing data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Open add section modal
-  const openAddSectionModal = () => {
+  const openAddSectionModal = (sectionData: {
+    _id: string;
+    title: string;
+    order: number;
+    sections: CourseSectionType[];
+  }) => {
+    setSelectedSection(sectionData);
     setShowAddSectionModal(true);
+  };
+
+  const handleUpdateOrder = async (updatedContents: CourseSectionType[]) => {
+    // Implement the logic to handle the updated order of sections
   };
 
   // Open add group modal
@@ -62,40 +100,70 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
   // Handle adding a new group
   const handleAddGroup = async () => {
     if (newGroup.trim()) {
+      setIsLoading(true);
       const formData = {
         title: newGroup,
         slug: course.slug,
       };
-      const res = await updateCourseContentAction(formData, "group");
-      if (!res.success) {
-        showToast("error", res.error?.message || "Something went wrong");
-      } else {
-        showToast("success", res.message || "Group published successfully");
+      try {
+        const res = await updateCourseContentAction(formData, "group");
+        if (!res.success) {
+          showToast("error", res.error?.message || "Something went wrong");
+        } else {
+          showToast("success", res.message || "Group published successfully");
+          // Refresh the course data after successful group addition
+          await refreshCourseData();
+        }
+      } catch (error) {
+        console.error("Error adding group:", error);
+        showToast("error", "An error occurred while adding the group");
+      } finally {
+        setNewGroup("");
+        setShowAddGroupModal(false);
+        setIsLoading(false);
       }
-      setNewGroup("");
-      setShowAddGroupModal(false);
     }
   };
 
   // Open edit section modal
-  const openEditSectionModal = () => {
+  const openEditSectionModal = (sectionContent: CourseSectionType) => {
+    setEditSection(sectionContent);
     setShowEditSectionModal(true);
   };
 
   // Delete section
-  const handleDeleteSection = (sectionId: string) => {
+  const handleDeleteSection = async (sectionId: string) => {
     if (window.confirm("Are you sure you want to delete this section?")) {
+      // Implement delete functionality here
+      // After successful deletion, refresh the course data
+      await refreshCourseData();
     }
   };
 
   // Delete group and all its sections
-  const handleDeleteGroup = () => {
+  const handleDeleteGroup = async (groupId: string) => {
     if (
       window.confirm(
         `Are you sure you want to delete the group and all its sections?`
       )
     ) {
+      // Implement delete group functionality here
+      // After successful deletion, refresh the course data
+      await refreshCourseData();
     }
+  };
+
+  // Close section modal and refresh data
+  const handleSectionModalClose = async (wasAdded: boolean) => {
+    setShowAddSectionModal(false);
+    if (wasAdded) {
+      await refreshCourseData();
+    }
+  };
+
+  // Close edit modal and refresh data
+  const handleEditModalClose = async () => {
+    setShowEditSectionModal(false);
   };
 
   if (isLoading) {
@@ -112,7 +180,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
     <div className="container mx-auto p-4">
       <div className="mb-6">
         <Link
-          href="/courses"
+          href="/dashboard/course/upload"
           className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
         >
           ← Back to Courses
@@ -154,25 +222,18 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
               <h2 className="text-xl font-semibold">{groupContent.title}</h2>
               <div>
                 <button
-                  onClick={() => openAddSectionModal()}
+                  onClick={() => openAddSectionModal(groupContent)}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2"
                 >
                   Add Section
                 </button>
                 <button
-                  onClick={() => handleDeleteGroup()}
+                  onClick={() => handleDeleteGroup(groupContent._id)}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Delete Group
                 </button>
               </div>
-              {/* Add Section Modal */}
-              {showAddSectionModal && (
-                <AddContent
-                  setShowAddSectionModal={setShowAddSectionModal}
-                  groupContent={groupContent}
-                />
-              )}
             </div>
 
             {/* Sections in this group */}
@@ -188,6 +249,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
                     ondelete={handleDeleteSection}
                     onedit={openEditSectionModal}
                     course={groupContent.sections}
+                    onUpdateOrder={handleUpdateOrder}
                   />
                 </>
               )}
@@ -231,10 +293,20 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
           </div>
         </div>
       )}
+      {showAddSectionModal && selectedSection && (
+        <AddContent
+          setShowAddSectionModal={handleSectionModalClose}
+          groupContent={selectedSection}
+          slug={course.slug}
+        />
+      )}
 
       {/* Edit Section Modal */}
-      {showEditSectionModal && (
-        <EditContent setShowEditSectionModal={setShowEditSectionModal} />
+      {showEditSectionModal && editSection && (
+        <EditContent
+          setShowEditSectionModal={handleEditModalClose}
+          editContent={editSection}
+        />
       )}
     </div>
   );

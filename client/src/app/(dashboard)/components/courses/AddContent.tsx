@@ -21,11 +21,13 @@ interface AddContentProp {
     order: number;
     sections: CourseSectionType[];
   };
+  slug: string;
 }
 
 const AddContent = ({
   setShowAddSectionModal,
   groupContent,
+  slug,
 }: AddContentProp) => {
   const [newSection, setNewSection] = useState<CourseSectionType>({
     title: "",
@@ -44,6 +46,7 @@ const AddContent = ({
     const formData = {
       ...newSection,
       id: id,
+      slug: slug,
     };
     const res = await updateCourseContentAction(formData, "content");
     if (res.success) {
