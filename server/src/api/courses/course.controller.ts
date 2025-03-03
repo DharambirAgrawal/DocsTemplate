@@ -172,3 +172,139 @@ export const updateCourse = async (req: Request, res: Response) => {
     data: "Course updated successfully",
   });
 };
+
+export const getCourse = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const { content } = req.query;
+  const role = (req as any).role;
+
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorized to get the post", 400);
+  }
+  const course = await Course.findOne({ slug }).select("-__v -_id");
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+  return res.status(200).json({
+    success: true,
+    data: course,
+  });
+};
+
+export const editCourseContent = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const content = req.body;
+  const role = (req as any).role;
+  const { type } = req.query as { type: "group" | "content" };
+
+  if (role !== "ADMIN" && role !== "AUTHOR") {
+    throw new AppError("Not Authorized to edit the content", 400);
+  }
+
+  let course;
+
+  if (type === "group") {
+    // Get the existing course with the provided slug
+    course = await Course.findOne({ slug });
+    const contentGroup = {
+      order: 0,
+      title: "",
+      sections: [],
+    };
+
+    if (!course) {
+      throw new AppError("Course not found", 404);
+    }
+    // Check if `content` (new group) is missing an order, assign next available order if necessary
+    if (content) {
+      // If contentGroups is empty, assign the order as 1, else calculate next available order
+      if (course.contentGroups === null) {
+        contentGroup.order = 1; // First content group gets order 1
+      } else {
+        // Find the highest existing order value in contentGroups
+        const highestOrder = course.contentGroups.reduce((maxOrder, group) => {
+          return group.order > maxOrder ? group.order : maxOrder;
+        }, 0);
+
+        // Set the new content group's order to the next available number
+        contentGroup.order = highestOrder + 1;
+      }
+    }
+    if (!content.title) {
+      throw new AppError("Title is required", 400);
+    }
+    contentGroup.title = content.title;
+
+    // Add the new content group to the contentGroups array
+    course.contentGroups.push(contentGroup);
+
+    // Save the updated course
+    await course.save();
+  } else {
+    const section = {
+      title: "",
+      content: "",
+      slug: "",
+      order: 0,
+      metaData: {
+        metaTitle: "",
+        metaDescription: "",
+        metaKeywords: [],
+      },
+    };
+
+    // Get the existing course with the provided slug
+    course = await Course.findOne(
+      {
+        "contentGroups._id": content.id,
+      },
+      { "contentGroups.$": 1 } // This ensures only the matched contentGroup is returned
+    ).exec();
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
+    // Extract the matched content group from the course document
+    const contentGroup = course.contentGroups[0];
+    // Check if `content` (new group) is missing an order, assign next available order if necessary
+    if (contentGroup) {
+      // If contentGroups is empty, assign the order as 1, else calculate next available order
+      if (contentGroup.sections === null) {
+        contentGroup.order = 1; // First content group gets order 1
+      } else {
+        // Find the highest existing order value in contentGroups
+        const highestOrder = course.contentGroups.reduce((maxOrder, group) => {
+          return group.order > maxOrder ? group.order : maxOrder;
+        }, 0);
+
+        // Set the new content group's order to the next available number
+        contentGroup.order = highestOrder + 1;
+      }
+    }
+    if (!content.title) {
+      throw new AppError("Title is required", 400);
+    }
+    section.title = content.title;
+    section.content = content.content;
+    section.metaData = {
+      metaTitle: content.metaData.metaTitle,
+      metaDescription: content.metaData.metaDescription,
+      metaKeywords: content.metaData.metaKeywords,
+    };
+
+    // Add the new content group to the contentGroups array
+
+    // Save the updated course
+    await course.save();
+  }
+
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: course,
+  });
+};

@@ -5,6 +5,8 @@ import {
   getCourses,
   deleteCourse,
   updateCourse,
+  getCourse,
+  editCourseContent,
 } from "./course.controller";
 import { verifyAuthor } from "../blog/blog.middleware";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
@@ -21,4 +23,10 @@ export const courseRouter = CourseRouter.post(
     verifyAccessTokenMiddleware,
     catchAsync(deleteCourse)
   )
-  .put("/update", verifyAccessTokenMiddleware, catchAsync(updateCourse));
+  .put("/update", verifyAccessTokenMiddleware, catchAsync(updateCourse))
+  .get("/course/:slug", verifyAccessTokenMiddleware, catchAsync(getCourse))
+  .put(
+    "/updatecontent/:slug",
+    verifyAccessTokenMiddleware,
+    catchAsync(editCourseContent)
+  );
