@@ -78,7 +78,7 @@ const CourseTable = () => {
       ),
     });
     if (result.confirmed && result.data === "DELETE") {
-      const res = await deleteCourseAction(slug);
+      const res = await deleteCourseAction(slug, "course");
       if (res.success) {
         handleRefresh();
         return showToast("success", res.message || "Success");

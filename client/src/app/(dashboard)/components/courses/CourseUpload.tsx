@@ -1,8 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useConfirmation } from "@/features/Confirmation/AdvanceConfirmation";
 import Link from "next/link";
 import DraggableTable from "@/app/(dashboard)/components/courses/DragTable";
-import { updateCourseContentAction } from "../../dashboard/course/actions";
+import {
+  deleteContentAction,
+  deleteCourseAction,
+  publishCourseContentAction,
+} from "../../dashboard/course/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 import AddContent from "./AddContent";
 import EditContent from "./EditContent";
@@ -44,13 +49,11 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
   const [course, setCourse] = useState<CourseType>(initialcourse);
   const [isLoading, setIsLoading] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
-
   const [showAddGroupModal, setShowAddGroupModal] = useState(false);
   const [newGroup, setNewGroup] = useState("");
   const [editSection, setEditSection] = useState<CourseSectionType | null>(
     null
   );
-
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState<{
     _id: string;
@@ -58,6 +61,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
     order: number;
     sections: CourseSectionType[];
   }>();
+  const { confirm } = useConfirmation();
 
   // Function to refresh course data
   const refreshCourseData = async () => {
@@ -106,7 +110,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
         slug: course.slug,
       };
       try {
-        const res = await updateCourseContentAction(formData, "group");
+        const res = await publishCourseContentAction(formData, "group");
         if (!res.success) {
           showToast("error", res.error?.message || "Something went wrong");
         } else {
@@ -133,23 +137,75 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
 
   // Delete section
   const handleDeleteSection = async (sectionId: string) => {
-    if (window.confirm("Are you sure you want to delete this section?")) {
-      // Implement delete functionality here
-      // After successful deletion, refresh the course data
+    const result = await confirm({
+      title: "Delete Account",
+      description:
+        "Are you sure you want to delete the content? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+      contentComponent: ({ onDataChange }) => (
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Type "DELETE" to confirm
+          </label>
+          <input
+            type="text"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 sm:text-sm"
+            placeholder="DELETE"
+            onChange={(e) => onDataChange(e.target.value)}
+          />
+        </div>
+      ),
+    });
+    if (result.confirmed && result.data === "DELETE") {
+      const res = await deleteContentAction(sectionId);
+      if (!res.success) {
+        showToast("error", res.error?.message || "Something went wrong");
+      } else {
+        showToast("success", res.message || "Content deleted successfully");
+      }
       await refreshCourseData();
+    } else {
+      showToast("error", "Content not deleted");
     }
   };
 
   // Delete group and all its sections
-  const handleDeleteGroup = async (groupId: string) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the group and all its sections?`
-      )
-    ) {
+  const handleDeleteGroup = async (slug: string, groupId: string) => {
+    const result = await confirm({
+      title: "Delete Account",
+      description:
+        "Are you sure you want to delete the Section? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+      contentComponent: ({ onDataChange }) => (
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Type "DELETE" to confirm
+          </label>
+          <input
+            type="text"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-500 sm:text-sm"
+            placeholder="DELETE"
+            onChange={(e) => onDataChange(e.target.value)}
+          />
+        </div>
+      ),
+    });
+    if (result.confirmed && result.data === "DELETE") {
+      const res = await deleteCourseAction(slug, "group", groupId);
+      if (!res.success) {
+        showToast("error", res.error?.message || "Something went wrong");
+      } else {
+        showToast("success", res.message || "Section deleted successfully");
+      }
       // Implement delete group functionality here
       // After successful deletion, refresh the course data
       await refreshCourseData();
+    } else {
+      showToast("error", "Group not deleted");
     }
   };
 
@@ -228,7 +284,9 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
                   Add Section
                 </button>
                 <button
-                  onClick={() => handleDeleteGroup(groupContent._id)}
+                  onClick={() =>
+                    handleDeleteGroup(course.slug, groupContent._id)
+                  }
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Delete Group
@@ -306,6 +364,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
         <EditContent
           setShowEditSectionModal={handleEditModalClose}
           editContent={editSection}
+          refreshCourseData={refreshCourseData}
         />
       )}
     </div>

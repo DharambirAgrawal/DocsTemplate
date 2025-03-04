@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-
+import { updateCourseContentAction } from "../../dashboard/course/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
 interface CourseSectionType {
   _id: string;
   slug: string;
@@ -17,12 +18,18 @@ interface CourseSectionType {
 interface EditProp {
   setShowEditSectionModal: (show: boolean) => void;
   editContent: CourseSectionType;
+  refreshCourseData: () => void;
 }
 
-const EditContent = ({ setShowEditSectionModal, editContent }: EditProp) => {
+const EditContent = ({
+  setShowEditSectionModal,
+  editContent,
+  refreshCourseData,
+}: EditProp) => {
   // State for the section being edited
   const [editSection, setEditSection] =
     useState<CourseSectionType>(editContent);
+  const [loading, setLoading] = useState(false);
 
   const [currentKeyword, setCurrentKeyword] = useState("");
 
@@ -48,11 +55,18 @@ const EditContent = ({ setShowEditSectionModal, editContent }: EditProp) => {
     });
   };
 
-  const handleUpdateSection = () => {
-    // Here you would call your API or update logic to save the changes
-    console.log("Updated section: ", editSection);
+  const handleUpdateContent = async (id: string) => {
+    setLoading(true);
+    const res = await updateCourseContentAction(editSection, id);
+    if (res.success) {
+      showToast("success", res.message || "Content Updated successfully");
+      refreshCourseData();
+    } else {
+      showToast("error", res.error?.message || "Something went wrong");
+    }
     // Close the modal after update
     setShowEditSectionModal(false);
+    setLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -110,7 +124,7 @@ const EditContent = ({ setShowEditSectionModal, editContent }: EditProp) => {
             value={editSection.title}
             onChange={handleEditSectionChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter section title"
+            placeholder="Enter content title"
             required
           />
         </div>
@@ -124,23 +138,9 @@ const EditContent = ({ setShowEditSectionModal, editContent }: EditProp) => {
             value={editSection.content}
             onChange={handleEditSectionChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
-            placeholder="Enter section content"
+            placeholder="Enter content"
             required
           ></textarea>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Slug
-          </label>
-          <input
-            type="text"
-            name="slug"
-            value={editSection.slug}
-            onChange={handleEditSectionChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="section-slug"
-          />
         </div>
 
         <h3 className="text-lg font-semibold mb-2 mt-4">SEO Metadata</h3>
@@ -222,10 +222,11 @@ const EditContent = ({ setShowEditSectionModal, editContent }: EditProp) => {
             Cancel
           </button>
           <button
-            onClick={handleUpdateSection}
+            disabled={loading}
+            onClick={() => handleUpdateContent(editSection._id)}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            Update Section
+            {loading ? "Updating..." : "Update Section"}
           </button>
         </div>
       </div>

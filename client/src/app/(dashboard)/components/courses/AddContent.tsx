@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { updateCourseContentAction } from "../../dashboard/course/actions";
+import { publishCourseContentAction } from "../../dashboard/course/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 interface CourseSectionType {
   title: string;
@@ -42,13 +42,12 @@ const AddContent = ({
 
   const handleAddSection = async () => {
     const id = groupContent._id;
-    console.log("New Section Data:", newSection);
     const formData = {
       ...newSection,
       id: id,
       slug: slug,
     };
-    const res = await updateCourseContentAction(formData, "content");
+    const res = await publishCourseContentAction(formData, "content");
     if (res.success) {
       showToast("success", res.message || "Content Added successfully");
     } else {

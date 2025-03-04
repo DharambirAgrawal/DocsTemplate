@@ -85,24 +85,33 @@ export const getCourses = asyncErrorHandler(async () => {
   }
 });
 
-export const deleteCourseAction = asyncErrorHandler(async (slug: string) => {
-  console.log("deleting...");
-  const data = await fetchWithTokenRefresh(`/api/course/course/${slug}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const deleteCourseAction = asyncErrorHandler(
+  async (slug: string, type: "course" | "group", groupId?: string) => {
+    // Prepare the URL based on the type of deletion
+    let url = `/api/course/course/${slug}?type=${type}`;
 
-  if (!data.success) {
-    throw new AppError(data.message || "Course not deleted", 400);
-  } else {
-    return {
-      data: data.data,
-      success: data.success,
-    };
+    if (type === "group" && groupId) {
+      url = `/api/course/course/${slug}?groupId=${groupId}&type=${type}`;
+    }
+
+    const data = await fetchWithTokenRefresh(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // Check if the response is successful
+    if (!data.success) {
+      throw new AppError(data.message || "Course not deleted", 400);
+    } else {
+      return {
+        data: data.data,
+        success: data.success,
+      };
+    }
   }
-});
+);
 
 export const updateCourseAction = asyncErrorHandler(async (formData: any) => {
   const requiredFields = [
@@ -164,7 +173,7 @@ export const getCourseAction = asyncErrorHandler(async (slug: string) => {
   }
 });
 
-export const updateCourseContentAction = asyncErrorHandler(
+export const publishCourseContentAction = asyncErrorHandler(
   async (formData: any, type: string) => {
     if (type == "group") {
       const requiredFields = ["slug", "title"];
@@ -188,6 +197,63 @@ export const updateCourseContentAction = asyncErrorHandler(
 
     const data = await fetchWithTokenRefresh(
       `/api/course/publishcontent/${formData.slug}?type=${type}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
+
+    if (!data.success) {
+      throw new AppError(data.message || "Course not updated", 400);
+    } else {
+      revalidatePath(
+        `(dashboard)/dashboard/course/upload/${formData.slug}`,
+        "page"
+      );
+      revalidatePath(`/dashboard/course/upload/${formData.slug}`);
+
+      return {
+        data: data.data,
+        success: data.success,
+      };
+    }
+  }
+);
+
+export const deleteContentAction = asyncErrorHandler(async (id: string) => {
+  const data = await fetchWithTokenRefresh(`/api/course/deletecontent/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!data.success) {
+    throw new AppError(data.message || "Content not deleted", 400);
+  } else {
+    return {
+      data: data.data,
+      success: data.success,
+    };
+  }
+});
+
+export const updateCourseContentAction = asyncErrorHandler(
+  async (formData: any, id: string) => {
+    const requiredFields = ["content", "title", "slug"];
+    const missingFields = requiredFields.filter((field) => !formData[field]);
+    if (missingFields.length > 0) {
+      throw new AppError(
+        `Missing required fields: ${missingFields.join(", ")}`,
+        400
+      );
+    }
+
+    const data = await fetchWithTokenRefresh(
+      `/api/course/updatecontent/${id}`,
       {
         method: "PUT",
         headers: {
