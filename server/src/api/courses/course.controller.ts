@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Course from "../../models/courses/course";
 import { AppError } from "../../errors/AppError";
+import CourseContent from "../../models/courses/content";
 
 export const saveOrPublishCourse = async (req: Request, res: Response) => {
   const {
@@ -94,18 +95,85 @@ export const getCourses = async (req: Request, res: Response) => {
 export const deleteCourse = async (req: Request, res: Response) => {
   const { slug } = req.params;
   const role = (req as any).role;
+  const { type, groupId } = req.query as {
+    type: "group" | "course";
+    groupId?: string;
+  };
 
-  if (role != "ADMIN") {
-    throw new AppError("Not Authorized to delete the post", 400);
+  // Check if the user has the "ADMIN" role and is allowed to delete content
+  if (role !== "ADMIN" && type === "course") {
+    throw new AppError("Not Authorized to delete the content", 400);
   }
-  const course = await Course.findOneAndDelete({ slug });
+  if (role !== "AUTHOR" && role !== "ADMIN") {
+    throw new AppError("Not Authorized to delete the course", 400);
+  }
+
+  // Find the course by slug
+  const course = await Course.findOne({ slug });
   if (!course) {
     throw new AppError("Course not found", 404);
   }
-  return res.status(200).json({
-    success: true,
-    data: "Course deleted successfully",
-  });
+
+  if (type === "course") {
+    // If type is "course", delete the entire course and its content
+    // Find all the CourseContent IDs that are referenced in the course
+    const contentIds = course.contentGroups.flatMap((group) => group.sections);
+
+    // Delete all related CourseContent documents
+    if (contentIds.length > 0) {
+      await CourseContent.deleteMany({
+        _id: { $in: contentIds },
+      });
+    }
+
+    // Delete the course itself using deleteOne
+    await Course.deleteOne({ _id: course._id });
+
+    return res.status(200).json({
+      success: true,
+      data: "Course and related content deleted successfully",
+    });
+  } else if (type === "group") {
+    // If type is "group", delete the specific content group and its content
+    if (!groupId) {
+      throw new AppError("Group ID is required", 400);
+    }
+    console.log("course", course);
+    // Find the content group by ID
+    const contentGroup = course.contentGroups.find(
+      (group) => (group as any)._id.toString() === groupId
+    );
+    if (!contentGroup) {
+      throw new AppError("Content group not found", 404);
+    }
+
+    // Delete all related CourseContent documents for this group
+    const contentIds = contentGroup.sections;
+
+    if (contentIds.length > 0) {
+      await CourseContent.deleteMany({
+        _id: { $in: contentIds },
+      });
+    }
+
+    // Remove the content group from the course
+    course.contentGroups = course.contentGroups.filter(
+      (group) => (group as any)._id.toString() !== groupId
+    );
+    course.contentGroups.forEach((group, index) => {
+      (group as any).order = index + 1; // Reassign order starting from 1
+    });
+
+    await course.save();
+
+    return res.status(200).json({
+      success: true,
+      data: "Content group and related content deleted successfully",
+    });
+  }
+
+  // If an invalid type is provided, return an error
+  throw new AppError("Invalid deletion type specified", 400);
 };
 
 export const updateCourse = async (req: Request, res: Response) => {
@@ -190,5 +258,44 @@ export const getCourse = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     data: course,
+  });
+};
+
+export const updateGroup = async (req: Request, res: Response) => {
+  const { title, description } = req.body;
+  const { slug } = req.query;
+  const role = (req as any).role;
+
+  if (role != "ADMIN" && role != "AUTHOR") {
+    throw new AppError("Not Authorized to update the post", 400);
+  }
+  const requiredFields = ["title", "description"];
+  const missingFields = requiredFields.filter((field) => !req.body[field]);
+  if (missingFields.length > 0) {
+    throw new AppError(
+      `Missing required fields: ${missingFields.join(", ")}`,
+      400
+    );
+  }
+
+  const course = await Course.findOneAndUpdate(
+    { slug },
+    {
+      $set: {
+        "contentGroups.$[group].title": title,
+        "contentGroups.$[group].description": description,
+      },
+    },
+    {
+      arrayFilters: [{ "group.title": title }],
+      new: true,
+    }
+  );
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+  return res.status(200).json({
+    success: true,
+    data: "Group updated successfully",
   });
 };

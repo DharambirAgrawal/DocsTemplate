@@ -137,53 +137,6 @@ courseSchema.methods.saveSlug = async function () {
   return slug;
 };
 
-// Custom validation for ensuring groups are ordered correctly
-// Custom validation for ensuring groups are ordered correctly
-// courseSchema.pre("validate", function (next) {
-//   // Check if contentGroups have unique order values and are not null/undefined
-//   if (this.contentGroups && this.contentGroups.length > 0) {
-//     const groupOrders = this.contentGroups.map((group) => {
-//       if (!group || !group.order) {
-//         throw new Error("Each content group must have a valid order value");
-//       }
-//       return group.order;
-//     });
-//     const uniqueGroupOrders = new Set(groupOrders);
-
-//     if (groupOrders.length !== uniqueGroupOrders.size) {
-//       return next(new Error("Content groups must have unique order values"));
-//     }
-
-//     // Check if sections within each group have unique order values and are not null/undefined
-//     for (const group of this.contentGroups) {
-//       if (!group.sections || group.sections.length === 0) continue; // Skip if no sections
-
-//       const sectionOrders = group.sections.map((section) => {
-//         if (!section || section.order === undefined) {
-//           throw new Error(
-//             `Each section in group "${group.title}" must have a valid order value`
-//           );
-//         }
-//         return section.order;
-//       });
-
-//       const uniqueSectionOrders = new Set(sectionOrders);
-
-//       if (sectionOrders.length !== uniqueSectionOrders.size) {
-//         return next(
-//           new Error(
-//             `Sections in group "${group.title}" must have unique order values`
-//           )
-//         );
-//       }
-//     }
-//   } else {
-//     return next(new Error("Course must have at least one content group"));
-//   }
-
-//   next();
-// });
-
 // Create a model from the schema
 const Course = mongoose.model<ICourse>("Course", courseSchema);
 

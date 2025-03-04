@@ -2,126 +2,8 @@ import { Request, Response } from "express";
 import Course from "../../models/courses/course";
 import { AppError } from "../../errors/AppError";
 import CourseContent from "../../models/courses/content";
+import { fixOrder } from "./course.helper";
 import mongoose from "mongoose";
-
-// export const editCourseContent = async (req: Request, res: Response) => {
-//   const { slug } = req.params;
-//   const content = req.body;
-//   const role = (req as any).role;
-//   const { type } = req.query as { type: "group" | "content" };
-
-//   if (role !== "ADMIN" && role !== "AUTHOR") {
-//     throw new AppError("Not Authorized to edit the content", 400);
-//   }
-
-//   let course;
-
-//   if (type === "group") {
-//     // Get the existing course with the provided slug
-//     course = await Course.findOne({ slug });
-//     const contentGroup = {
-//       order: 0,
-//       title: "",
-//       sections: [],
-//     };
-
-//     if (!course) {
-//       throw new AppError("Course not found", 404);
-//     }
-//     // Check if `content` (new group) is missing an order, assign next available order if necessary
-//     if (content) {
-//       // If contentGroups is empty, assign the order as 1, else calculate next available order
-//       if (course.contentGroups === null) {
-//         contentGroup.order = 1; // First content group gets order 1
-//       } else {
-//         // Find the highest existing order value in contentGroups
-//         const highestOrder = course.contentGroups.reduce((maxOrder, group) => {
-//           return group.order > maxOrder ? group.order : maxOrder;
-//         }, 0);
-
-//         // Set the new content group's order to the next available number
-//         contentGroup.order = highestOrder + 1;
-//       }
-//     }
-//     if (!content.title) {
-//       throw new AppError("Title is required", 400);
-//     }
-//     contentGroup.title = content.title;
-
-//     // Add the new content group to the contentGroups array
-//     course.contentGroups.push(contentGroup);
-
-//     // Save the updated course
-//     await course.save();
-//   } else {
-//     const section = {
-//       title: "",
-//       content: "",
-//       slug: "",
-//       order: 0,
-//       metaData: {
-//         metaTitle: "",
-//         metaDescription: "",
-//         metaKeywords: [],
-//       },
-//     };
-
-//     const newContent = new CourseContent({
-//       title: content.title,
-//       content: content.content,
-//       metaData: {
-//         metaTitle: content.metaData.metaTitle,
-//         metaDescription: content.metaData.metaDescription,
-//         metaKeywords: content.metaData.metaKeywords,
-//       },
-//     });
-//     newContent.saveSlug();
-//     newContent.save();
-//     // Get the existing course with the provided slug
-//     course = await Course.findOne(
-//       {
-//         "contentGroups._id": content.id,
-//       },
-//       { "contentGroups.$": 1 } // This ensures only the matched contentGroup is returned
-//     ).exec();
-
-//     if (!course) {
-//       throw new Error("Course not found");
-//     }
-
-//     // Extract the matched content group from the course document
-//     const contentGroup = course.contentGroups[0];
-//     // Check if `content` (new group) is missing an order, assign next available order if necessary
-//     if (contentGroup) {
-//       // If contentGroups is empty, assign the order as 1, else calculate next available order
-//       if (contentGroup.sections === null) {
-//         contentGroup.order = 1; // First content group gets order 1
-//       } else {
-//         // Find the highest existing order value in contentGroups
-//         const highestOrder = course.contentGroups.reduce((maxOrder, group) => {
-//           return group.order > maxOrder ? group.order : maxOrder;
-//         }, 0);
-
-//         // Set the new content group's order to the next available number
-//         contentGroup.order = highestOrder + 1;
-//       }
-//     }
-//     if (!content.title) {
-//       throw new AppError("Title is required", 400);
-//     }
-
-//     await course.save();
-//   }
-
-//   if (!course) {
-//     throw new AppError("Course not found", 404);
-//   }
-
-//   return res.status(200).json({
-//     success: true,
-//     data: course,
-//   });
-// };
 
 export const uploadCourseContent = async (req: Request, res: Response) => {
   const { slug } = req.params; // Course identifier
@@ -170,7 +52,6 @@ export const uploadCourseContent = async (req: Request, res: Response) => {
     if (!content.title || !content.content || !content.id || !slug) {
       throw new AppError("Aa fields are required", 400);
     }
-    console.log("Content ID:", content.id);
     course = await Course.findOne(
       { "contentGroups._id": content.id },
       { "contentGroups.$": 1 }
@@ -219,6 +100,77 @@ export const uploadCourseContent = async (req: Request, res: Response) => {
     throw new AppError("Invalid content type", 400);
   }
 
+  return res.status(200).json({
+    success: true,
+    data: course,
+  });
+};
+
+export const deleteContent = async (req: Request, res: Response) => {
+  const role = (req as any).role;
+  const id = req.params.id; // Content ID to delete
+
+  // Ensure that the user has permission to delete
+  if (role !== "ADMIN" && role !== "AUTHOR") {
+    throw new AppError("Not Authorized to delete the content", 400);
+  }
+
+  // Step 1: Find and delete the content section
+  const content = await CourseContent.findByIdAndDelete(id);
+  if (!content) {
+    throw new AppError("Content not found", 404);
+  }
+
+  // Step 2: Update contentGroups to remove the deleted content's ID and adjust order
+  const course = await Course.findOne(
+    { "contentGroups.sections": id },
+    { "contentGroups.$": 1 }
+  ).populate({
+    path: "contentGroups.sections", // Populate sections within each content group
+    model: "CourseContent", // The model to use for the sections
+  });
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+
+  // console.log(course.contentGroups[0].sections);
+
+  // Iterate over each content group and remove the deleted content's ID
+
+  // Step 3: Return success response
+  res.status(200).json({
+    success: true,
+    message: "Content deleted",
+  });
+};
+
+export const updateCourseContent = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const { title, content, metaData, slug } = req.body;
+  const role = (req as any).role;
+  if (role !== "ADMIN" && role !== "AUTHOR") {
+    throw new AppError("Not Authorized to update the content", 400);
+  }
+
+  if (!id || !title || !content || !slug || !metaData) {
+    throw new AppError("All fields are required", 400);
+  }
+  const course = await CourseContent.findByIdAndUpdate(
+    id,
+    {
+      title,
+      content,
+      metaData: {
+        metaTitle: metaData.metaTitle,
+        metaDescription: metaData.metaDescription,
+        metaKeywords: metaData.metaKeywords,
+      },
+    },
+    { new: true }
+  );
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
   return res.status(200).json({
     success: true,
     data: course,

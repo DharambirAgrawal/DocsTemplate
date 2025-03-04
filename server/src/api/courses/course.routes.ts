@@ -10,6 +10,7 @@ import {
 import { uploadCourseContent } from "./content.controller";
 import { verifyAuthor } from "../blog/blog.middleware";
 import { verifyAccessTokenMiddleware } from "../auth/auth.middleware";
+import { deleteContent, updateCourseContent } from "./content.controller";
 const CourseRouter = express.Router();
 
 export const courseRouter = CourseRouter.post(
@@ -29,4 +30,14 @@ export const courseRouter = CourseRouter.post(
     "/publishcontent/:slug",
     verifyAccessTokenMiddleware,
     catchAsync(uploadCourseContent)
+  )
+  .delete(
+    "/deletecontent/:id",
+    verifyAccessTokenMiddleware,
+    catchAsync(deleteContent)
+  )
+  .put(
+    "/updatecontent/:id",
+    verifyAccessTokenMiddleware,
+    catchAsync(updateCourseContent)
   );
