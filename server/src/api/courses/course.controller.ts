@@ -81,9 +81,7 @@ export const getCourses = async (req: Request, res: Response) => {
   if (role != "ADMIN" && role != "AUTHOR") {
     throw new AppError("Not Authorized to get the posts", 400);
   }
-  const courses = await Course.find({
-    status: "PUBLISHED",
-  })
+  const courses = await Course.find()
     .select("-__v -contentGroups -_id")
     .sort({ createdAt: -1 });
   return res.status(200).json({
@@ -184,6 +182,7 @@ export const updateCourse = async (req: Request, res: Response) => {
     level,
     category,
     tags,
+    status,
     seoTitle,
     seoDescription,
     seoKeywords,
@@ -201,6 +200,7 @@ export const updateCourse = async (req: Request, res: Response) => {
     "level",
     "category",
     "tags",
+    "status",
     "seoTitle",
     "seoDescription",
     "seoKeywords",
@@ -220,6 +220,7 @@ export const updateCourse = async (req: Request, res: Response) => {
       description,
       duration,
       level,
+      status,
       category,
       metaData: {
         tags,
@@ -262,14 +263,13 @@ export const getCourse = async (req: Request, res: Response) => {
 };
 
 export const updateGroup = async (req: Request, res: Response) => {
-  const { title, description } = req.body;
-  const { slug } = req.query;
+  const { title, id } = req.body;
   const role = (req as any).role;
 
   if (role != "ADMIN" && role != "AUTHOR") {
     throw new AppError("Not Authorized to update the post", 400);
   }
-  const requiredFields = ["title", "description"];
+  const requiredFields = ["title", "id"];
   const missingFields = requiredFields.filter((field) => !req.body[field]);
   if (missingFields.length > 0) {
     throw new AppError(
@@ -278,19 +278,24 @@ export const updateGroup = async (req: Request, res: Response) => {
     );
   }
 
+  if (!title.trim() || !id.trim()) {
+    throw new AppError("Both title and id must be non-empty", 400);
+  }
+
+  // Update the group in the course
   const course = await Course.findOneAndUpdate(
-    { slug },
+    { "contentGroups._id": id },
     {
       $set: {
         "contentGroups.$[group].title": title,
-        "contentGroups.$[group].description": description,
       },
     },
     {
-      arrayFilters: [{ "group.title": title }],
+      arrayFilters: [{ "group._id": id }], // Specify the contentGroup to update
       new: true,
     }
   );
+
   if (!course) {
     throw new AppError("Course not found", 404);
   }

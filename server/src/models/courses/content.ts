@@ -32,6 +32,7 @@ const courseContentSchema = new Schema<ICourseContent>(
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     order: {
       type: Number,

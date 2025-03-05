@@ -6,6 +6,7 @@ import {
   deleteCourse,
   updateCourse,
   getCourse,
+  updateGroup,
 } from "./course.controller";
 import { uploadCourseContent } from "./content.controller";
 import { verifyAuthor } from "../blog/blog.middleware";
@@ -15,6 +16,7 @@ import {
   updateCourseContent,
   updateContentOrder,
 } from "./content.controller";
+import { getPublicCourse, getPublicCourses } from "./public.controller";
 const CourseRouter = express.Router();
 
 export const courseRouter = CourseRouter.post(
@@ -40,6 +42,7 @@ export const courseRouter = CourseRouter.post(
     verifyAccessTokenMiddleware,
     catchAsync(deleteContent)
   )
+  .put("/updategroup", verifyAccessTokenMiddleware, catchAsync(updateGroup))
   .put(
     "/updatecontent/:id",
     verifyAccessTokenMiddleware,
@@ -49,4 +52,6 @@ export const courseRouter = CourseRouter.post(
     "/updatecontentorder",
     verifyAccessTokenMiddleware,
     catchAsync(updateContentOrder)
-  );
+  )
+  .get("/public/courses", catchAsync(getPublicCourses))
+  .get("/public/:slug", catchAsync(getPublicCourse));
