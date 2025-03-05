@@ -92,9 +92,12 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
     setShowAddSectionModal(true);
   };
 
-  const handleUpdateOrder = async (updatedContents: CourseSectionType[]) => {
-    // Implement the logic to handle the updated order of sections
-  };
+  // const handleUpdateOrder = async (
+  //   updatedContents: { id: string; order: number }[]
+  // ) => {
+  //   // Implement the logic to handle the updated order of sections
+  //   console.log("Updated order:", updatedContents);
+  // };
 
   // Open add group modal
   const openAddGroupModal = () => {
@@ -307,7 +310,6 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
                     ondelete={handleDeleteSection}
                     onedit={openEditSectionModal}
                     course={groupContent.sections}
-                    onUpdateOrder={handleUpdateOrder}
                   />
                 </>
               )}

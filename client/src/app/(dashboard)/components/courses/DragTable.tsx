@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { updateOrderAction } from "../../dashboard/course/actions";
+import { showToast } from "@/features/ToastNotification/useToast";
 
 interface ContentType {
   _id: string;
@@ -19,20 +21,24 @@ export default function DraggableTable({
   onedit,
   ondelete,
   course,
-  onUpdateOrder,
 }: {
   onedit: (sectionId: any) => void;
   ondelete: (sectionId: any) => void;
   course: any;
-  onUpdateOrder?: (updatedContents: ContentType[]) => Promise<void>;
 }) {
   const [courseContents, setCourseContents] = useState<ContentType[]>(course);
   const [isOrderChanged, setIsOrderChanged] = useState(false);
   const [originalOrder, setOriginalOrder] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Store the original order when component mounts
   useEffect(() => {
-    setOriginalOrder(course.map((item: ContentType) => item._id));
+    // setOriginalOrder(course.map((item: ContentType) => item._id));
+    const sortedCourse = course.sort(
+      (a: ContentType, b: ContentType) => a.order - b.order
+    );
+    setCourseContents(sortedCourse);
+    setOriginalOrder(sortedCourse.map((item: ContentType) => item._id));
   }, [course]);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -70,10 +76,22 @@ export default function DraggableTable({
   };
 
   const handleSubmitOrder = async () => {
-    if (onUpdateOrder && isOrderChanged) {
-      await onUpdateOrder(courseContents);
-      setIsOrderChanged(false);
-      setOriginalOrder(courseContents.map((item) => item._id));
+    if (isOrderChanged) {
+      setIsLoading(true);
+      const formData = courseContents.map((item) => ({
+        id: item._id,
+        order: item.order,
+      }));
+      const res = await updateOrderAction(formData);
+      if (res.success) {
+        setIsOrderChanged(false);
+        setOriginalOrder(courseContents.map((item) => item._id));
+        showToast("success", res.message || "Order Updated successfully");
+      } else {
+        setIsOrderChanged(true);
+        showToast("error", res.error?.message || "Something went wrong");
+      }
+      setIsLoading(false);
     }
   };
 

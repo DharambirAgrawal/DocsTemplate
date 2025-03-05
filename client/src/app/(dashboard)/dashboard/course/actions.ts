@@ -279,3 +279,21 @@ export const updateCourseContentAction = asyncErrorHandler(
     }
   }
 );
+
+export const updateOrderAction = asyncErrorHandler(async (formData: any) => {
+  const data = await fetchWithTokenRefresh(`/api/course/updatecontentorder`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (!data.success) {
+    throw new AppError(data.message || "Course not updated", 400);
+  } else {
+    return {
+      success: data.success,
+    };
+  }
+});
