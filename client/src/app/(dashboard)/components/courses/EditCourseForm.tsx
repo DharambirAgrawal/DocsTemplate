@@ -20,6 +20,7 @@ interface FormData {
   category: string;
   slug: string;
   metaData: Metadata;
+  status: "PUBLISHED" | "ARCHIVED" | "DRAFT";
 }
 
 interface AddCourseFormProps {
@@ -160,7 +161,7 @@ const AddCourseForm = ({ onCancel, course }: AddCourseFormProps) => {
       duration: formData.duration,
       level: formData.level,
       category: formData.category,
-      status: status,
+      status: formData.status,
       slug: formData.slug,
       ...formData.metaData,
     };
@@ -269,6 +270,25 @@ const AddCourseForm = ({ onCancel, course }: AddCourseFormProps) => {
                 <option value="ADVANCED">Advanced</option>
               </select>
             </div>
+          </div>
+          <div>
+            <label
+              htmlFor="level"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            >
+              <option value="ARCHIVED">ARCHIVED</option>
+              <option value="PUBLISHED">PUBLISHED</option>
+              <option value="DRAFT">DRAFT</option>
+            </select>
           </div>
 
           <div>

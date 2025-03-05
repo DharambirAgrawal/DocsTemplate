@@ -119,6 +119,7 @@ export const updateCourseAction = asyncErrorHandler(async (formData: any) => {
     "description",
     "duration",
     "level",
+    "status",
     "category",
     "tags",
     "seoTitle",
@@ -293,6 +294,34 @@ export const updateOrderAction = asyncErrorHandler(async (formData: any) => {
     throw new AppError(data.message || "Course not updated", 400);
   } else {
     return {
+      success: data.success,
+    };
+  }
+});
+
+export const updateGroupAction = asyncErrorHandler(async (formData: any) => {
+  const requiredFields = ["title", "id"];
+  const missingFields = requiredFields.filter((field) => !formData[field]);
+  if (missingFields.length > 0) {
+    throw new AppError(
+      `Missing required fields: ${missingFields.join(", ")}`,
+      400
+    );
+  }
+
+  const data = await fetchWithTokenRefresh(`/api/course/updategroup`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (!data.success) {
+    throw new AppError(data.message || "Course not updated", 400);
+  } else {
+    return {
+      data: data.data,
       success: data.success,
     };
   }

@@ -11,7 +11,10 @@ import {
 import { showToast } from "@/features/ToastNotification/useToast";
 import AddContent from "./AddContent";
 import EditContent from "./EditContent";
-import { getCourseAction } from "../../dashboard/course/actions";
+import {
+  getCourseAction,
+  updateGroupAction,
+} from "../../dashboard/course/actions";
 
 interface CourseSectionType {
   _id: string;
@@ -55,6 +58,12 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
     null
   );
   const [showEditSectionModal, setShowEditSectionModal] = useState(false);
+  const [showEditGroupModal, setShowEditGroupModal] = useState(false);
+  const [editGroup, setEditGroup] = useState<{ id: string; title: string }>({
+    id: "",
+    title: "",
+  });
+
   const [selectedSection, setSelectedSection] = useState<{
     _id: string;
     title: string;
@@ -92,18 +101,6 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
     setShowAddSectionModal(true);
   };
 
-  // const handleUpdateOrder = async (
-  //   updatedContents: { id: string; order: number }[]
-  // ) => {
-  //   // Implement the logic to handle the updated order of sections
-  //   console.log("Updated order:", updatedContents);
-  // };
-
-  // Open add group modal
-  const openAddGroupModal = () => {
-    setShowAddGroupModal(true);
-  };
-
   // Handle adding a new group
   const handleAddGroup = async () => {
     if (newGroup.trim()) {
@@ -130,6 +127,31 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
         setIsLoading(false);
       }
     }
+  };
+
+  const openEditGroupModal = (sectionData: {
+    _id: string;
+    title: string;
+    order: number;
+    sections: CourseSectionType[];
+  }) => {
+    const editData = {
+      id: sectionData._id,
+      title: sectionData.title,
+    };
+    setEditGroup(editData);
+    setShowEditGroupModal(true);
+  };
+
+  const handleEditGroup = async () => {
+    const res = await updateGroupAction(editGroup);
+    if (!res.success) {
+      showToast("error", res.error?.message || "Something went wrong");
+    } else {
+      showToast("success", res.message || "Group updated successfully");
+      refreshCourseData();
+    }
+    setShowEditGroupModal(false);
   };
 
   // Open edit section modal
@@ -249,7 +271,7 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
             {course.title} - Content Management
           </h1>
           <button
-            onClick={openAddGroupModal}
+            onClick={() => setShowAddGroupModal(true)}
             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
           >
             Add New Group
@@ -285,6 +307,12 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
                   className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2"
                 >
                   Add Section
+                </button>
+                <button
+                  onClick={() => openEditGroupModal(groupContent)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2"
+                >
+                  Edit Section
                 </button>
                 <button
                   onClick={() =>
@@ -348,6 +376,41 @@ const CourseUpload = ({ initialcourse }: CourseProps) => {
                 disabled={!newGroup.trim()}
               >
                 Add Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showEditGroupModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[100]">
+          <div className="bg-white rounded-lg w-full max-w-md p-6">
+            <h2 className="text-xl font-bold mb-4">Edit Group Name</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Group Name
+              </label>
+              <input
+                type="text"
+                value={editGroup.title}
+                onChange={(e) =>
+                  setEditGroup((prev) => ({ ...prev, title: e.target.value }))
+                }
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="Enter group name"
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowEditGroupModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditGroup}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Edit Group
               </button>
             </div>
           </div>
