@@ -176,3 +176,27 @@ export const updateCourseContent = async (req: Request, res: Response) => {
     data: course,
   });
 };
+
+export const updateContentOrder = async (req: Request, res: Response) => {
+  const content = req.body;
+  const role = (req as any).role;
+  if (role !== "ADMIN" && role !== "AUTHOR") {
+    throw new AppError("Not Authorized to update the content", 400);
+  }
+  if (!content || !content.length) {
+    throw new AppError("Content is required", 400);
+  }
+  for (const item of content) {
+    const { id, order } = item;
+    if (!id || !order) {
+      throw new AppError("Id and order are required", 400);
+    }
+    await CourseContent.findByIdAndUpdate(id, {
+      order,
+    });
+  }
+  res.status(200).json({
+    success: true,
+    message: "Content order updated successfully",
+  });
+};
