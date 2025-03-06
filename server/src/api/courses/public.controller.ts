@@ -19,16 +19,21 @@ export const getPublicCourse = async (req: Request, res: Response) => {
   let data;
 
   if (type === "slug") {
-    data = await Course.find({
+    data = await Course.findOne({
+      slug,
       status: "PUBLISHED",
     })
-      .select("slug")
+      .select("slug -_id contentGroups")
       .populate({
         path: "contentGroups.sections", // Populate sections within each content group
         model: "CourseContent", // The model to use for the sections
-        select: "slug",
+        select: "slug -_id order title",
       });
+    data = data?.contentGroups;
   } else if (type == "content") {
+    if (!slug) {
+      throw new AppError("Slug is required", 400);
+    }
     data = await CourseContent.findOne({ slug }).select(
       "title slug content metaData"
     );
