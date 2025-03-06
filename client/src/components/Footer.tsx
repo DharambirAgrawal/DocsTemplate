@@ -7,8 +7,8 @@ const Footer = () => {
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
   return (
-    <footer className="bg-gray-50 border-t">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+    <footer className="bg-gray-50 border-t z-50">
+      <div className="max-w-7xl mx-auto px-4 py-12 z-50">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">

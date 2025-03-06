@@ -1,27 +1,43 @@
 import { AppSidebar } from "./AppSidebar";
-import Header from "@/components/Header";
+import { PageNavigation } from "./PageNavigation";
+import { getCourseAction } from "./actions";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
+  courseSlug: string;
 }
 
-export interface NavItem {
-  name: string;
-  href: string;
+interface navigationType {
+  success: boolean;
+  data?: {
+    order: number;
+    title: string;
+    sections: {
+      order: number;
+      slug: string;
+      title: string;
+    }[];
+  }[];
 }
 
-const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
+const DefaultLayout: React.FC<DefaultLayoutProps> = async ({
+  children,
+  courseSlug,
+}) => {
+  const courseSlugs: navigationType = await getCourseAction("slug", courseSlug);
+  if (!courseSlugs.success && !courseSlugs.data) {
+    return null;
+  }
+
   return (
-<>
-      {/* Header - Always visible */}
-      <Header />
-
-      <div className="flex min-h-screen pt-10">
-        <AppSidebar />
+    <>
+      <div className="min-h-screen flex flex-col">
+        {courseSlugs.data && <AppSidebar navigation={courseSlugs.data} />}
 
         {children}
+        {courseSlugs.data && <PageNavigation navigation={courseSlugs.data} />}
       </div>
-</>
+    </>
   );
 };
 
