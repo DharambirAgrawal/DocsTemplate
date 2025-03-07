@@ -16,7 +16,11 @@ import {
   updateCourseContent,
   updateContentOrder,
 } from "./content.controller";
-import { getPublicCourse, getPublicCourses } from "./public.controller";
+import {
+  getPublicCourse,
+  getPublicCourses,
+  getAllCourses,
+} from "./public.controller";
 const CourseRouter = express.Router();
 
 export const courseRouter = CourseRouter.post(
@@ -54,4 +58,5 @@ export const courseRouter = CourseRouter.post(
     catchAsync(updateContentOrder)
   )
   .get("/public/courses", catchAsync(getPublicCourses))
-  .get("/public/:slug", catchAsync(getPublicCourse));
+  .get("/public/:slug", catchAsync(getPublicCourse))
+  .get("/public/courses/all", catchAsync(getAllCourses));
