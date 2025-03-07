@@ -1,11 +1,118 @@
-import type { Metadata } from "next";
-import { PageNavigation } from "@/app/(courses)/components/PageNavigation";
+// import type { Metadata } from "next";
+// import DefaultLayout from "../../components/DefaultLayout";
+// import { getCourseAction } from "../../components/actions";
+// import { CompileMDX } from "@/features/CompileMdx";
+// import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+// import MDXError from "@/features/CompileMdx/MDXError";
+// import { notFound } from "next/navigation";
+// import { redirect } from "next/navigation";
+// interface ContentType {
+//   success: boolean;
+//   data?: {
+//     content: string;
+//     title: string;
+//     slug: string;
+//     metaData: {
+//       metaKeywords: string[];
+//       metaTitle: string;
+//       metaDescription: string;
+//     };
+//   };
+// }
+// interface navigationType {
+//   success: boolean;
+//   data?: {
+//     order: number;
+//     title: string;
+//     sections: {
+//       order: number;
+//       slug: string;
+//       title: string;
+//     }[];
+//   }[];
+// }
+
+// export const metadata: Metadata = {
+//   title: "Introduction | Minimal Docs Site",
+//   description: "Welcome to our minimal documentation site",
+// };
+// export const revalidate = 86400;
+// export const dynamicParams = true;
+// export const preferredRegion = "auto"; // Auto-select closest region
+
+// export default async function Home({
+//   params,
+// }: {
+//   params: Promise<{ course: string[] }>;
+// }) {
+//   const slug = await params;
+//   const courseSlugs: navigationType = await getCourseAction(
+//     "slug",
+//     slug.course[0]
+//   );
+//   if (!courseSlugs.success && !courseSlugs.data) {
+//     return notFound();
+//   }
+//   const sortedNavigation = courseSlugs.data
+//     ?.sort((a, b) => a.order - b.order)
+//     .map((item) => ({
+//       ...item,
+//       sections: item.sections.sort((a, b) => a.order - b.order),
+//     }));
+//   if (slug.course.length == 1) {
+//     return redirect(
+//       `/courses/${slug.course[0]}/${sortedNavigation[0].sections[0].slug}`
+//     );
+//   }
+//   if (slug.course.length !== 2) {
+//     return notFound();
+//   }
+
+//   const content: ContentType = await getCourseAction("content", slug.course[1]);
+//   if (!content.success && !content.data) {
+//     return notFound();
+//   }
+
+//   return (
+//     <DefaultLayout navigation={sortedNavigation}>
+//       <main className="mx-auto flex-1 px-8 py-16 md:ml-64 max-sm:w-full transition-all duration-300 ease-in-out">
+//         <article
+//           className="prose prose-base sm:prose-lg max-w-none
+//             prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900
+//             prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal
+//             prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+//             prose-img:rounded-xl prose-strong:text-gray-900
+//             prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+//             sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl
+//             prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
+//             prose-blockquote:border-l-4 prose-blockquote:border-blue-500
+//             prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
+//             prose-li:marker:text-gray-400"
+//         >
+//           <ErrorBoundary errorComponent={MDXError}>
+//             {content.data && <CompileMDX source={content.data.content} />}
+//           </ErrorBoundary>
+//         </article>
+//       </main>
+//     </DefaultLayout>
+//   );
+// }
+
+import { Metadata } from "next";
 import DefaultLayout from "../../components/DefaultLayout";
 import { getCourseAction } from "../../components/actions";
 import { CompileMDX } from "@/features/CompileMdx";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import MDXError from "@/features/CompileMdx/MDXError";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { Suspense, cache } from "react";
+import { getAllCoursesAction } from "../../components/actions";
+import {
+  courseMetadata,
+  specificCourseMetadata,
+  lessonMetadata,
+} from "../../metaData";
+import type { LessonMetaDataType, CourseMetaDataType } from "../../metaData";
 
 interface ContentType {
   success: boolean;
@@ -20,14 +127,90 @@ interface ContentType {
     };
   };
 }
-
-export const metadata: Metadata = {
-  title: "Introduction | Minimal Docs Site",
-  description: "Welcome to our minimal documentation site",
+type Props = {
+  params: Promise<{ course: string[] }>;
 };
+
+interface SectionType {
+  order: number;
+  slug: string;
+  title: string;
+}
+
+interface NavigationItem {
+  success: boolean;
+  data?: {
+    order: number;
+    title: string;
+    sections: SectionType[];
+  }[];
+}
+interface CourseSlugsType {
+  success: boolean;
+  data?: {
+    slug: string;
+    children: string[];
+  }[];
+}
+
 export const revalidate = 86400;
 export const dynamicParams = true;
-export const preferredRegion = "auto"; // Auto-select closest region
+export const preferredRegion = "auto";
+export const generateMetadata = cache(
+  async ({ params }: Props): Promise<Metadata> => {
+    const slugs = (await params).course;
+    if (!slugs || slugs.length === 0) {
+      return courseMetadata;
+    }
+    const courseSlug = slugs[0];
+    const lessonSlug = slugs.length > 1 ? slugs[1] : null;
+    // Fetch course metadata
+    const courseData: CourseMetaDataType = await getCourseAction(
+      "metaData",
+      courseSlug
+    );
+    console.log(courseData);
+
+    if (!courseData.success || !courseData.data) {
+      return notFound();
+    }
+
+    // If there's only a course slug, return course metadata
+    if (!lessonSlug) {
+      return specificCourseMetadata(courseData);
+    }
+
+    // If there's a lesson slug, fetch and return lesson metadata
+    const lessonData: LessonMetaDataType = await getCourseAction(
+      "content",
+      lessonSlug
+    );
+
+    if (!lessonData.success || !lessonData.data) {
+      return notFound();
+    }
+
+    return lessonMetadata(courseData, lessonData);
+  }
+);
+
+export async function generateStaticParams() {
+  const slugs: CourseSlugsType = await getAllCoursesAction("navigation");
+  if (!slugs.success) {
+    return [];
+  }
+
+  const arr = slugs.data
+    ?.map((post) => {
+      const slug = post.slug;
+      const arr = post.children.map((child) => [slug, child]);
+      return arr;
+    })
+    .filter((arr) => arr.length > 0)
+    .flat();
+
+  return arr;
+}
 
 export default async function Home({
   params,
@@ -35,34 +218,45 @@ export default async function Home({
   params: Promise<{ course: string[] }>;
 }) {
   const slug = await params;
-  if (slug.course.length == 1) {
+
+  const courseSlugs: NavigationItem = await getCourseAction(
+    "slug",
+    slug.course[0]
+  );
+
+  if (!courseSlugs.success || !courseSlugs.data) {
     return notFound();
   }
+
+  const sortedNavigation = courseSlugs.data
+    .sort((a, b) => a.order - b.order)
+    .map((item) => ({
+      ...item,
+      sections: item.sections.sort((a, b) => a.order - b.order),
+    }));
+
+  // Redirect if course only has one section
+  if (slug.course.length === 1) {
+    return redirect(
+      `/courses/${slug.course[0]}/${sortedNavigation[0].sections[0].slug}`
+    );
+  }
+
+  // If there are not exactly 2 course segments, return a not found response
   if (slug.course.length !== 2) {
     return notFound();
   }
 
   const content: ContentType = await getCourseAction("content", slug.course[1]);
-  if (!content.success && !content.data) {
+
+  if (!content.success || !content.data) {
     return notFound();
   }
 
   return (
-    <DefaultLayout courseSlug={slug.course[0]}>
+    <DefaultLayout navigation={sortedNavigation}>
       <main className="mx-auto flex-1 px-8 py-16 md:ml-64 max-sm:w-full transition-all duration-300 ease-in-out">
-        <article
-          className="prose prose-base sm:prose-lg max-w-none 
-            prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 
-            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal
-            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline 
-            prose-img:rounded-xl prose-strong:text-gray-900
-            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-            sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl
-            prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
-            prose-blockquote:border-l-4 prose-blockquote:border-blue-500
-            prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
-            prose-li:marker:text-gray-400"
-        >
+        <article className="prose prose-base sm:prose-lg max-w-none prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-strong:text-gray-900 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-li:marker:text-gray-400">
           <ErrorBoundary errorComponent={MDXError}>
             {content.data && <CompileMDX source={content.data.content} />}
           </ErrorBoundary>

@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // TODO:Remove this when you deploy your app
   images: {
+    domains: ["localhost", "pathgurus.com", "api.pathgurus.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -33,6 +34,20 @@ const nextConfig: NextConfig = {
         search: "",
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/api/og",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
   },
   compress: true,
   // experimental: {

@@ -49,12 +49,12 @@ export function AppSidebar({ navigation }: { navigation: navigationType[] }) {
   };
 
   // Sort the navigation by order, and sections within each navigation item by order
-  const sortedNavigation = navigation
-    .sort((a, b) => a.order - b.order)
-    .map((item) => ({
-      ...item,
-      sections: item.sections.sort((a, b) => a.order - b.order),
-    }));
+  // const sortedNavigation = navigation
+  //   .sort((a, b) => a.order - b.order)
+  //   .map((item) => ({
+  //     ...item,
+  //     sections: item.sections.sort((a, b) => a.order - b.order),
+  //   }));
 
   return (
     <>
@@ -121,7 +121,7 @@ export function AppSidebar({ navigation }: { navigation: navigationType[] }) {
               Navigation
             </h2>
             <ul className="space-y-4">
-              {sortedNavigation.map((item, index) => (
+              {navigation.map((item, index) => (
                 <li key={index}>
                   <div className="mb-2 font-medium text-gray-900 dark:text-gray-100">
                     {item.title}
