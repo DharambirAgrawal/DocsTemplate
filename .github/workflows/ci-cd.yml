@@ -138,4 +138,4 @@ jobs:
           npm install -g vercel  # Install Vercel CLI
           npm install  # Install project dependencies
           # npm run build  # Run build command (change if needed for your framework)
-          vercel --token $VERCEL_TOKEN --prod  # Deploy to Vercel
+          vercel --token $VERCEL_TOKEN --prod --cwd . # Deploy to Vercel
