@@ -13,12 +13,11 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
+RUN npm run build 
 
-# Run Prisma migrations (if needed)
-RUN npx prisma generate
 
 # Expose the port the app will run on (e.g., 5000)
 EXPOSE 8080
 
 # Start the Express.js server
-CMD ["node", "server.js"]
+CMD ["node", "dist/index.js"]

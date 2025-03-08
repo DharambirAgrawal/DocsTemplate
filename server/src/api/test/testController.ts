@@ -13,7 +13,6 @@ export const testServer = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  console.log(req);
   // res.cookie("access_token", "access----------1------2-3", {
   //   // httpOnly: true, // Prevents access to the cookie via JavaScript
   //   secure: process.env.NODE_ENV === "PRODUCTION", // Only send over HTTPS in production

@@ -1,6 +1,8 @@
 node_modules/
-
+dist
 .next/
 .github/
 .husky/
 out/
+dist/
+*.log
