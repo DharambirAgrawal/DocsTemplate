@@ -1,12 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { DEFAULT_POST_IMAGE } from '../../utils/data';
-import { generateUniqueSlug } from '../../api/blog/blog.helper';
+//model for post
+import mongoose, { Document, Schema } from "mongoose";
+import { DEFAULT_POST_IMAGE } from "../../utils/data";
+import { generateUniqueSlug } from "../../api/blog/blog.helper";
 
 // Enum for PostStatus
 export enum PostStatus {
-  DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED',
-  ARCHIVED = 'ARCHIVED',
+  DRAFT = "DRAFT",
+  PUBLISHED = "PUBLISHED",
+  ARCHIVED = "ARCHIVED",
 }
 
 // MetaData Interface for better typing
@@ -40,25 +41,29 @@ interface IPost extends Document {
 
 const postSchema: Schema<IPost> = new Schema(
   {
-    title: { type: String, required: true, trim:true },
+    title: { type: String, required: true, trim: true },
     views: { type: Number, default: 0 },
     publishedAt: { type: Date, default: Date.now },
     timeRead: { type: String, default: null },
-    slug: { type: String, unique: true, required: true, trim:true },
+    slug: { type: String, unique: true, required: true, trim: true },
     content: { type: String, default: null },
-    summary: { type: String, default: null , trim:true},
-    imageUrl: { type: String, default: DEFAULT_POST_IMAGE, trim:true },
+    summary: { type: String, default: null, trim: true },
+    imageUrl: { type: String, default: DEFAULT_POST_IMAGE, trim: true },
     published: { type: Boolean, default: false },
-   
+
     expiresAt: { type: Date, default: null },
-    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Author', default: null },
-    categories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
-    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
+    authorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Author",
+      default: null,
+    },
+    categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
     metaData: {
-      metaTitle: { type: String, default: null, trim:true },
-      metaDesc: { type: String, default: null , trim:true},
+      metaTitle: { type: String, default: null, trim: true },
+      metaDesc: { type: String, default: null, trim: true },
       metaKeywords: { type: String, default: null },
-      metaImage: { type: String, default: DEFAULT_POST_IMAGE, trim:true },
+      metaImage: { type: String, default: DEFAULT_POST_IMAGE, trim: true },
     },
     status: {
       type: String,
@@ -69,9 +74,7 @@ const postSchema: Schema<IPost> = new Schema(
   { timestamps: true } // Automatically handle createdAt and updatedAt fields
 );
 
-
 postSchema.methods.saveSlug = async function () {
-
   const baseSlug = generateUniqueSlug(this.title);
   let slug = baseSlug;
   let slugExists = await Post.findOne({ slug });
@@ -87,6 +90,5 @@ postSchema.methods.saveSlug = async function () {
   return slug;
 };
 
-
-const Post = mongoose.model<IPost>('Post', postSchema);
+const Post = mongoose.model<IPost>("Post", postSchema);
 export default Post;
