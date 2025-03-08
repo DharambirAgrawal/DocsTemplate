@@ -132,8 +132,8 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           APP_URL: "https://pathgurus.com"
+          # cd client
         run: |
-          cd client
           npm install -g vercel  # Install Vercel CLI
           npm install  # Install project dependencies
           # npm run build  # Run build command (change if needed for your framework)

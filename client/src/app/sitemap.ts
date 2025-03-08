@@ -51,6 +51,7 @@ async function getAllCategories() {
   return categories.data;
 }
 
+// TODO do for course as well
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
