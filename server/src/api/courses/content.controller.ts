@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import Course from "../../models/courses/course";
 import { AppError } from "../../errors/AppError";
 import CourseContent from "../../models/courses/content";
-import { fixOrder } from "./course.helper";
-import mongoose from "mongoose";
 
 export const uploadCourseContent = async (req: Request, res: Response) => {
   const { slug } = req.params; // Course identifier
