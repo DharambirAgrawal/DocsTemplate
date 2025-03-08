@@ -21,11 +21,11 @@ export interface CourseMetaDataType {
     updatedAt: string;
     createdAt: string;
     metaData: {
-      metaTitle: string;
-      metaDescription: string;
-      metaKeywords: string[];
+      seoTitle: string;
+      seoDescription: string;
+      seoKeywords: string[];
     };
-    keywords: string[];
+    Keywords: string[];
   };
 }
 
@@ -46,7 +46,7 @@ export interface LessonMetaDataType {
 
 export const courseMetadata: Metadata = {
   ...baseMetadata,
-  title: "Courses | Pathgurus",
+  title: "Courses",
   description:
     "Explore our comprehensive collection of courses to advance your skills and knowledge.",
   robots: {
@@ -79,8 +79,8 @@ export const specificCourseMetadata = (
 ): Metadata => {
   if (!course.data) return courseMetadata;
 
-  const keywordsArray = course.data.metaData.metaKeywords || [];
-  const tagNames = course.data.keywords || [];
+  const keywordsArray = course.data.metaData.seoKeywords || [];
+  const tagNames = course.data.Keywords || [];
 
   const author = course.data.authorId;
   const authorName = author
@@ -89,9 +89,8 @@ export const specificCourseMetadata = (
   //   const authorUrl = author ? `/instructor/${encodeURIComponent(author.firstName.toLowerCase() + '-' + author.lastName.toLowerCase())}` : "/instructors";
 
   return {
-    title: course.data.metaData.metaTitle || course.data.title,
-    description:
-      course.data.metaData.metaDescription || course.data.description,
+    title: course.data.metaData.seoTitle || course.data.title,
+    description: course.data.metaData.seoDescription || course.data.description,
     keywords: [...keywordsArray, ...tagNames],
     authors: [
       {
@@ -126,9 +125,9 @@ export const specificCourseMetadata = (
     // },
 
     openGraph: {
-      title: course.data.metaData.metaTitle || course.data.title,
+      title: course.data.metaData.seoTitle || course.data.title,
       description:
-        course.data.metaData.metaDescription || course.data.description,
+        course.data.metaData.seoDescription || course.data.description,
       url: `${process.env.APP_URL}/course/${course.data.slug || ""}`,
       publishedTime: course.data.createdAt,
       modifiedTime: course.data.updatedAt,
@@ -140,9 +139,9 @@ export const specificCourseMetadata = (
     },
     twitter: {
       card: "summary_large_image",
-      title: course.data.metaData.metaTitle || course.data.title,
+      title: course.data.metaData.seoTitle || course.data.title,
       description:
-        course.data.metaData.metaDescription || course.data.description,
+        course.data.metaData.seoDescription || course.data.description,
       site: "@pathgurus",
       creator: "@pathgurus",
       images: OGimages,
@@ -160,13 +159,12 @@ export const lessonMetadata = (
 ): Metadata => {
   if (!course.data || !lesson.data) return courseMetadata;
 
-  const courseKeywords = course.data.metaData.metaKeywords || [];
+  const courseKeywords = course.data.metaData.seoKeywords || [];
 
   const lessonKeywords = lesson.data.metaData.metaKeywords || [];
 
   const categoryNames = course.data.category.split(",") || [];
-  const tagNames = course.data.keywords || [];
-
+  const tagNames = course.data.Keywords;
   return {
     title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
       course.data.title
@@ -190,39 +188,6 @@ export const lessonMetadata = (
         )}`,
       },
     ],
-    // openGraph: {
-    //   title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
-    //     course.data.title
-    //   }`,
-    //   description:
-    //     lesson.data.metaData.metaDescription ||
-    //     `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
-    //   url: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
-    //   publishedTime: lesson.data.createdAt,
-    //   modifiedTime: lesson.data.updatedAt,
-    //   authors: [
-    //     `${course.data.authorId.firstName} ${course.data.authorId.lastName}`,
-    //   ],
-    //   siteName: "Pathgurus",
-    //   type: "article",
-    //   images: OGimages,
-    //   tags: [...categoryNames, ...tagNames],
-    // },
-    // twitter: {
-    //   card: "summary_large_image",
-    //   title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
-    //     course.data.title
-    //   }`,
-    //   description:
-    //     lesson.data.metaData.metaDescription ||
-    //     `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
-    //   site: "@pathgurus",
-    //   creator: "@pathgurus",
-    //   images: OGimages,
-    // },
-    // alternates: {
-    //   canonical: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
-    // },
     openGraph: {
       title: lesson.data.metaData.metaTitle || lesson.data.title,
       description:

@@ -32,12 +32,36 @@ export const getPublicCourse = async (req: Request, res: Response) => {
       });
     data = data?.contentGroups;
   } else if (type == "content") {
-    if (!slug) {
+    const { contentSlug } = req.query;
+    if (!slug || !contentSlug) {
       throw new AppError("Slug is required", 400);
     }
-    data = await CourseContent.findOne({ slug }).select(
-      "title slug content metaData createdAt updatedAt"
-    );
+    const course = await Course.findOne({
+      slug: slug,
+      status: "PUBLISHED",
+    }).populate({
+      path: "contentGroups.sections",
+      model: "CourseContent",
+    });
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
+    // Find the specific section by its slug in the course's content groups
+    const section = course.contentGroups
+      .map((group) => group.sections)
+      .flat()
+      .find((section: any) => section.slug === contentSlug);
+
+    if (!section) {
+      throw new Error("Section not found");
+    }
+    data = section;
+
+    // data = await CourseContent.findOne({ slug }).select(
+    //   "title slug content metaData createdAt updatedAt"
+    // );
   } else if (type === "metaData") {
     if (!slug) {
       throw new AppError("Slug is required", 400);

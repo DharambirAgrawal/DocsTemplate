@@ -1,4 +1,4 @@
-import { APP_NAME, EMAIL } from "./data";
+import { APP_NAME, APP_YEAR, EMAIL } from "./data";
 
 export const VERIFY_EMAIL_MESSAGE = ({ link }: { link: string }) => {
   return {
@@ -409,12 +409,12 @@ export const FORGET_PASSWORD_MESSAGE = ({
               <p>We received a request to reset your password. If you made this request, please click the button below to reset your password:</p>
               <a href="${link}" class="reset-button">Reset My Password</a>
               <p>If you didn’t request this, you can safely ignore this email. Your password will remain unchanged.</p>
-              <p>Thank you, <br>The {{company_name}} Team</p>
+              <p>Thank you, <br>The ${APP_NAME} Team</p>
           </div>
           <div class="email-footer">
               <p>If you're having trouble clicking the button, copy and paste the following link into your browser:</p>
               <p><a href="${link}">${link}</a></p>
-              <p>&copy; {{year}} {{company_name}}. All rights reserved.</p>
+              <p>&copy; ${APP_YEAR} ${APP_NAME}. All rights reserved.</p>
           </div>
       </div>
   </body>
@@ -509,12 +509,12 @@ export const PASSWORD_CHANGE_SUCCESSFUL_MESSAGE = ({
               <p>If you did not request this change, please click the link below to secure your account by suspending it temporarily:</p>
               <a href="${link}" class="cta-button">Suspend My Account</a>
               <p>We recommend reviewing your account activity and ensuring your account security settings are up-to-date.</p>
-              <p>Thank you, <br>The {{company_name}} Team</p>
+              <p>Thank you, <br>The ${APP_NAME} Team</p>
           </div>
           <div class="email-footer">
               <p>If you're having trouble clicking the button, copy and paste the following link into your browser:</p>
               <p><a href="${link}">${link}</a></p>
-              <p>&copy; {{year}} {{company_name}}. All rights reserved.</p>
+              <p>&copy; {{year}} ${APP_NAME}. All rights reserved.</p>
           </div>
       </div>
   </body>

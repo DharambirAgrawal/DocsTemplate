@@ -10,7 +10,7 @@ export const NAME = "Pathgurus";
 export const navigation = [
   { name: "Home", href: "/" },
   { name: "Blog", href: "/blog" },
-  // { name: "Courses", href: "/courses" },
+  { name: "Courses", href: "/courses" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];

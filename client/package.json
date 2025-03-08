@@ -15,7 +15,7 @@
     "clsx": "^2.1.1",
     "flatpickr": "^4.6.13",
     "lucide-react": "^0.469.0",
-    "next": "^15.2.1",
+    "next": "15.1.4",
     "next-mdx-remote": "^5.0.0",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",

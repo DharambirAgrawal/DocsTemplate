@@ -170,7 +170,6 @@ export const generateMetadata = cache(
       "metaData",
       courseSlug
     );
-    console.log(courseData);
 
     if (!courseData.success || !courseData.data) {
       return notFound();
@@ -181,7 +180,6 @@ export const generateMetadata = cache(
     ogImageUrl.searchParams.set("type", "course");
     if (courseData.data.level)
       ogImageUrl.searchParams.set("level", courseData.data.level);
-
     const courseMetadataWithOg = {
       ...specificCourseMetadata(courseData),
       openGraph: {
@@ -209,6 +207,7 @@ export const generateMetadata = cache(
     // If there's a lesson slug, fetch and return lesson metadata
     const lessonData: LessonMetaDataType = await getCourseAction(
       "content",
+      courseSlug,
       lessonSlug
     );
 
@@ -244,20 +243,23 @@ export const generateMetadata = cache(
 
 export async function generateStaticParams() {
   const slugs: CourseSlugsType = await getAllCoursesAction("navigation");
-  if (!slugs.success) {
+  if (!slugs.success || !slugs.data) {
     return [];
   }
 
   const arr = slugs.data
-    ?.map((post) => {
+    .map((post) => {
       const slug = post.slug;
-      const arr = post.children.map((child) => [slug, child]);
-      return arr;
+      return post.children.map((child) => [slug, child]);
     })
     .filter((arr) => arr.length > 0)
     .flat();
 
-  return arr;
+  return (
+    arr.map((slug) => ({
+      course: slug,
+    })) || []
+  );
 }
 
 export default async function Home({
@@ -294,8 +296,12 @@ export default async function Home({
   if (slug.course.length !== 2) {
     return notFound();
   }
-
-  const content: ContentType = await getCourseAction("content", slug.course[1]);
+  //TODO: The course should not work separatly
+  const content: ContentType = await getCourseAction(
+    "content",
+    slug.course[0],
+    slug.course[1]
+  );
 
   if (!content.success || !content.data) {
     return notFound();

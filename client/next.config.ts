@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // TODO:Remove this when you deploy your app
   images: {
-    domains: ["localhost", "pathgurus.com", "api.pathgurus.com"],
     remotePatterns: [
       {
         protocol: "https",

@@ -99,42 +99,42 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml down  # Shut down server after testing
 
-  # build-client:
-  #   needs: changes
-  #   if: ${{ needs.changes.outputs.client == 'true' }}
-  #   runs-on: ubuntu-latest
+  build-client:
+    needs: changes
+    if: ${{ needs.changes.outputs.client == 'true' }}
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     # Install Node.js and dependencies
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: "22.12.0" # Specify the version of Node.js you are using
+      # Install Node.js and dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22.12.0" # Specify the version of Node.js you are using
 
-  #     - name: Install dependencies
-  #       run: |
-  #         cd client
-  #         npm install
+      - name: Install dependencies
+        run: |
+          cd client
+          npm install
 
-  #     # Build the Next.js app
-  #     # - name: Build Next.js App
-  #     #   run: |
-  #     #     cd client
-  #     #     npm run build
+      # Build the Next.js app
+      # - name: Build Next.js App
+      #   run: |
+      #     cd client
+      #     npm run build
 
-  #     # Deploy to Vercel
-  #     - name: Deploy to Vercel
-  #       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #       env:
-  #         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  #         VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
-  #         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  #         APP_URL: "https://pathgurus.com"
-  #       run: |
-  #         cd client
-  #         npm install -g vercel  # Install Vercel CLI
-  #         npm install  # Install project dependencies
-  #         # npm run build  # Run build command (change if needed for your framework)
-  #         vercel --token $VERCEL_TOKEN --prod  # Deploy to Vercel
+      # Deploy to Vercel
+      - name: Deploy to Vercel
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          APP_URL: "https://pathgurus.com"
+        run: |
+          cd client
+          npm install -g vercel  # Install Vercel CLI
+          npm install  # Install project dependencies
+          # npm run build  # Run build command (change if needed for your framework)
+          vercel --token $VERCEL_TOKEN --prod  # Deploy to Vercel

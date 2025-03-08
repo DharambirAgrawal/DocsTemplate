@@ -16,6 +16,7 @@ interface Course {
   level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   category: string;
   duration: string;
+  status: "PUBLISHED" | "ARCHIVED" | "DRAFT";
   metaData: {
     tags: string[];
     seoTitle: string;

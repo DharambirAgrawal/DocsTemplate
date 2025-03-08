@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { getCoursesAction } from "../components/actions";
+import { courseMetadata } from "../metaData";
+import { Metadata } from "next";
 
 interface CourseType {
   success: boolean;
@@ -19,6 +21,7 @@ interface CourseType {
     slug: string;
   }[];
 }
+export const metadata: Metadata = courseMetadata;
 
 const CoursesPage = async () => {
   const courses: CourseType = await getCoursesAction();

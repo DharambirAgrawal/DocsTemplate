@@ -4,13 +4,26 @@ import { asyncErrorHandler } from "@/lib/error-handler";
 import { AppError } from "@/types/errors";
 
 export const getCourseAction = asyncErrorHandler(
-  async (type: "content" | "slug" | "metaData", slug: string) => {
-    const res = await fetch(
-      `${process.env.SERVER_BASE_URL}/api/course/public/${slug}?type=${type}`,
-      {
-        method: "GET",
-      }
-    );
+  async (
+    type: "content" | "slug" | "metaData",
+    slug: string,
+    contentSlug?: string
+  ) => {
+    if (!slug) {
+      throw new AppError("Slug is required", 400);
+    }
+    let url = `${process.env.SERVER_BASE_URL}/api/course/public/${slug}?type=${type}`;
+
+    if (type === "content" && !contentSlug) {
+      throw new AppError("Content slug is required for content type", 400);
+    }
+
+    if (type === "content" && contentSlug) {
+      url += `&contentSlug=${contentSlug}`;
+    }
+    const res = await fetch(url, {
+      method: "GET",
+    });
     if (!res.ok) {
       throw new AppError(res.statusText || "Course not found", 400);
     }
