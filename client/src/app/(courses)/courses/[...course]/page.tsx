@@ -174,10 +174,35 @@ export const generateMetadata = cache(
     if (!courseData.success || !courseData.data) {
       return notFound();
     }
+    // Pre-generate OG image URL for this course
+    const ogImageUrl = new URL(`${process.env.CLIENT_BASE_URL}/api/og`);
+    ogImageUrl.searchParams.set("title", courseData.data.title);
+    ogImageUrl.searchParams.set("type", "course");
+    if (courseData.data.level)
+      ogImageUrl.searchParams.set("level", courseData.data.level);
+
+    const courseMetadataWithOg = {
+      ...specificCourseMetadata(courseData),
+      openGraph: {
+        ...specificCourseMetadata(courseData).openGraph,
+        images: [
+          {
+            url: ogImageUrl.toString(),
+            width: 1200,
+            height: 630,
+            alt: courseData.data.title,
+          },
+        ],
+      },
+      twitter: {
+        ...specificCourseMetadata(courseData).twitter,
+        images: [ogImageUrl.toString()],
+      },
+    };
 
     // If there's only a course slug, return course metadata
     if (!lessonSlug) {
-      return specificCourseMetadata(courseData);
+      return courseMetadataWithOg;
     }
 
     // If there's a lesson slug, fetch and return lesson metadata
@@ -189,8 +214,30 @@ export const generateMetadata = cache(
     if (!lessonData.success || !lessonData.data) {
       return notFound();
     }
+    ogImageUrl.searchParams.set("title", lessonData.data.title);
+    ogImageUrl.searchParams.set("subtitle", courseData.data.title);
+    ogImageUrl.searchParams.set("type", "lesson");
 
-    return lessonMetadata(courseData, lessonData);
+    const lessonMetadataWithOg = {
+      ...lessonMetadata(courseData, lessonData),
+      openGraph: {
+        ...lessonMetadata(courseData, lessonData).openGraph,
+        images: [
+          {
+            url: ogImageUrl.toString(),
+            width: 1200,
+            height: 630,
+            alt: `${lessonData.data.title} - ${courseData.data.title}`,
+          },
+        ],
+      },
+      twitter: {
+        ...lessonMetadata(courseData, lessonData).twitter,
+        images: [ogImageUrl.toString()],
+      },
+    };
+
+    return lessonMetadataWithOg;
   }
 );
 

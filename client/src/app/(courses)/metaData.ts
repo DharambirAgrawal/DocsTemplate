@@ -99,18 +99,44 @@ export const specificCourseMetadata = (
         url: "",
       },
     ],
+    // openGraph: {
+    //   title: course.data.metaData.metaTitle || course.data.title,
+    //   description:
+    //     course.data.metaData.metaDescription || course.data.description,
+    //   url: `${process.env.APP_URL}/course/${course.data.slug}`,
+    //   publishedTime: course.data.createdAt,
+    //   modifiedTime: course.data.updatedAt,
+    //   authors: [authorName],
+    //   siteName: "Pathgurus",
+    //   type: "article",
+    //   images: OGimages,
+    //   tags: [...tagNames],
+    // },
+    // twitter: {
+    //   card: "summary_large_image",
+    //   title: course.data.metaData.metaTitle || course.data.title,
+    //   description:
+    //     course.data.metaData.metaDescription || course.data.description,
+    //   site: "@pathgurus",
+    //   creator: "@pathgurus",
+    //   images: OGimages,
+    // },
+    // alternates: {
+    //   canonical: `${process.env.APP_URL}/course/${course.data.slug}`,
+    // },
+
     openGraph: {
       title: course.data.metaData.metaTitle || course.data.title,
       description:
         course.data.metaData.metaDescription || course.data.description,
-      url: `${process.env.APP_URL}/course/${course.data.slug}`,
+      url: `${process.env.APP_URL}/course/${course.data.slug || ""}`,
       publishedTime: course.data.createdAt,
       modifiedTime: course.data.updatedAt,
       authors: [authorName],
       siteName: "Pathgurus",
       type: "article",
       images: OGimages,
-      tags: [...tagNames],
+      tags: [...tagNames, course.data.category, course.data.level],
     },
     twitter: {
       card: "summary_large_image",
@@ -122,7 +148,7 @@ export const specificCourseMetadata = (
       images: OGimages,
     },
     alternates: {
-      canonical: `${process.env.APP_URL}/course/${course.data.slug}`,
+      canonical: `${process.env.APP_URL}/course/${course.data.slug || ""}`,
     },
   };
 };
@@ -164,38 +190,77 @@ export const lessonMetadata = (
         )}`,
       },
     ],
+    // openGraph: {
+    //   title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
+    //     course.data.title
+    //   }`,
+    //   description:
+    //     lesson.data.metaData.metaDescription ||
+    //     `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
+    //   url: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
+    //   publishedTime: lesson.data.createdAt,
+    //   modifiedTime: lesson.data.updatedAt,
+    //   authors: [
+    //     `${course.data.authorId.firstName} ${course.data.authorId.lastName}`,
+    //   ],
+    //   siteName: "Pathgurus",
+    //   type: "article",
+    //   images: OGimages,
+    //   tags: [...categoryNames, ...tagNames],
+    // },
+    // twitter: {
+    //   card: "summary_large_image",
+    //   title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
+    //     course.data.title
+    //   }`,
+    //   description:
+    //     lesson.data.metaData.metaDescription ||
+    //     `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
+    //   site: "@pathgurus",
+    //   creator: "@pathgurus",
+    //   images: OGimages,
+    // },
+    // alternates: {
+    //   canonical: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
+    // },
     openGraph: {
-      title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
-        course.data.title
-      }`,
+      title: lesson.data.metaData.metaTitle || lesson.data.title,
       description:
         lesson.data.metaData.metaDescription ||
         `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
-      url: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
+      url: `${process.env.APP_URL}/course/${course.data.slug || ""}/${
+        lesson.data.slug
+      }`,
       publishedTime: lesson.data.createdAt,
       modifiedTime: lesson.data.updatedAt,
-      authors: [
-        `${course.data.authorId.firstName} ${course.data.authorId.lastName}`,
-      ],
+      authors: [],
       siteName: "Pathgurus",
       type: "article",
       images: OGimages,
-      tags: [...categoryNames, ...tagNames],
+      tags: [
+        ...categoryNames,
+        ...tagNames,
+        course.data.category,
+        course.data.level,
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${lesson.data.metaData.metaTitle || lesson.data.title} | ${
-        course.data.title
-      }`,
-      description:
-        lesson.data.metaData.metaDescription ||
-        `Learn about ${lesson.data.title} in our ${course.data.title} course. ${course.data.description}`,
+      title: lesson.data.metaData.metaTitle || lesson.data.title,
+      description: lesson.data.metaData.metaDescription,
       site: "@pathgurus",
       creator: "@pathgurus",
       images: OGimages,
     },
     alternates: {
-      canonical: `${process.env.APP_URL}/course/${course.data.slug}/${lesson.data.slug}`,
+      canonical: `${process.env.APP_URL}/course/${course.data.slug || ""}/${
+        lesson.data.slug
+      }`,
+    },
+    other: {
+      "course:level": course.data.level,
+      "course:duration": course.data.duration,
+      "course:category": course.data.category,
     },
   };
 };
