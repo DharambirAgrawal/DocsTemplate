@@ -86,12 +86,15 @@ export const getPublicCourse = async (req: Request, res: Response) => {
       throw new AppError("Profile not found", 404);
     }
 
+    const dataObj = data.toObject();
     data = {
-      ...data.toObject(),
+      ...dataObj,
       authorId: { ...profile.toObject(), bio: (data.authorId as any)[0].bio },
       Keywords: courseKeywords,
     };
-    delete data?.contentGroups;
+    if ("contentGroups" in data) {
+      delete (data as any).contentGroups;
+    }
   } else {
     throw new AppError("Invalid type", 400);
   }
