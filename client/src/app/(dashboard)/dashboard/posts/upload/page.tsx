@@ -6,6 +6,8 @@ import Image from "next/image";
 import { publishPost, getCategories } from "../actions";
 import { getImagesAction } from "../../images/actions";
 import { showToast } from "@/features/ToastNotification/useToast";
+import Preview from "@/features/CompileMdx/Preview";
+import CompilePreviewMDX from "@/features/CompileMdx/MDXClientCompile";
 
 const initialCategories: Category[] = [];
 export interface Category {
@@ -514,9 +516,9 @@ export default function CreatePost() {
                 </div>
 
                 {/* Preview Content */}
-                <div className="prose prose-lg max-w-none">
-                  {formData.content || "No content provided"}
-                </div>
+                <Preview>
+                  <CompilePreviewMDX content={formData.content} />
+                </Preview>
 
                 {/* Preview Meta */}
                 <div className="mt-8 p-6 bg-gray-50 rounded-lg">
@@ -528,10 +530,7 @@ export default function CreatePost() {
                       <h4 className="text-xl text-blue-600 hover:underline">
                         {formData.metaTitle || formData.title}
                       </h4>
-                      <div className="text-sm text-green-700">
-                        {window.location.origin}/blog/
-                        {formData.title.toLowerCase().replace(/ /g, "-")}
-                      </div>
+
                       <p className="text-sm text-gray-600 mt-1">
                         {formData.metaDesc || formData.summary}
                       </p>

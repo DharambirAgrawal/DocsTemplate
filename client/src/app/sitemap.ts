@@ -50,10 +50,10 @@ async function getAllCategories() {
 
   return categories.data;
 }
-
 // TODO: do for course as well
+
 //TODO: complete the edit post in dashboard with image shee only options are 10 so
-// TODO: add the preview and check as well fix the preview of blog as well
+// TODO: Completed edit log posts and delete blog posts from dashboard
 // TODO: check if the path revalidates on posting or editing and all
 export const revalidate = 86400;
 

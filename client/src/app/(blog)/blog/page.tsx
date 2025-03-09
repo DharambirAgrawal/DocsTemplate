@@ -56,7 +56,7 @@ import React from "react";
 import { getPosts } from "../components/actions";
 import BlogGrid from "../components/blog/BlogGrid";
 import BlogHeader from "../components/blog/BlogHeader";
-import Pagination from "../components/blog/Pagination";
+import Pagination from "../../../components/Pagination";
 import type { Metadata } from "next";
 import { blogMetadata } from "../metaData";
 interface PageProps {

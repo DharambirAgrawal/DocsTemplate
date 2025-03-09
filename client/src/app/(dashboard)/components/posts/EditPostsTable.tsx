@@ -5,6 +5,8 @@ import { showToast } from "@/features/ToastNotification/useToast";
 import { PostType } from "./types";
 import { getImagesAction } from "../../dashboard/images/actions";
 import { getCategories } from "@/app/(blog)/components/actions";
+import Pagination from "@/components/Pagination";
+import { useSearchParams } from "next/navigation";
 interface EditPostDialogProps {
   post: PostType;
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,6 +18,11 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   setRefresh,
   onClose,
 }) => {
+  const searchParams = useSearchParams();
+
+  const currentPage = Number(searchParams.get("page")) || 1;
+  const imagesPerPage = 10;
+
   const [formData, setFormData] = useState({
     ...post,
     tags: post.tags.map((tag) => tag.name),
@@ -23,6 +30,11 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   const [categories, setCategories] = useState(post.categories);
   const [newCategory, setNewCategory] = useState("");
   const [images, setImages] = useState<any[]>([]);
+  const [pagination, setPagination] = useState<any>({
+    currentPage: currentPage,
+    totalItems: imagesPerPage,
+    totalPages: 1,
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -85,10 +97,10 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(() => true);
-    const submitData = {
-      ...formData,
-      status,
-    };
+    // const submitData = {
+    //   ...formData,
+    //   status,
+    // };
     const res = {
       success: true,
       message: "Post updated successfully",
@@ -100,6 +112,7 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
     }
 
     setLoading(false);
+    onClose();
   };
 
   const handleImageSelect = (image: any) => {
@@ -107,17 +120,53 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
     setIsModalOpen(false); // Close the modal after selecting
   };
 
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     const categories = await getCategories({ limit: 0 });
+  //     const images = await getImagesAction({
+  //       folder: "BLOG",
+  //       limit: imagesPerPage,
+  //       page: currentPage,
+  //     });
+
+  //     if (images.success) {
+  //       setPagination(images.pagination);
+  //       setImages(images.data);
+  //     }
+  //     if (categories.success) {
+  //       setCategories(categories.data);
+  //     }
+  //   };
+  //   fetchCategories();
+  // }, []);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (isModalOpen) {
+        const images = await getImagesAction({
+          folder: "BLOG",
+          limit: imagesPerPage,
+          page: currentPage,
+        });
+
+        if (images.success) {
+          setPagination(images.pagination);
+          setImages(images.data);
+        }
+      }
+    };
+
+    fetchImages();
+  }, [currentPage, isModalOpen]);
   useEffect(() => {
     const fetchCategories = async () => {
       const categories = await getCategories({ limit: 0 });
-      const images = await getImagesAction("BLOG");
-      if (images.success) {
-        setImages(images.data);
-      }
+
       if (categories.success) {
         setCategories(categories.data);
       }
     };
+
     fetchCategories();
   }, []);
 
@@ -125,10 +174,7 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
       <div className="bg-white p-8 rounded-lg w-full max-w-lg shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Post</h2>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 max-h-[80vh] overflow-y-auto"
-        >
+        <form className="space-y-4 max-h-[80vh] overflow-y-auto">
           <div className="space-y-6">
             {/* Title  */}
             <div className=" gap-6">
@@ -228,6 +274,11 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
                       <ImageGrid
                         images={images}
                         handleImageClick={handleImageSelect} // Pass the selection handler
+                      />
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={pagination?.totalPages || 1}
+                        // res.pagination?.totalPages
                       />
                     </div>
                   </div>
@@ -402,10 +453,10 @@ const EditPostDialog: React.FC<EditPostDialogProps> = ({
             {/* Action Buttons */}
             <div className="flex justify-end gap-4">
               <button
-                type="submit"
+                type="button"
+                onClick={() => onClose()}
                 className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 disabled={loading}
-                onClick={(e) => onClose()}
               >
                 Cancel
               </button>

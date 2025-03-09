@@ -88,7 +88,7 @@
 import React from "react";
 import { getPosts } from "../../components/actions";
 import BlogGrid from "../../components/blog/BlogGrid";
-import Pagination from "../../components/blog/Pagination";
+import Pagination from "../../../../components/Pagination";
 import type { Metadata, ResolvingMetadata } from "next";
 import { categoryMetadata } from "../../metaData";
 import { notFound } from "next/navigation";

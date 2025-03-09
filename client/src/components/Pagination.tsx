@@ -1,6 +1,6 @@
 // app/blog/components/Pagination.tsx
 "use client";
-
+import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 interface PaginationProps {
@@ -15,7 +15,11 @@ export default function Pagination({
   const router = useRouter();
   const pathname = usePathname();
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    page: number
+  ) => {
+    e.preventDefault();
     const searchParams = new URLSearchParams();
     searchParams.set("page", page.toString());
     router.push(`${pathname}?${searchParams.toString()}`);
@@ -26,7 +30,7 @@ export default function Pagination({
       {/* Previous Button */}
       <button
         disabled={currentPage <= 1}
-        onClick={() => handlePageChange(currentPage - 1)}
+        onClick={(e) => handlePageChange(e, currentPage - 1)}
         className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
           currentPage <= 1
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -41,7 +45,7 @@ export default function Pagination({
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <button
             key={page}
-            onClick={() => handlePageChange(page)}
+            onClick={(e) => handlePageChange(e, page)}
             className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
               currentPage === page
                 ? "bg-blue-600 text-white"
@@ -56,7 +60,7 @@ export default function Pagination({
       {/* Next Button */}
       <button
         disabled={currentPage >= totalPages}
-        onClick={() => handlePageChange(currentPage + 1)}
+        onClick={(e) => handlePageChange(e, currentPage + 1)}
         className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
           currentPage >= totalPages
             ? "bg-gray-200 text-gray-400 cursor-not-allowed"

@@ -399,6 +399,8 @@ const PostsTable = () => {
                       src={post.imageUrl || "/placeholder.svg"}
                       alt={post.title}
                       className="w-12 h-12 rounded-lg object-cover"
+                      width={50}
+                      height={50}
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">
@@ -474,6 +476,8 @@ const PostsTable = () => {
                       src={post.metaData.metaImage || "/placeholder.svg"}
                       alt={post.title}
                       className="w-12 h-12 rounded-lg object-cover"
+                      width={50}
+                      height={50}
                     />
                     {post.metaData.metaImage || "-"}
                   </span>

@@ -1,6 +1,6 @@
 import ImageGallery from "@/app/(dashboard)/components/Images/ImageGallery";
 import { getImagesAction } from "../actions";
-import Pagination from "@/app/(blog)/components/blog/Pagination";
+import Pagination from "@/components/Pagination";
 
 interface PageProps {
   searchParams: Promise<{
