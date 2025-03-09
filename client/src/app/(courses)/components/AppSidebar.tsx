@@ -48,17 +48,9 @@ export function AppSidebar({ navigation }: { navigation: navigationType[] }) {
     }
   };
 
-  // Sort the navigation by order, and sections within each navigation item by order
-  // const sortedNavigation = navigation
-  //   .sort((a, b) => a.order - b.order)
-  //   .map((item) => ({
-  //     ...item,
-  //     sections: item.sections.sort((a, b) => a.order - b.order),
-  //   }));
-
   return (
     <>
-      <div className="w-full fixed z-40 bg-red md:hidden">
+      <div className="w-full fixed z-40 md:hidden">
         <button
           className="p-2"
           onClick={toggleSidebar}

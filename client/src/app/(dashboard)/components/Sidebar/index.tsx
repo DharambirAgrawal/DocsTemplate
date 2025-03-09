@@ -315,7 +315,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             {
               label: "View",
-              route: "/dashboard/cours/view",
+              route: "/dashboard/posts/view",
               role: ["AUTHOR", "ADMIN"],
             },
             {
