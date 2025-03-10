@@ -98,31 +98,6 @@ export const specificCourseMetadata = (
         url: "",
       },
     ],
-    // openGraph: {
-    //   title: course.data.metaData.metaTitle || course.data.title,
-    //   description:
-    //     course.data.metaData.metaDescription || course.data.description,
-    //   url: `${process.env.APP_URL}/course/${course.data.slug}`,
-    //   publishedTime: course.data.createdAt,
-    //   modifiedTime: course.data.updatedAt,
-    //   authors: [authorName],
-    //   siteName: "Pathgurus",
-    //   type: "article",
-    //   images: OGimages,
-    //   tags: [...tagNames],
-    // },
-    // twitter: {
-    //   card: "summary_large_image",
-    //   title: course.data.metaData.metaTitle || course.data.title,
-    //   description:
-    //     course.data.metaData.metaDescription || course.data.description,
-    //   site: "@pathgurus",
-    //   creator: "@pathgurus",
-    //   images: OGimages,
-    // },
-    // alternates: {
-    //   canonical: `${process.env.APP_URL}/course/${course.data.slug}`,
-    // },
 
     openGraph: {
       title: course.data.metaData.seoTitle || course.data.title,

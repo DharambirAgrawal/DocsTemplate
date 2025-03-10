@@ -23,6 +23,9 @@ export const getCourseAction = asyncErrorHandler(
     }
     const res = await fetch(url, {
       method: "GET",
+      next: {
+        tags: ["coursecontent"],
+      },
     });
     if (!res.ok) {
       throw new AppError(res.statusText || "Course not found", 400);
@@ -41,6 +44,9 @@ export const getCoursesAction = asyncErrorHandler(async () => {
     `${process.env.SERVER_BASE_URL}/api/course/public/courses`,
     {
       method: "GET",
+      next: {
+        tags: ["coursecontent"],
+      },
     }
   );
   if (!res.ok) {
@@ -60,6 +66,9 @@ export const getAllCoursesAction = asyncErrorHandler(
       `${process.env.SERVER_BASE_URL}/api/course/public/courses/all?type=${type}`,
       {
         method: "GET",
+        next: {
+          tags: ["coursecontent"],
+        },
       }
     );
     if (!res.ok) {

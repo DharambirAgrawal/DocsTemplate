@@ -20,6 +20,13 @@ interface CategoryProps {
     updatedAt: string;
   }[];
 }
+interface CourseSlugProps {
+  success: boolean;
+  data?: {
+    slug: string;
+    children: string[];
+  }[];
+}
 
 async function getAllBlogPosts() {
   // Replace with your actual data fetching logic
@@ -50,10 +57,66 @@ async function getAllCategories() {
 
   return categories.data;
 }
-// TODO: do for course as well
 
-//TODO: complete the edit post in dashboard with image shee only options are 10 so
-// TODO: Completed edit log posts and delete blog posts from dashboard
+async function getAllCourses() {
+  const courses: CourseSlugProps = await fetch(
+    `${process.env.SERVER_BASE_URL}/api/course/public/courses/all?type=navigation`,
+    {
+      method: "GET",
+    }
+  ).then((res) => res.json());
+
+  if (!courses.success || !courses.data) {
+    return [];
+  }
+
+  const arr = courses.data
+    .map((post) => {
+      const slug = post.slug;
+      return post.children.map((child) => [slug, child]);
+    })
+    .filter((arr) => arr.length > 0)
+    .flat();
+
+  // arr.map((course: any) => {
+  //   let url = `${process.env.SERVER_BASE_URL}/api/course/public/${course[0]}?type=content&contentSlug=${course[1]}`;
+  //   const res = fetch(url, {
+  //     method: "GET",
+  //   }).then((res) => res.json());
+  //   if (!res.success) {
+  //     return [];
+  //   }
+  //   return {
+  //     url: `${process.env.CLIENT_BASE_URL}/courses/${course[0]}/${course[1]}`,
+  //     lastModified: res.data.updatedAt,
+  //     changeFrequency: "weekly" as const,
+  //     priority: 0.9,
+  //   }
+
+  // })
+  const courseEntries = await Promise.all(
+    arr.map(async (course: any) => {
+      let url = `${process.env.SERVER_BASE_URL}/api/course/public/${course[0]}?type=content&contentSlug=${course[1]}`;
+      const res = await fetch(url, {
+        method: "GET",
+      }).then((res) => res.json());
+
+      if (!res.success) {
+        return null;
+      }
+
+      return {
+        url: `${process.env.CLIENT_BASE_URL}/courses/${course[0]}/${course[1]}`,
+        lastModified: res.data.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.9,
+      };
+    })
+  );
+  return courseEntries.filter((entry) => entry !== null);
+}
+
+// TODO: Completed edit blog posts and delete blog posts from dashboard
 // TODO: check if the path revalidates on posting or editing and all
 export const revalidate = 86400;
 
@@ -63,9 +126,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch your dynamic data
   const blogPosts = await getAllBlogPosts();
   const categories = await getAllCategories();
+  const courseEntries = await getAllCourses();
 
   // Static pages with their priorities
-  // TODO: update static pages
   const staticPages = [
     {
       url: baseUrl,
@@ -78,6 +141,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date().toISOString(),
       changeFrequency: "daily" as const,
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/courses`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -104,7 +173,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/auth/login`,
+      url: `${baseUrl}/auth/signin`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/auth/signup`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/auth/forgot-password`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly" as const,
       priority: 0.6,
@@ -144,6 +225,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticPages,
     ...blogEntries,
     ...categoryEntries,
+    ...courseEntries,
     // ...archiveEntries,
   ];
   // .map((entry) => ({

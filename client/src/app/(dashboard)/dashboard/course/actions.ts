@@ -3,7 +3,7 @@ import { asyncErrorHandler } from "@/lib/error-handler";
 import { AppError } from "@/types/errors";
 import { fetchWithTokenRefresh } from "@/utils/fetchUtil";
 import { revalidatePath } from "next/cache";
-
+import { revalidateTag } from "next/cache";
 export const publishCourse = asyncErrorHandler(async (formData: any) => {
   //   const title = formData.title;
   //   const description = formData.description;
@@ -61,8 +61,7 @@ export const publishCourse = asyncErrorHandler(async (formData: any) => {
   if (!data.success) {
     throw new AppError(data.message || "Course not created", 400);
   } else {
-    revalidatePath("/dashboard/course/view");
-    revalidatePath("/dashboard/course/upload");
+    revalidatePath("/courses");
     return data;
   }
 });
@@ -105,6 +104,8 @@ export const deleteCourseAction = asyncErrorHandler(
     if (!data.success) {
       throw new AppError(data.message || "Course not deleted", 400);
     } else {
+      revalidateTag("coursecontent");
+      revalidatePath("/courses");
       return {
         data: data.data,
         success: data.success,
@@ -147,6 +148,9 @@ export const updateCourseAction = asyncErrorHandler(async (formData: any) => {
   if (!data.success) {
     throw new AppError(data.message || "Course not updated", 400);
   } else {
+    revalidatePath("/courses");
+    revalidateTag("coursecontent");
+    // revalidatePath("/courses/[...course]", "page");
     return {
       data: data.data,
       success: data.success,
@@ -210,11 +214,8 @@ export const publishCourseContentAction = asyncErrorHandler(
     if (!data.success) {
       throw new AppError(data.message || "Course not updated", 400);
     } else {
-      revalidatePath(
-        `(dashboard)/dashboard/course/upload/${formData.slug}`,
-        "page"
-      );
-      revalidatePath(`/dashboard/course/upload/${formData.slug}`);
+      revalidateTag("coursecontent");
+      // revalidatePath("/courses/[...course]", "page");
 
       return {
         data: data.data,
@@ -235,6 +236,9 @@ export const deleteContentAction = asyncErrorHandler(async (id: string) => {
   if (!data.success) {
     throw new AppError(data.message || "Content not deleted", 400);
   } else {
+    // revalidatePath("/courses/[...course]", "page");
+    revalidateTag("coursecontent");
+
     return {
       data: data.data,
       success: data.success,
@@ -271,7 +275,9 @@ export const updateCourseContentAction = asyncErrorHandler(
         `(dashboard)/dashboard/course/upload/${formData.slug}`,
         "page"
       );
-      revalidatePath(`/dashboard/course/upload/${formData.slug}`);
+      // revalidatePath(`/dashboard/course/upload/${formData.slug}`);
+      // revalidatePath("/courses/[...course]", "page");
+      revalidateTag("coursecontent");
 
       return {
         data: data.data,
@@ -293,6 +299,9 @@ export const updateOrderAction = asyncErrorHandler(async (formData: any) => {
   if (!data.success) {
     throw new AppError(data.message || "Course not updated", 400);
   } else {
+    // revalidatePath("/courses/[...course]", "page");
+    revalidateTag("coursecontent");
+
     return {
       success: data.success,
     };
@@ -320,6 +329,9 @@ export const updateGroupAction = asyncErrorHandler(async (formData: any) => {
   if (!data.success) {
     throw new AppError(data.message || "Course not updated", 400);
   } else {
+    // revalidatePath("/courses/[...course]", "page");
+    revalidateTag("coursecontent");
+
     return {
       data: data.data,
       success: data.success,
