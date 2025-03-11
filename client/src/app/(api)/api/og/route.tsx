@@ -15,18 +15,19 @@ export async function GET(req: NextRequest) {
     const level = searchParams.get("level") || "";
 
     // Create color theme based on course level
-    let bgColor = "#1a365d"; // Default blue
-    let accentColor = "#4299e1";
+    // Using Tailwind color palette
+    let bgColor = "#1d4ed8"; // blue-700 as primary default
+    let accentColor = "#3b82f6"; // blue-500
 
     if (level === "beginner") {
-      bgColor = "#276749"; // Green
-      accentColor = "#68d391";
+      bgColor = "#15803d"; // green-700
+      accentColor = "#22c55e"; // green-500
     } else if (level === "intermediate") {
-      bgColor = "#744210"; // Yellow
-      accentColor = "#ecc94b";
+      bgColor = "#b45309"; // amber-700
+      accentColor = "#f59e0b"; // amber-500
     } else if (level === "advanced") {
-      bgColor = "#742a2a"; // Red
-      accentColor = "#fc8181";
+      bgColor = "#b91c1c"; // red-700
+      accentColor = "#ef4444"; // red-500
     }
 
     return new ImageResponse(
@@ -40,77 +41,143 @@ export async function GET(req: NextRequest) {
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: bgColor,
-            backgroundImage: `radial-gradient(circle at 25px 25px, ${accentColor}15 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${accentColor}15 2%, transparent 0%)`,
+            backgroundImage: `radial-gradient(circle at 25px 25px, ${accentColor}30 4%, transparent 0%),
+               radial-gradient(circle at 75px 75px, ${accentColor}40 4%, transparent 0%)`,
             backgroundSize: "100px 100px",
             fontFamily: "Inter",
+            overflow: "hidden",
+            position: "relative",
           }}
         >
+          {/* Enhanced abstract shapes in background */}
           <div
             style={{
+              position: "absolute",
+              width: "800px",
+              height: "800px",
+              borderRadius: "50%",
+              background: `${accentColor}40`,
+              top: "-350px",
+              right: "-150px",
+              zIndex: 0,
+              filter: "blur(2px)",
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              width: "600px",
+              height: "600px",
+              borderRadius: "50%",
+              background: `${accentColor}30`,
+              bottom: "-250px",
+              left: "-150px",
+              zIndex: 0,
+              filter: "blur(2px)",
+            }}
+          />
+
+          {/* Additional decorative elements */}
+          <div
+            style={{
+              position: "absolute",
+              width: "400px",
+              height: "400px",
+              borderRadius: "50%",
+              border: `15px solid ${accentColor}25`,
+              right: "50px",
+              bottom: "100px",
+              zIndex: 0,
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              width: "200px",
+              height: "200px",
+              borderRadius: "50%",
+              background: `${accentColor}20`,
+              left: "100px",
+              top: "80px",
+              zIndex: 0,
+            }}
+          />
+
+          {/* Diagonal stripes */}
+          <div
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              background: `repeating-linear-gradient(45deg, ${accentColor}10, ${accentColor}10 10px, transparent 10px, transparent 50px)`,
+              zIndex: 0,
+              opacity: "0.4",
+            }}
+          />
+
+          {/* Logo and branding - BIGGER */}
+          <div
+            style={{
+              position: "absolute",
+              top: "40px",
+              left: "40px",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "40px",
+              zIndex: 5,
             }}
           >
-            <svg width="120" height="120" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 2L2 7L12 12L22 7L12 2Z"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 17L12 22L22 17"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2 12L12 17L22 12"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img
+              src={`${process.env.CLIENT_BASE_URL}/icons/logo.png`}
+              width="80"
+              height="80"
+              alt="Logo"
+            />
             <div
               style={{
-                fontSize: 60,
+                fontSize: 48,
                 fontWeight: "bold",
-                background: "white",
-                backgroundClip: "text",
-                color: "transparent",
+                color: "white",
                 marginLeft: "20px",
+                textShadow: "0 2px 10px rgba(0,0,0,0.3)",
               }}
             >
               Pathgurus
             </div>
           </div>
 
+          {/* Main content - enhanced */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "rgba(0,0,0,0.6)",
-              borderRadius: "20px",
-              padding: "40px 60px",
-              maxWidth: "80%",
+              zIndex: 5,
+              width: "90%",
+              maxWidth: "900px",
+              background: `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)`,
+              backdropFilter: "blur(8px)",
+              padding: "40px",
+              borderRadius: "24px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+              border: `1px solid ${accentColor}60`,
             }}
           >
             {level && type === "course" && (
               <div
                 style={{
                   fontSize: 24,
-                  color: accentColor,
+                  color: "white",
                   fontWeight: "bold",
                   textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: "10px",
+                  letterSpacing: "0.15em",
+                  marginBottom: "20px",
+                  background: accentColor,
+                  padding: "10px 30px",
+                  borderRadius: "30px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                 }}
               >
                 {level} LEVEL
@@ -119,12 +186,13 @@ export async function GET(req: NextRequest) {
 
             <div
               style={{
-                fontSize: 50,
+                fontSize: 72,
                 fontWeight: "bold",
                 textAlign: "center",
-                maxWidth: "700px",
                 color: "white",
-                lineHeight: 1.3,
+                lineHeight: 1.2,
+                marginBottom: subtitle ? "28px" : "0",
+                textShadow: "0 2px 10px rgba(0,0,0,0.3)",
               }}
             >
               {title}
@@ -133,12 +201,12 @@ export async function GET(req: NextRequest) {
             {subtitle && (
               <div
                 style={{
-                  fontSize: 30,
-                  color: "#f7fafc",
+                  fontSize: 36,
+                  color: "#f8fafc", // slate-50
                   textAlign: "center",
-                  marginTop: "20px",
-                  maxWidth: "700px",
-                  opacity: 0.9,
+                  maxWidth: "800px",
+                  lineHeight: 1.4,
+                  textShadow: "0 1px 3px rgba(0,0,0,0.2)",
                 }}
               >
                 {subtitle}
@@ -150,17 +218,18 @@ export async function GET(req: NextRequest) {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  marginTop: "30px",
-                  padding: "10px 20px",
-                  backgroundColor: accentColor,
-                  borderRadius: "30px",
+                  marginTop: "36px",
+                  padding: "14px 30px",
+                  backgroundColor: "white",
+                  borderRadius: "40px",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M5 3L19 12L5 21V3Z"
-                    fill="rgba(0,0,0,0.7)"
-                    stroke="rgba(0,0,0,0.7)"
+                    fill={bgColor}
+                    stroke={bgColor}
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -168,9 +237,10 @@ export async function GET(req: NextRequest) {
                 </svg>
                 <span
                   style={{
-                    marginLeft: "10px",
-                    color: "rgba(0,0,0,0.8)",
+                    marginLeft: "14px",
+                    color: bgColor,
                     fontWeight: "bold",
+                    fontSize: "24px",
                   }}
                 >
                   LESSON
@@ -179,27 +249,63 @@ export async function GET(req: NextRequest) {
             )}
           </div>
 
+          {/* Decorative elements */}
           <div
             style={{
               position: "absolute",
-              bottom: "30px",
+              right: "70px",
+              top: "70px",
+              width: "120px",
+              height: "120px",
+              borderRadius: "24px",
+              background: `${accentColor}50`,
+              transform: "rotate(15deg)",
+              zIndex: 1,
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              left: "100px",
+              bottom: "150px",
+              width: "80px",
+              height: "80px",
+              borderRadius: "16px",
+              background: `${accentColor}50`,
+              transform: "rotate(-20deg)",
+              zIndex: 1,
+            }}
+          />
+
+          {/* Enhanced Footer */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: "40px",
               display: "flex",
               alignItems: "center",
               color: "white",
-              opacity: 0.8,
+              fontSize: "20px",
+              zIndex: 5,
             }}
           >
-            <span style={{ marginRight: "6px" }}>pathgurus.com</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M19 12H5M12 19L5 12L12 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span style={{ marginLeft: "6px" }}>Learn, Grow, Succeed</span>
+            <div
+              style={{
+                padding: "14px 32px",
+                background: "rgba(255,255,255,0.2)",
+                borderRadius: "40px",
+                backdropFilter: "blur(10px)",
+                display: "flex",
+                alignItems: "center",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                border: "1px solid rgba(255,255,255,0.3)",
+              }}
+            >
+              <span style={{ fontWeight: "bold" }}>pathgurus.com</span>
+              <span style={{ margin: "0 12px" }}>•</span>
+              <span>Inspiring Ideas Everyday</span>
+            </div>
           </div>
         </div>
       ),
