@@ -118,6 +118,7 @@ async function getAllCourses() {
 
 // TODO: Completed edit blog posts and delete blog posts from dashboard
 // TODO: check if the path revalidates on posting or editing and all
+// TODO: use cache in dashboard
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

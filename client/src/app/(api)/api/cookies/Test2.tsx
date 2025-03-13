@@ -367,7 +367,7 @@
 // //                   padding: "12px 24px",
 // //                   backgroundColor: "white",
 // //                   borderRadius: "30px",
-// //                   boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+//                   boxShadow: "0 4px 6px rgba(0,0,0,0.1)", here
 // //                 }}
 // //               >
 // //                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
