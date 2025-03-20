@@ -120,7 +120,7 @@ const CourseTable = () => {
         <ul className="divide-y divide-gray-200">
           {courses.map((course) => (
             <li key={course.slug} className="px-6 py-4 hover:bg-gray-50">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between sm:space-x-4">
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-800">
                     {course.title}
@@ -128,8 +128,8 @@ const CourseTable = () => {
                   <p className="mt-1 text-sm text-gray-600 line-clamp-2">
                     {course.description}
                   </p>
-                  <div className="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-                    <span className="flex items-center">
+                  <div className="mt-2 flex flex-wrap sm:flex-nowrap items-center text-sm text-gray-500 space-x-4">
+                    <span className="flex items-center mb-2 sm:mb-0">
                       <svg
                         className="h-4 w-4 mr-1"
                         fill="none"
@@ -146,7 +146,7 @@ const CourseTable = () => {
                       </svg>
                       {course.duration}
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center mb-2 sm:mb-0">
                       <svg
                         className="h-4 w-4 mr-1"
                         fill="none"
@@ -163,7 +163,7 @@ const CourseTable = () => {
                       </svg>
                       {course.category}
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center mb-2 sm:mb-0">
                       <svg
                         className="h-4 w-4 mr-1"
                         fill="none"
@@ -180,7 +180,7 @@ const CourseTable = () => {
                       </svg>
                       {course.level}
                     </span>
-                    <span className="flex items-center">
+                    <span className="flex items-center mb-2 sm:mb-0">
                       <svg
                         className="h-4 w-4 mr-1"
                         fill="none"
@@ -205,7 +205,7 @@ const CourseTable = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 mt-4 sm:mt-0">
                   <Link
                     href={`/dashboard/course/upload/${course.slug}`}
                     className="text-blue-600 hover:text-blue-800 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-sm"
@@ -258,3 +258,120 @@ const CourseTable = () => {
 };
 
 export default CourseTable;
+
+{
+  /* <ul className="divide-y divide-gray-200">
+{courses.map((course) => (
+  <li key={course.slug} className="px-6 py-4 hover:bg-gray-50">
+    <div className="flex items-center justify-between">
+      <div className="flex-1">
+        <h3 className="text-lg font-medium text-gray-800">
+          {course.title}
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+          {course.description}
+        </p>
+        <div className="mt-2 flex items-center text-sm text-gray-500 space-x-4">
+          <span className="flex items-center">
+            <svg
+              className="h-4 w-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            {course.duration}
+          </span>
+          <span className="flex items-center">
+            <svg
+              className="h-4 w-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+              />
+            </svg>
+            {course.category}
+          </span>
+          <span className="flex items-center">
+            <svg
+              className="h-4 w-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            {course.level}
+          </span>
+          <span className="flex items-center">
+            <svg
+              className="h-4 w-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            {course.metaData.views} views
+          </span>
+        </div>
+      </div>
+      <div className="flex space-x-2">
+        <Link
+          href={`/dashboard/course/upload/${course.slug}`}
+          className="text-blue-600 hover:text-blue-800 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-sm"
+        >
+          Add Content
+        </Link>
+        <button
+          className="text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md text-sm"
+          onClick={() => handleEdit(course)}
+          type="button"
+        >
+          Edit
+        </button>
+        <button
+          className="text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
+          onClick={() => deleteCourse(course.slug)}
+          type="button"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </li>
+))}
+</ul> */
+}
