@@ -309,7 +309,7 @@ export default async function Home({
 
   return (
     <DefaultLayout navigation={sortedNavigation}>
-      <main className="mx-auto flex-1 px-8 py-16 md:ml-64 max-sm:w-full transition-all duration-300 ease-in-out">
+      <main className="mx-auto flex-1 px-8 py-16 md:ml-64 max-sm:w-full transition-all duration-300 ease-in-out flex flex-row ">
         <article
           className="prose prose-base sm:prose-lg max-w-none
             prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900
@@ -328,6 +328,7 @@ export default async function Home({
             {content.data && <CompileMDX source={content.data.content} />}
           </ErrorBoundary>
         </article>
+        {/* <div className="w-70 h-50"></div> */}
       </main>
     </DefaultLayout>
   );
