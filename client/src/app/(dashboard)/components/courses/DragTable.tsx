@@ -96,11 +96,101 @@ export default function DraggableTable({
   };
 
   return (
+    // <div className="w-full p-6 bg-white rounded-lg shadow-md">
+    //   <h2 className="mb-4 text-2xl font-semibold text-gray-800">
+    //     Course Sections
+    //   </h2>
+    //   <div className="overflow-hidden border border-gray-300 rounded-lg">
+    //     <div className="min-w-full divide-y divide-gray-200">
+    //       <table className="min-w-full table-auto text-sm">
+    //         <thead className="bg-gray-100">
+    //           <tr>
+    //             <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+    //               Order
+    //             </th>
+    //             <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+    //               Title
+    //             </th>
+    //             <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+    //               Slug
+    //             </th>
+    //             <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+    //               Actions
+    //             </th>
+    //           </tr>
+    //         </thead>
+    //         <tbody className="bg-white divide-y divide-gray-200">
+    //           {/* Render the table rows */}
+    //           {courseContents?.map((section, index) => (
+    //             <tr
+    //               key={section._id}
+    //               draggable
+    //               onDragStart={(e) => handleDragStart(e, index)}
+    //             >
+    //               <td
+    //                 onDragOver={handleDragOver}
+    //                 onDrop={(e) => handleDrop(e, index)}
+    //                 className="flex justify-center items-center border-r p-4 cursor-move"
+    //               >
+    //                 <div className="text-sm text-gray-500">{section.order}</div>
+    //               </td>
+
+    //               <td className="px-4 py-4 whitespace-nowrap">
+    //                 <div className="font-medium text-gray-800">
+    //                   {section.title}
+    //                 </div>
+    //                 <div className="text-gray-600">
+    //                   {section.content.slice(0, 50)}...
+    //                 </div>
+    //               </td>
+
+    //               <td className="px-4 py-4 whitespace-nowrap text-gray-600">
+    //                 {section.slug}
+    //               </td>
+
+    //               <td className="px-4 py-4 whitespace-nowrap text-right">
+    //                 <button
+    //                   onClick={() => onedit(section)}
+    //                   className="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 rounded-md transition-colors"
+    //                 >
+    //                   Edit
+    //                 </button>
+    //                 <button
+    //                   onClick={() => ondelete(section._id)}
+    //                   className="ml-2 px-4 py-2 text-sm text-red-600 hover:text-red-800 rounded-md transition-colors"
+    //                 >
+    //                   Delete
+    //                 </button>
+    //               </td>
+    //             </tr>
+    //           ))}
+    //         </tbody>
+    //       </table>
+    //     </div>
+    //   </div>
+
+    //   {/* Submit Order Button */}
+    //   <div className="mt-4 flex justify-end">
+    //     <button
+    //       onClick={handleSubmitOrder}
+    //       disabled={!isOrderChanged}
+    //       className={`px-4 py-2 rounded-md transition-colors ${
+    //         isOrderChanged
+    //           ? "bg-indigo-600 text-white hover:bg-indigo-700"
+    //           : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    //       }`}
+    //     >
+    //       {isOrderChanged ? "Save New Order" : "Order Unchanged"}
+    //     </button>
+    //   </div>
+    // </div>
     <div className="w-full p-6 bg-white rounded-lg shadow-md">
       <h2 className="mb-4 text-2xl font-semibold text-gray-800">
         Course Sections
       </h2>
-      <div className="overflow-hidden border border-gray-300 rounded-lg">
+
+      {/* Make the container scrollable on small screens */}
+      <div className="overflow-x-auto border border-gray-300 rounded-lg">
         <div className="min-w-full divide-y divide-gray-200">
           <table className="min-w-full table-auto text-sm">
             <thead className="bg-gray-100">
