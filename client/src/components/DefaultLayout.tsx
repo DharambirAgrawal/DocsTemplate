@@ -1,6 +1,12 @@
 // components/DefaultLayout.tsx
-import Header from "./Header";
-import Footer from "./Footer";
+import dynamic from "next/dynamic";
+const Header = dynamic(() => import("./Header"), {
+  loading: () => <p>Loading...</p>,
+});
+const Footer = dynamic(() => import("./Footer"), {
+  loading: () => <p>Loading...</p>,
+});
+
 interface DefaultLayoutProps {
   children: React.ReactNode;
 }

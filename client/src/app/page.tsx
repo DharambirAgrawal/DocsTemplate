@@ -1,10 +1,29 @@
-import DefaultLayout from "@/components/DefaultLayout";
+import dynamic from "next/dynamic";
+// import DefaultLayout from "@/components/DefaultLayout";
 import Image from "next/image";
 import Link from "next/link";
-import Subscribe from "@/components/Subscribe";
-import FeaturedPosts from "@/components/landingpage/FeaturedPosts";
-import PopularCategories from "@/components/landingpage/PopularCategories";
+// import Subscribe from "@/components/Subscribe";
+// import FeaturedPosts from "@/components/landingpage/FeaturedPosts";
+// import PopularCategories from "@/components/landingpage/PopularCategories";
 
+const PopularCategories = dynamic(
+  () => import("@/components/landingpage/PopularCategories"),
+  {
+    loading: () => <p>Loading...</p>,
+  }
+);
+const FeaturedPosts = dynamic(
+  () => import("@/components/landingpage/FeaturedPosts"),
+  {
+    loading: () => <p>Loading...</p>,
+  }
+);
+const Subscribe = dynamic(() => import("@/components/Subscribe"), {
+  loading: () => <p>Loading...</p>,
+});
+const DefaultLayout = dynamic(() => import("@/components/DefaultLayout"), {
+  loading: () => <p>Loading...</p>,
+});
 export default function Home() {
   return (
     <DefaultLayout>

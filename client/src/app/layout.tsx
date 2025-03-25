@@ -101,10 +101,15 @@
 //   );
 // }
 
-import "../../styles/globals.css";
 import { Inter } from "next/font/google";
-const inter = Inter({ subsets: ["latin"] });
+import "../../styles/globals.css";
 
+// const inter = Inter({ subsets: ["latin"], preload: true });
+// const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"], // Consider including only the specific subsets you need
+  display: "swap", // Ensures text remains visible while font loads
+});
 import { landingPageMetadata } from "./metaData";
 export const metadata = landingPageMetadata;
 
@@ -118,7 +123,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased scroll-smooth`}>
-        <LayoutClientComponents pId="your-google-adsense-pId">
+        <LayoutClientComponents pId="4388525911149453">
           {children}
         </LayoutClientComponents>
       </body>
