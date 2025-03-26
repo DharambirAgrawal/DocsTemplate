@@ -211,18 +211,19 @@ export default async function Page({
           </div>
 
           {/* Content */}
+
           <article
             className="prose prose-base sm:prose-lg max-w-none 
-            prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 
-            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal
-            prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline 
-            prose-img:rounded-xl prose-strong:text-gray-900
-            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-            sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl
-            prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
-            prose-blockquote:border-l-4 prose-blockquote:border-blue-500
-            prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
-            prose-li:marker:text-gray-400"
+      prose-headings:tracking-tight prose-headings:font-bold prose-headings:text-gray-900 
+      prose-p:text-gray-700 prose-p:leading-relaxed prose-p:tracking-normal
+      prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline 
+      prose-img:rounded-xl prose-strong:text-gray-900
+      prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+      sm:prose-h1:text-4xl sm:prose-h2:text-3xl sm:prose-h3:text-2xl
+      prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
+      prose-blockquote:border-l-4 prose-blockquote:border-blue-500
+      prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
+      prose-li:marker:text-gray-400"
           >
             <ErrorBoundary errorComponent={MDXError}>
               <CompileMDX source={post.data.content} />
