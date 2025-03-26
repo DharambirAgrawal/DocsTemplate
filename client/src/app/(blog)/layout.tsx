@@ -1,8 +1,6 @@
 import dynamic from "next/dynamic";
 import Loader from "@/components/ui/Loader";
-const DefaultLayout = dynamic(() => import("@/components/DefaultLayout"), {
-  loading: () => <Loader />,
-});
+import DefaultLayout from "@/components/DefaultLayout";
 
 export default function DashboardLayout({
   children,

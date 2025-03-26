@@ -128,9 +128,8 @@
 //   );
 // }
 import dynamic from "next/dynamic";
-import Image from "next/image";
+import DefaultLayout from "@/components/DefaultLayout";
 import Link from "next/link";
-import { ArrowDown, Sparkles, Code, Zap } from "lucide-react";
 
 const PopularCategories = dynamic(
   () => import("@/components/landingpage/PopularCategories"),
@@ -156,10 +155,7 @@ const Subscribe = dynamic(() => import("@/components/Subscribe"), {
   ),
 });
 
-const DefaultLayout = dynamic(() => import("@/components/DefaultLayout"), {
-  loading: () => <div className="min-h-screen bg-gray-100 dark:bg-gray-900" />,
-});
-import { Rocket, Book, ChevronDown } from "lucide-react";
+import { Rocket, Book } from "lucide-react";
 export default function Home() {
   return (
     <DefaultLayout>
