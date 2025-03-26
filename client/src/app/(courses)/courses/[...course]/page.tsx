@@ -102,7 +102,8 @@ import { Metadata } from "next";
 import DefaultLayout from "../../components/DefaultLayout";
 import { getCourseAction } from "../../components/actions";
 import { CompileMDX } from "@/features/CompileMdx";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+
 import MDXError from "@/features/CompileMdx/MDXError";
 import type { ErrorComponent } from "next/dist/client/components/error-boundary";
 import { notFound, redirect } from "next/navigation";
@@ -323,10 +324,12 @@ export default async function Home({
             prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
             prose-li:marker:text-gray-400"
         >
-          <ErrorBoundary errorComponent={MDXError as ErrorComponent}>
+          <ReactErrorBoundary FallbackComponent={MDXError}>
+            {/* <ErrorBoundary errorComponent={MDXError as ErrorComponent}> */}
             {/* <ErrorBoundary errorComponent={MDXError}> */}
             {content.data && <CompileMDX source={content.data.content} />}
-          </ErrorBoundary>
+            {/* </ErrorBoundary> */}
+          </ReactErrorBoundary>
         </article>
         {/* <div className="w-70 h-50"></div> */}
       </main>
