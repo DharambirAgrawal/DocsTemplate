@@ -77,6 +77,7 @@
 // }
 
 import { compileMDX } from "next-mdx-remote/rsc";
+import { cache } from "react";
 import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 import rehypePrettyCode from "rehype-pretty-code";
@@ -246,9 +247,9 @@ const components = {
   script: () => null,
 };
 
-export async function CompileMDX(props: PropsType) {
+const compileMDXWithCache = cache(async (source: string) => {
   const { content } = await compileMDX<{ title: string }>({
-    source: props.source,
+    source: source,
     options: {
       mdxOptions: {
         remarkPlugins: [],
@@ -278,5 +279,10 @@ export async function CompileMDX(props: PropsType) {
     },
     components,
   });
+  return content;
+});
+
+export async function CompileMDX(props: PropsType) {
+  const content = await compileMDXWithCache(props.source);
   return <>{content}</>;
 }

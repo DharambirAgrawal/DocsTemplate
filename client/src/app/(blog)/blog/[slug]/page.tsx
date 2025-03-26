@@ -2,8 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { Suspense, cache } from "react";
 import { CompileMDX } from "@/features/CompileMdx";
-import ReadingProgress from "@/features/ReadingProgress";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
+// import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import MDXError from "@/features/CompileMdx/MDXError";
 import { formatDate } from "@/lib/utils";
 import { FacebookIcon, InstagramIcon, XIcon } from "@/utils/icons";
@@ -15,22 +15,34 @@ import {
   getAllBlogPosts,
 } from "../../components/actions";
 import dynamic from "next/dynamic";
-
+const ReadingProgress = dynamic(() => import("@/features/ReadingProgress"), {
+  loading: () => (
+    <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl flex items-center justify-center">
+      <span className="text-gray-400 text-sm">Loading newsletter...</span>
+    </div>
+  ),
+});
 const NewsLetter = dynamic(() => import("@/app/(blog)/components/NewsLetter"), {
   loading: () => (
-    <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl" />
+    <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl flex items-center justify-center">
+      <span className="text-gray-400 text-sm">Loading newsletter...</span>
+    </div>
   ),
 });
 
 const Topics = dynamic(() => import("../../components/blog/Topics"), {
   loading: () => (
-    <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl" />
+    <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl flex items-center justify-center">
+      <span className="text-gray-400 text-sm">Loading topics...</span>
+    </div>
   ),
 });
 
 const RecentPosts = dynamic(() => import("../../components/blog/RecentPosts"), {
   loading: () => (
-    <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl" />
+    <div className="h-[200px] animate-pulse bg-gray-100 rounded-xl flex items-center justify-center">
+      <span className="text-gray-400 text-sm">Loading posts...</span>
+    </div>
   ),
 });
 
@@ -225,9 +237,9 @@ export default async function Page({
       prose-blockquote:bg-blue-50 prose-blockquote:px-6 prose-blockquote:py-4
       prose-li:marker:text-gray-400"
           >
-            <ErrorBoundary errorComponent={MDXError}>
+            <ReactErrorBoundary FallbackComponent={MDXError}>
               <CompileMDX source={post.data.content} />
-            </ErrorBoundary>
+            </ReactErrorBoundary>
           </article>
           {/* Article Footer */}
           <div className="mt-8 pt-6 border-t border-gray-200">
