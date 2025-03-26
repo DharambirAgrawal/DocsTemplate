@@ -1,4 +1,3 @@
-import React from "react";
 import DefaultLayout from "../../components/DefaultLayout";
 import { Metadata } from "next";
 import { signinAction } from "../../components/actions";

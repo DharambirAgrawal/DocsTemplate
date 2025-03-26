@@ -3,7 +3,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ButtonUI } from "@/components/ui/ButtonUi";
 import { useRouter } from "next/navigation";
-import React from "react";
 import { useState, useEffect } from "react";
 import GoogleSigninButton from "./GoogleSigninButton";
 import Image from "next/image";

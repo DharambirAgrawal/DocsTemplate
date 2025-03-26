@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: false,
+});
+
 const nextConfig: NextConfig = {
   // TODO:Remove this when you deploy your app
   images: {
@@ -61,4 +65,5 @@ const nextConfig: NextConfig = {
   // },
 };
 
-export default nextConfig;
+// export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import React from "react";
 import { googleLoginAction } from "./actions";
 import { showToast } from "@/features/ToastNotification/useToast";
 import { useRouter } from "next/navigation";
