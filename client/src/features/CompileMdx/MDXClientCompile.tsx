@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
 interface CompilePreviewMDXProps {
   content: string; // Expecting the 'content' prop to be a string (MDX content)
 }
@@ -15,7 +16,7 @@ const CompilePreviewMDX: React.FC<CompilePreviewMDXProps> = ({ content }) => {
     const fetchMdxContent = async () => {
       const serializedContent = await serialize(content, {
         mdxOptions: {
-          remarkPlugins: [],
+          remarkPlugins: [remarkGfm],
           rehypePlugins: [
             [
               rehypePrettyCode,

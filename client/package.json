@@ -23,6 +23,7 @@
     "react-error-boundary": "^5.0.0",
     "react-toastify": "^11.0.3",
     "rehype-pretty-code": "^0.14.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {

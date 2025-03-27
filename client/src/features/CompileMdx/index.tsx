@@ -81,7 +81,10 @@ import { cache } from "react";
 import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 import rehypePrettyCode from "rehype-pretty-code";
-import CodeBlock from "./Components/Code"; // Assuming you have a CodeBlock component for syntax highlighting
+import remarkGfm from "remark-gfm";
+
+import CodeBlock from "./Components/Code"; // Assuming you have a CodeBlock
+// component for syntax highlighting
 interface PropsType {
   source: string;
 }
@@ -254,7 +257,7 @@ const compileMDXWithCache = cache(async (source: string) => {
     source: source,
     options: {
       mdxOptions: {
-        remarkPlugins: [],
+        remarkPlugins: [remarkGfm],
         rehypePlugins: [
           [
             rehypePrettyCode,
