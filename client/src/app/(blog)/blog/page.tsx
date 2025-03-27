@@ -52,13 +52,25 @@
 //   );
 // }
 // app/blog/page.tsx
-import React from "react";
+import dynamic from "next/dynamic";
 import { getPosts } from "../components/actions";
-import BlogGrid from "../components/blog/BlogGrid";
+// import BlogGrid from "../components/blog/BlogGrid";
 import BlogHeader from "../components/blog/BlogHeader";
-import Pagination from "../../../components/Pagination";
+// import Pagination from "../../../components/Pagination";
 import type { Metadata } from "next";
 import { blogMetadata } from "../metaData";
+const Pagination = dynamic(() => import("../../../components/Pagination"), {
+  loading: () => (
+    <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  ),
+});
+
+const BlogGrid = dynamic(() => import("../components/blog/BlogGrid"), {
+  loading: () => (
+    <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  ),
+});
+
 interface PageProps {
   searchParams: Promise<{
     page?: string;

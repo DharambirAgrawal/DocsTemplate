@@ -87,13 +87,23 @@
 // // app/blog/page.tsx
 import React from "react";
 import { getPosts } from "../../components/actions";
-import BlogGrid from "../../components/blog/BlogGrid";
-import Pagination from "../../../../components/Pagination";
+// import BlogGrid from "../../components/blog/BlogGrid";
+import dynamic from "next/dynamic";
+// import Pagination from "../../../../components/Pagination";
 import type { Metadata, ResolvingMetadata } from "next";
 import { categoryMetadata } from "../../metaData";
 import { notFound } from "next/navigation";
 import { getCategories } from "../../components/actions";
-
+const Pagination = dynamic(() => import("../../../../components/Pagination"), {
+  loading: () => (
+    <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  ),
+});
+const BlogGrid = dynamic(() => import("../../components/blog/BlogGrid"), {
+  loading: () => (
+    <div className="h-64 bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  ),
+});
 interface CategoryProps {
   success: boolean;
   data?: {

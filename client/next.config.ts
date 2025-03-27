@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: false,
+  enabled: true,
 });
 
 const nextConfig: NextConfig = {
   // TODO:Remove this when you deploy your app
+  experimental: {
+    optimizePackageImports: ["icon-library"],
+  },
   images: {
     remotePatterns: [
       {

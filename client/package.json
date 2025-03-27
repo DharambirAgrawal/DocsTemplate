@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "next build --analyze"
   },
   "dependencies": {
     "@next/third-parties": "^15.2.1",
