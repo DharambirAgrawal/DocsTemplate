@@ -81,6 +81,7 @@ import { cache } from "react";
 import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 import rehypePrettyCode from "rehype-pretty-code";
+import CodeBlock from "./Components/Code"; // Assuming you have a CodeBlock component for syntax highlighting
 interface PropsType {
   source: string;
 }
@@ -149,17 +150,17 @@ const components = {
     />
   ),
   ul: (props: any) => (
-    <ul {...props} className="list-disc pl-6 my-4 space-y-2 text-gray-700">
+    <ul {...props} className="list-disc my-4 space-y-2 text-gray-700">
       {props.children}
     </ul>
   ),
   ol: (props: any) => (
-    <ol {...props} className="list-decimal pl-6 my-4 space-y-2 text-gray-700">
+    <ol {...props} className="list-decimal my-4 space-y-2 text-gray-700">
       {props.children}
     </ol>
   ),
   li: (props: any) => (
-    <li {...props} className="pl-2">
+    <li {...props} className="">
       {props.children}
     </li>
   ),
@@ -184,18 +185,19 @@ const components = {
       );
     }
     return (
-      <code
-        {...props}
-        className="block bg-gray-50 border border-gray-200 rounded-md font-mono text-sm overflow-auto"
-      >
-        {props.children}
-      </code>
+      // <code
+      //   {...props}
+      //   className="block bg-gray-50 border border-gray-200 rounded-md font-mono text-sm overflow-auto p-4"
+      // >
+      //   {props.children}
+      // </code>
+      <CodeBlock className={props.className}>{props.children}</CodeBlock>
     );
   },
   pre: (props: any) => (
     <pre
       {...props}
-      className="bg-gray-50 border border-gray-200 rounded-md p-4 my-6 overflow-auto"
+      className="bg-gray-50 border border-gray-200 rounded-md p-0 overflow-auto w-full"
     >
       {props.children}
     </pre>
@@ -259,6 +261,12 @@ const compileMDXWithCache = cache(async (source: string) => {
             {
               theme: "github-light", // More readable light theme
               keepBackground: true,
+              showCopyButton: true, // Adds a copy button to the top-right of code blocks
+              onCopy: (text: string) => {
+                navigator.clipboard.writeText(text).then(() => {
+                  console.log("Code copied to clipboard!");
+                });
+              },
               onVisitLine(node: any) {
                 // Prevent lines from collapsing in `display: grid` mode
                 if (node.children.length === 0) {
