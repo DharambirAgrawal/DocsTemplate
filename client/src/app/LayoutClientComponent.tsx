@@ -18,12 +18,7 @@ const ToastProvider = dynamic(
   () => import("@/features/ToastNotification/ToastProvider"),
   { ssr: false }
 );
-const GoogleAnalytics = dynamic(() =>
-  import("@next/third-parties/google").then((mod) => mod.GoogleAnalytics)
-);
-const GoogleTagManager = dynamic(() =>
-  import("@next/third-parties/google").then((mod) => mod.GoogleTagManager)
-);
+
 const SpeedInsights = dynamic(() =>
   import("@vercel/speed-insights/next").then((mod) => mod.SpeedInsights)
 );
@@ -47,20 +42,14 @@ const LayoutClientComponents: React.FC<Props> = ({ children, pId }) => {
     <>
       <ConfirmationProvider>
         <ToastProvider>
-          {children}
           <SpeedInsights />
+          {children}
           {/* Add Google Ads with dynamic client-side loading */}
           <GoogleAdsense pId={pId} />
         </ToastProvider>
       </ConfirmationProvider>
 
       {/* Load Google Tag Manager and Analytics only in production */}
-      {process.env.NODE_ENV === "production" && (
-        <>
-          <GoogleTagManager gtmId="G-RSXN3WLXFT" />
-          <GoogleAnalytics gaId="G-RSXN3WLXFT" />
-        </>
-      )}
     </>
   );
 };

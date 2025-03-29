@@ -103,6 +103,7 @@
 
 import { Inter } from "next/font/google";
 import "../../styles/globals.css";
+import dynamic from "next/dynamic";
 
 // const inter = Inter({ subsets: ["latin"], preload: true });
 // const inter = Inter({ subsets: ["latin"] });
@@ -114,7 +115,12 @@ import { landingPageMetadata } from "./metaData";
 export const metadata = landingPageMetadata;
 
 import LayoutClientComponents from "./LayoutClientComponent";
-
+const GoogleAnalytics = dynamic(() =>
+  import("@next/third-parties/google").then((mod) => mod.GoogleAnalytics)
+);
+const GoogleTagManager = dynamic(() =>
+  import("@next/third-parties/google").then((mod) => mod.GoogleTagManager)
+);
 export default function RootLayout({
   children,
 }: {
@@ -127,6 +133,12 @@ export default function RootLayout({
           {children}
         </LayoutClientComponents>
       </body>
+      {process.env.NODE_ENV === "production" && (
+        <>
+          <GoogleTagManager gtmId="G-RSXN3WLXFT" />
+          <GoogleAnalytics gaId="G-RSXN3WLXFT" />
+        </>
+      )}
     </html>
   );
 }
