@@ -179,8 +179,8 @@ export const generateMetadata = cache(
     const ogImageUrl = new URL(`${process.env.CLIENT_BASE_URL}/api/og`);
     ogImageUrl.searchParams.set("title", courseData.data.title);
     ogImageUrl.searchParams.set("type", "course");
-    if (courseData.data.level)
-      ogImageUrl.searchParams.set("level", courseData.data.level);
+
+    // ogImageUrl.searchParams.set("level", courseData.data.level);
     const courseMetadataWithOg = {
       ...specificCourseMetadata(courseData),
       openGraph: {
