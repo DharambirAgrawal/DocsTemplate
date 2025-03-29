@@ -44,8 +44,6 @@ const LayoutClientComponents: React.FC<Props> = ({ children }) => {
           {/* Add Google Ads with dynamic client-side loading */}
         </ToastProvider>
       </ConfirmationProvider>
-
-      {/* Load Google Tag Manager and Analytics only in production */}
     </>
   );
 };
