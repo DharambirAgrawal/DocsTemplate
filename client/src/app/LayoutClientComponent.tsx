@@ -4,9 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 // Dynamically import client-side only components
-const GoogleAdsense = dynamic(() => import("@/features/GoogleAds/GoogleAds"), {
-  ssr: false,
-});
+
 const ConfirmationProvider = dynamic(
   () =>
     import("@/features/Confirmation/AdvanceConfirmation").then(
@@ -25,10 +23,9 @@ const SpeedInsights = dynamic(() =>
 
 type Props = {
   children: React.ReactNode;
-  pId: string;
 };
 
-const LayoutClientComponents: React.FC<Props> = ({ children, pId }) => {
+const LayoutClientComponents: React.FC<Props> = ({ children }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -45,7 +42,6 @@ const LayoutClientComponents: React.FC<Props> = ({ children, pId }) => {
           <SpeedInsights />
           {children}
           {/* Add Google Ads with dynamic client-side loading */}
-          <GoogleAdsense pId={pId} />
         </ToastProvider>
       </ConfirmationProvider>
 
