@@ -281,6 +281,7 @@ const AddContent = ({
   slug,
 }: AddContentProp) => {
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+  const [isLoading, setIsLoading] = useState(false);
   const [newSection, setNewSection] = useState<CourseSectionType>({
     title: "",
     content: "",
@@ -294,6 +295,7 @@ const AddContent = ({
 
   const handleAddSection = async () => {
     const id = groupContent._id;
+    setIsLoading(true);
     const formData = {
       ...newSection,
       id: id,
@@ -306,6 +308,7 @@ const AddContent = ({
       showToast("error", res.error?.message || "Something went wrong");
     }
     setShowAddSectionModal(false); // Close modal after adding
+    setIsLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, field: string) => {
@@ -568,15 +571,20 @@ const AddContent = ({
           <button
             onClick={() => setShowAddSectionModal(false)}
             className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-md mr-4"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={handleAddSection}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md"
-            disabled={!newSection.title.trim() || !newSection.content.trim()}
+            disabled={
+              !newSection.title.trim() ||
+              !newSection.content.trim() ||
+              isLoading
+            }
           >
-            Add Section
+            {isLoading ? "Adding..." : "  Add Section "} {/* Loading state */}
           </button>
         </div>
       </div>

@@ -187,15 +187,7 @@ const components = {
         </code>
       );
     }
-    return (
-      // <code
-      //   {...props}
-      //   className="block bg-gray-50 border border-gray-200 rounded-md font-mono text-sm overflow-auto p-4"
-      // >
-      //   {props.children}
-      // </code>
-      <CodeBlock className={props.className}>{props.children}</CodeBlock>
-    );
+    return <CodeBlock className={props.className}>{props.children}</CodeBlock>;
   },
   pre: (props: any) => (
     <pre
